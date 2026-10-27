@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,7 +37,6 @@ import com.example.fitness.coach.UserRole
 import com.example.fitness.firebase.AuthRepository
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
-import com.example.fitness.ui.theme.neonGlowBorder
 import com.example.fitness.user.UserRoleProfileRepository
 import kotlinx.coroutines.launch
 
@@ -45,13 +46,12 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     authRepository: AuthRepository = AuthRepository(),
     onSignedIn: () -> Unit,
-    // Google 登入接收 UserRole
-    onGoogleSignIn: (UserRole) -> Unit = {},
-    // Phone 登入不需接收 UserRole (因為 Activity 內部有選擇)
+    onGoogleSignIn: (UserRole?) -> Unit = {},
+    onFacebookSignIn: (UserRole?) -> Unit = {},
     onPhoneSignIn: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
-    var showSignUp by remember { mutableStateOf(false) }
+    var showSignUp by rememberSaveable { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -61,18 +61,17 @@ fun SignInScreen(
 
     val roleRepo = remember { UserRoleProfileRepository() }
 
-    var rememberMeEnabled by remember { mutableStateOf(true) }
-
-    // 角色選擇狀態 (預設學員)
-    var selectedRole by remember { mutableStateOf(UserRole.TRAINEE) }
+    var rememberMeEnabled by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         rememberMeEnabled = rememberMeRepo.isRememberMeEnabled()
     }
 
-    var showForgotPassword by remember { mutableStateOf(false) }
-    var resetEmail by remember { mutableStateOf("") }
-    var sendingReset by remember { mutableStateOf(false) }
+    var showForgotPassword by rememberSaveable { mutableStateOf(false) }
+    var resetEmail by rememberSaveable { mutableStateOf("") }
+    var sendingReset by rememberSaveable { mutableStateOf(false) }
+
+    val cs = MaterialTheme.colorScheme
 
     Box(
         modifier = modifier
@@ -81,41 +80,60 @@ fun SignInScreen(
                 Brush.verticalGradient(
                     colors = listOf(TechColors.DarkBlue, TechColors.DeepPurple)
                 )
-            ),
+            )
+            .systemBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.92f)
+                .widthIn(max = 480.dp)
                 .glassEffect(cornerRadius = 24.dp)
-                .padding(24.dp),
+                .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(cs.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = cs.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
             Text(
                 text = "Welcome Back",
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Bold,
-                color = TechColors.NeonBlue
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = cs.onBackground
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             Text(
                 text = "Sign in to access your fitness journey",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.7f)
+                color = cs.onBackground.copy(alpha = 0.75f)
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
 
-            var email by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
-            var passwordVisible by remember { mutableStateOf(false) }
-            var loading by remember { mutableStateOf(false) }
+            var email by rememberSaveable { mutableStateOf("") }
+            var password by rememberSaveable { mutableStateOf("") }
+            var passwordVisible by rememberSaveable { mutableStateOf(false) }
+            var loading by rememberSaveable { mutableStateOf(false) }
 
             NeonSignInTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = "Email",
-                icon = { Icon(Icons.Default.Email, contentDescription = null, tint = TechColors.NeonBlue) }
+                icon = { Icon(Icons.Default.Email, contentDescription = null, tint = cs.primary) }
             )
 
             Spacer(Modifier.height(16.dp))
@@ -124,14 +142,14 @@ fun SignInScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = "Password",
-                icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TechColors.NeonBlue) },
+                icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = cs.primary) },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                            tint = TechColors.NeonBlue.copy(alpha = 0.7f)
+                            tint = cs.primary.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -148,7 +166,7 @@ fun SignInScreen(
                     },
                     enabled = !loading && !sendingReset
                 ) {
-                    Text("Forgot password?", color = TechColors.NeonBlue.copy(alpha = 0.8f))
+                    Text("Forgot password?", color = cs.primary.copy(alpha = 0.8f))
                 }
             }
 
@@ -173,9 +191,9 @@ fun SignInScreen(
                         scope.launch { rememberMeRepo.setRememberMeEnabled(checked) }
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = TechColors.NeonBlue,
-                        uncheckedColor = Color.White.copy(alpha = 0.6f),
-                        checkmarkColor = Color.Black
+                        checkedColor = cs.primary,
+                        uncheckedColor = cs.onBackground.copy(alpha = 0.6f),
+                        checkmarkColor = cs.onPrimary
                     )
                 )
                 Spacer(Modifier.width(8.dp))
@@ -183,12 +201,12 @@ fun SignInScreen(
                     Text(
                         text = "Remember me",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                        color = cs.onBackground
                     )
                     Text(
                         text = "保持登入狀態（30 天未活躍自動登出）",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = cs.onBackground.copy(alpha = 0.5f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -219,27 +237,26 @@ fun SignInScreen(
                 enabled = !loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .neonGlowBorder(cornerRadius = 12.dp),
+                    .height(52.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = TechColors.NeonBlue.copy(alpha = 0.2f),
-                    contentColor = TechColors.NeonBlue,
-                    disabledContainerColor = Color.Gray.copy(alpha = 0.2f)
+                    containerColor = cs.primary,
+                    contentColor = cs.onPrimary,
+                    disabledContainerColor = cs.primary.copy(alpha = 0.5f)
                 ),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 if (loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
-                        color = TechColors.NeonBlue,
+                        color = cs.onPrimary,
                         strokeWidth = 2.dp
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Signing In...")
+                    Text("Signing In...", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 } else {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null)
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = cs.onPrimary)
                     Spacer(Modifier.width(8.dp))
-                    Text("Sign In", fontWeight = FontWeight.Bold)
+                    Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -249,53 +266,35 @@ fun SignInScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.2f))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = cs.onBackground.copy(alpha = 0.2f))
                 Text(
                     text = "OR CONTINUE WITH",
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = cs.onBackground.copy(alpha = 0.5f),
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.2f))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = cs.onBackground.copy(alpha = 0.2f))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 角色選擇區 (針對 Google 登入新用戶)
-            Text(
-                text = "SELECT ROLE FOR NEW ACCOUNT",
-                style = MaterialTheme.typography.labelSmall,
-                color = TechColors.NeonBlue,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                NeonSignInRoleOption(
-                    text = "Trainee",
-                    selected = selectedRole == UserRole.TRAINEE,
-                    onClick = { selectedRole = UserRole.TRAINEE },
-                    modifier = Modifier.weight(1f)
-                )
-                NeonSignInRoleOption(
-                    text = "Coach",
-                    selected = selectedRole == UserRole.COACH,
-                    onClick = { selectedRole = UserRole.COACH },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // Google Button
                 NeonSocialButton(
                     text = "Google",
                     icon = null,
-                    onClick = { onGoogleSignIn(selectedRole) },
+                    onClick = { onGoogleSignIn(null) },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Facebook Button
+                NeonSocialButton(
+                    text = "Facebook",
+                    icon = null,
+                    onClick = { onFacebookSignIn(null) },
                     modifier = Modifier.weight(1f)
                 )
 
@@ -319,15 +318,15 @@ fun SignInScreen(
                     1.dp,
                     Brush.linearGradient(
                         listOf(
-                            TechColors.NeonBlue.copy(alpha = 0.5f),
-                            TechColors.NeonBlue.copy(alpha = 0.1f)
+                            cs.primary.copy(alpha = 0.5f),
+                            cs.primary.copy(alpha = 0.1f)
                         )
                     )
                 ),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = cs.onBackground),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.PersonAdd, contentDescription = null, tint = TechColors.NeonBlue)
+                Icon(Icons.Default.PersonAdd, contentDescription = null, tint = cs.primary)
                 Spacer(Modifier.width(8.dp))
                 Text("Create Account")
             }
@@ -340,8 +339,8 @@ fun SignInScreen(
                 .padding(16.dp)
         ) { data ->
             Snackbar(
-                containerColor = TechColors.NeonBlue,
-                contentColor = Color.Black,
+                containerColor = cs.primary,
+                contentColor = cs.onPrimary,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(data.visuals.message, fontWeight = FontWeight.Bold)
@@ -351,22 +350,22 @@ fun SignInScreen(
         if (showForgotPassword) {
             AlertDialog(
                 onDismissRequest = { if (!sendingReset) showForgotPassword = false },
-                containerColor = TechColors.DarkBlue.copy(alpha = 0.95f),
-                titleContentColor = TechColors.NeonBlue,
-                textContentColor = Color.White,
-                title = { Text("Reset password", fontWeight = FontWeight.Bold) },
+                containerColor = cs.surface,
+                titleContentColor = cs.primary,
+                textContentColor = cs.onBackground,
+                title = { Text("Reset password", fontWeight = FontWeight.Bold, color = cs.onBackground) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
                             text = "Enter your email. We'll send you a password reset link.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = cs.onBackground.copy(alpha = 0.8f)
                         )
                         NeonSignInTextField(
                             value = resetEmail,
                             onValueChange = { resetEmail = it },
                             label = "Email",
-                            icon = { Icon(Icons.Default.Email, contentDescription = null, tint = TechColors.NeonBlue) },
+                            icon = { Icon(Icons.Default.Email, contentDescription = null, tint = cs.primary) },
                             enabled = !sendingReset
                         )
                     }
@@ -396,9 +395,9 @@ fun SignInScreen(
                         }
                     ) {
                         if (sendingReset) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = TechColors.NeonBlue)
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = cs.primary)
                         } else {
-                            Text("Send", color = TechColors.NeonBlue, fontWeight = FontWeight.Bold)
+                            Text("Send", color = cs.primary, fontWeight = FontWeight.Bold)
                         }
                     }
                 },
@@ -407,7 +406,7 @@ fun SignInScreen(
                         enabled = !sendingReset,
                         onClick = { showForgotPassword = false }
                     ) {
-                        Text("Cancel", color = Color.White.copy(alpha = 0.7f))
+                        Text("Cancel", color = cs.onBackground.copy(alpha = 0.7f))
                     }
                 }
             )
@@ -432,11 +431,11 @@ fun SignInScreen(
                         onSignedUp = {},
                         onNavigateToSignIn = { showSignUp = false },
                         modifier = Modifier.fillMaxWidth(),
-                        // ★★★ 修正這裡的語法錯誤 ★★★
-                        // 這裡接收 SignUpScreen 傳回來的 role，並呼叫外部傳入的 Callback
+                        // 雖然 SignUpScreen 可能回傳 role，但我們在此直接轉發 onGoogleSignIn(role)
+                        // 如果你也希望 SignUpScreen 內的 Google 也不要選角色，那就需要去修改 SignUpScreen
                         onGoogleSignUp = { role -> onGoogleSignIn(role) },
-                        // 電話登入雖然不需要傳角色（因為有自己的頁面），但為了符合介面定義，我們接收 role 但忽略它
-                        onPhoneSignUp = { _ -> onPhoneSignIn() }
+                        onFacebookSignUp = { role -> onFacebookSignIn(role) },
+                        onPhoneSignUp = { onPhoneSignIn() }
                     )
                 }
             }
@@ -447,50 +446,20 @@ fun SignInScreen(
 // --- Local Components ---
 
 @Composable
-private fun NeonSignInRoleOption(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(
-                if (selected) TechColors.NeonBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f)
-            )
-            .border(
-                1.dp,
-                if (selected) TechColors.NeonBlue else Color.Transparent,
-                RoundedCornerShape(8.dp)
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            color = if (selected) TechColors.NeonBlue else Color.White.copy(alpha = 0.6f),
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
-
-@Composable
 private fun NeonSocialButton(
     text: String,
     icon: ImageVector?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
         modifier = modifier
             .height(50.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.White.copy(alpha = 0.05f)
+            .border(1.dp, cs.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp)),
+        shape = RoundedCornerShape(14.dp),
+        color = cs.surfaceVariant.copy(alpha = 0.3f)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -501,24 +470,32 @@ private fun NeonSocialButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = cs.onBackground,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             } else if (text == "Google") {
                 Text(
                     text = "G",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
+                    color = cs.primary,
+                    fontWeight = FontWeight.ExtraBold,
                     fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = 6.dp)
+                )
+            } else if (text == "Facebook") {
+                Text(
+                    text = "f",
+                    color = Color(0xFF1877F2),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(end = 6.dp)
                 )
             }
 
             Text(
                 text = text,
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
+                color = cs.onBackground,
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -535,29 +512,30 @@ private fun NeonSignInTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     enabled: Boolean = true
 ) {
+    val cs = MaterialTheme.colorScheme
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
         enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        label = { Text(label) },
+        shape = RoundedCornerShape(14.dp),
+        label = { Text(label, fontWeight = FontWeight.Medium) },
         leadingIcon = icon,
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedBorderColor = TechColors.NeonBlue,
-            unfocusedBorderColor = TechColors.NeonBlue.copy(alpha = 0.5f),
-            focusedLabelColor = TechColors.NeonBlue,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-            cursorColor = TechColors.NeonBlue,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            disabledBorderColor = Color.Gray.copy(alpha = 0.3f),
-            disabledTextColor = Color.Gray
+            focusedTextColor = cs.onBackground,
+            unfocusedTextColor = cs.onBackground,
+            focusedBorderColor = cs.primary,
+            unfocusedBorderColor = cs.outline.copy(alpha = 0.6f),
+            focusedLabelColor = cs.primary,
+            unfocusedLabelColor = cs.onBackground.copy(alpha = 0.75f),
+            cursorColor = cs.primary,
+            focusedContainerColor = cs.surfaceVariant.copy(alpha = 0.25f),
+            unfocusedContainerColor = cs.surfaceVariant.copy(alpha = 0.12f),
+            disabledBorderColor = cs.outline.copy(alpha = 0.3f),
+            disabledTextColor = cs.onBackground.copy(alpha = 0.5f)
         )
     )
 }

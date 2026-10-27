@@ -1,12 +1,13 @@
 package com.example.fitness
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import com.example.fitness.util.setupEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.example.fitness.coach.UserRole
+import com.example.fitness.localization.LocaleManager
 import com.example.fitness.ui.theme.FitnessTheme
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
@@ -72,9 +75,16 @@ class PhoneSignInActivity : ComponentActivity() {
         INPUT_CODE
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val localeManager = LocaleManager.getInstance(newBase)
+        val currentLanguage = localeManager.getCurrentLanguageSync()
+        val context = localeManager.applyLanguage(newBase, currentLanguage)
+        super.attachBaseContext(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         auth = FirebaseAuth.getInstance()
 
         setContent {
@@ -226,6 +236,7 @@ fun PhoneSignInScreen(
                     colors = listOf(TechColors.DarkBlue, TechColors.DeepPurple)
                 )
             )
+            .systemBarsPadding()
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -485,7 +496,7 @@ fun GoogleStyleButton(onClick: () -> Unit) {
             .height(50.dp),
         shape = RoundedCornerShape(12.dp),
         color = Color.White,
-        shadowElevation = 4.dp
+        shadowElevation = 0.dp
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

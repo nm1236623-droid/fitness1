@@ -17,18 +17,23 @@ object FirebaseActivityLogRepository {
 
     private val collection = firestore.collection("activity_logs")
 
+    private var listenerRegistration: com.google.firebase.firestore.ListenerRegistration? = null
+
     private val _records = MutableStateFlow<List<ActivityRecord>>(emptyList())
     val records = _records.asStateFlow()
 
     init {
-        // Listen to real-time updates for current user
+        auth.addAuthStateListener {
+            listenForUpdates()
+        }
         listenForUpdates()
     }
 
-    private fun listenForUpdates() {
+    fun listenForUpdates() {
+        listenerRegistration?.remove()
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            collection
+            listenerRegistration = collection
                 .whereEqualTo("userId", currentUser.uid)
                 .orderBy("start", Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, error ->

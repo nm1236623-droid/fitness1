@@ -24,6 +24,9 @@ class CloudSyncUseCase(
     private var inboxRegistration: ListenerRegistration? = null
     private val _coachCompletions = kotlinx.coroutines.flow.MutableStateFlow<List<CoachPlanCompletion>>(emptyList())
 
+    private var customExercisesRegistration: ListenerRegistration? = null
+    private val _customExercises = kotlinx.coroutines.flow.MutableStateFlow<List<CustomExercise>>(emptyList())
+
     private suspend fun getCurrentUserId(): String {
         return auth.currentUser?.uid ?: coachAuthRepository.ensureUserId()
     }
@@ -60,6 +63,7 @@ class CloudSyncUseCase(
         inboxRegistration = null
 
         stopListeningCoachCompletions()
+        stopListeningCustomExercises()
 
         // Clear remote cache so we don't show stale coach plans after stopping.
         remotePlanRepository.clear()
@@ -325,6 +329,67 @@ class CloudSyncUseCase(
             onFailure = { error ->
                 android.util.Log.e("CloudSyncUseCase", "Failed to save training record: ${error.message}")
             }
+        )
+    }
+
+    // ==================== Custom Exercises ====================
+
+    /** Observe custom exercises created by this coach. */
+    fun customExercisesFlow() = _customExercises.asStateFlow()
+
+    /** Start listening to custom exercises. */
+    suspend fun startListeningCustomExercises(): Result<Unit> {
+        return try {
+            val coachId = getCurrentUserId()
+            customExercisesRegistration?.remove()
+            customExercisesRegistration = cloudRepository.listenCustomExercises(coachId) { result ->
+                result.onSuccess { _customExercises.value = it }
+            }
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
+
+    fun stopListeningCustomExercises() {
+        customExercisesRegistration?.remove()
+        customExercisesRegistration = null
+        _customExercises.value = emptyList()
+    }
+
+    /** Coach adds a custom exercise. */
+    suspend fun addCustomExercise(exercise: CustomExercise): Result<Unit> {
+        val coachId = getCurrentUserId()
+        return cloudRepository.addCustomExercise(coachId, exercise)
+    }
+
+    /** Coach deletes a custom exercise. */
+    suspend fun deleteCustomExercise(exerciseId: String): Result<Unit> {
+        val coachId = getCurrentUserId()
+        return cloudRepository.deleteCustomExercise(coachId, exerciseId)
+    }
+
+    // ==================== Diet Suggestions ====================
+
+    /** Coach publishes a diet suggestion to a specific trainee. */
+    suspend fun publishDietSuggestion(
+        traineeId: String,
+        suggestion: DietSuggestion,
+    ): Result<Unit> {
+        val coachId = getCurrentUserId()
+        return cloudRepository.publishDietSuggestion(
+            coachId = coachId,
+            traineeId = traineeId,
+            suggestion = suggestion.copy(coachId = coachId, traineeId = traineeId),
+        )
+    }
+
+    /** Trainee deletes a diet suggestion from their inbox. */
+    suspend fun deleteDietSuggestion(suggestionId: String): Result<Unit> {
+        val traineeId = getCurrentUserId()
+        return cloudRepository.deleteDietSuggestion(
+            traineeId = traineeId,
+            suggestionId = suggestionId,
         )
     }
 }

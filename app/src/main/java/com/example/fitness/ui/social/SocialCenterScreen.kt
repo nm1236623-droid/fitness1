@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,8 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.social.*
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
@@ -39,7 +43,10 @@ fun SocialCenterScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("好友", "挑戰", "排行榜")
+    val friendsTabStr = stringResource(R.string.friends_tab)
+    val challengesTabStr = stringResource(R.string.challenges_tab)
+    val leaderboardTabStr = stringResource(R.string.leaderboard_tab)
+    val tabs = listOf(friendsTabStr, challengesTabStr, leaderboardTabStr)
 
     var friends by remember { mutableStateOf<List<Friendship>>(emptyList()) }
     var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
@@ -58,7 +65,8 @@ fun SocialCenterScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Box(
             modifier = modifier
@@ -66,7 +74,7 @@ fun SocialCenterScreen(
                 .background(Brush.verticalGradient(listOf(TechColors.DarkBlue, TechColors.DeepPurple)))
                 .padding(paddingValues)
         ) {
-            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Column(modifier = Modifier.fillMaxSize().widthIn(max = 840.dp).padding(16.dp)) {
                 // Header
                 Box(
                     modifier = Modifier
@@ -79,30 +87,30 @@ fun SocialCenterScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, null, tint = TechColors.NeonBlue)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.primary)
                         }
                         Spacer(Modifier.width(8.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "社交中心",
+                                stringResource(R.string.social_center),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = TechColors.NeonBlue
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                "與好友一起健身",
+                                stringResource(R.string.social_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(0.7f)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
                         // Action buttons
                         when (selectedTab) {
                             0 -> IconButton(onClick = { showSearchDialog = true }) {
-                                Icon(Icons.Default.PersonAdd, null, tint = TechColors.NeonBlue)
+                                Icon(Icons.Default.PersonAdd, null, tint = MaterialTheme.colorScheme.primary)
                             }
                             1 -> IconButton(onClick = { showCreateChallengeDialog = true }) {
-                                Icon(Icons.Default.Add, null, tint = TechColors.NeonBlue)
+                                Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -114,7 +122,7 @@ fun SocialCenterScreen(
                 TabRow(
                     selectedTabIndex = selectedTab,
                     containerColor = Color.Transparent,
-                    contentColor = TechColors.NeonBlue
+                    contentColor = MaterialTheme.colorScheme.primary
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
@@ -133,15 +141,18 @@ fun SocialCenterScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Content
+                val joinedChallengeMsg = stringResource(R.string.joined_challenge)
                 when (selectedTab) {
                     0 -> FriendsTab(friends, repository, scope, snackbarHostState)
-                    1 -> ChallengesTab(challenges, repository, scope, snackbarHostState)
+                    1 -> ChallengesTab(challenges, repository, scope, snackbarHostState, joinedChallengeMsg)
                     2 -> LeaderboardTab(repository, scope)
                 }
             }
 
             // Dialogs
             if (showSearchDialog) {
+                val friendRequestSentMsg = stringResource(R.string.friend_request_sent)
+                val sendFailedMsg = stringResource(R.string.send_failed)
                 SearchUserDialog(
                     repository = repository,
                     onDismiss = { showSearchDialog = false },
@@ -149,9 +160,9 @@ fun SocialCenterScreen(
                         scope.launch {
                             val result = repository.sendFriendRequest(userId, userName)
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar("已發送好友邀請")
+                                snackbarHostState.showSnackbar(friendRequestSentMsg)
                             } else {
-                                snackbarHostState.showSnackbar("發送失敗")
+                                snackbarHostState.showSnackbar(sendFailedMsg)
                             }
                             showSearchDialog = false
                         }
@@ -160,13 +171,14 @@ fun SocialCenterScreen(
             }
 
             if (showCreateChallengeDialog) {
+                val challengeCreatedMsg = stringResource(R.string.challenge_created)
                 CreateChallengeDialog(
                     repository = repository,
                     onDismiss = { showCreateChallengeDialog = false },
                     onCreated = {
                         showCreateChallengeDialog = false
                         scope.launch {
-                            snackbarHostState.showSnackbar("挑戰創建成功！")
+                            snackbarHostState.showSnackbar(challengeCreatedMsg)
                         }
                     }
                 )
@@ -182,6 +194,7 @@ fun FriendsTab(
     scope: kotlinx.coroutines.CoroutineScope,
     snackbarHostState: SnackbarHostState
 ) {
+    val cs = MaterialTheme.colorScheme
     if (friends.isEmpty()) {
         Box(
             modifier = Modifier
@@ -195,18 +208,18 @@ fun FriendsTab(
                     Icons.Default.People,
                     null,
                     modifier = Modifier.size(64.dp),
-                    tint = Color.White.copy(0.5f)
+                    tint = cs.onSurfaceVariant
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "還沒有好友",
+                    stringResource(R.string.no_friends_yet),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = cs.onBackground
                 )
                 Text(
-                    "點擊右上角新增好友",
+                    stringResource(R.string.add_friends_hint),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(0.7f)
+                    color = cs.onSurfaceVariant
                 )
             }
         }
@@ -216,14 +229,20 @@ fun FriendsTab(
             modifier = Modifier.fillMaxSize()
         ) {
             items(friends) { friend ->
-                FriendCard(friend)
+                FriendCard(friend, repository, scope, snackbarHostState)
             }
         }
     }
 }
 
 @Composable
-fun FriendCard(friend: Friendship) {
+fun FriendCard(
+    friend: Friendship,
+    repository: SocialRepository,
+    scope: kotlinx.coroutines.CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -240,14 +259,14 @@ fun FriendCard(friend: Friendship) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(TechColors.NeonBlue.copy(0.2f)),
+                    .background(cs.primary.copy(0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     friend.friendName.take(1).uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TechColors.NeonBlue
+                    color = cs.primary
                 )
             }
 
@@ -258,19 +277,19 @@ fun FriendCard(friend: Friendship) {
                     friend.friendName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = cs.onBackground
                 )
                 Text(
-                    "好友自 ${friend.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))}",
+                    stringResource(R.string.friend_since, friend.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(0.6f)
+                    color = cs.onSurfaceVariant
                 )
             }
 
             Icon(
-                Icons.Default.Message,
+                Icons.AutoMirrored.Filled.Message,
                 null,
-                tint = TechColors.NeonBlue,
+                tint = cs.primary,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -282,7 +301,8 @@ fun ChallengesTab(
     challenges: List<Challenge>,
     repository: SocialRepository,
     scope: kotlinx.coroutines.CoroutineScope,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    joinedChallengeMsg: String
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -295,7 +315,7 @@ fun ChallengesTab(
                     scope.launch {
                         val result = repository.joinChallenge(challenge.id)
                         if (result.isSuccess) {
-                            snackbarHostState.showSnackbar("已加入挑戰！")
+                            snackbarHostState.showSnackbar(joinedChallengeMsg)
                         }
                     }
                 }
@@ -309,6 +329,7 @@ fun ChallengeCard(
     challenge: Challenge,
     onJoin: () -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -326,13 +347,13 @@ fun ChallengeCard(
                         challenge.title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = TechColors.NeonBlue
+                        color = cs.primary
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         challenge.description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(0.8f)
+                        color = cs.onSurfaceVariant
                     )
                 }
 
@@ -348,14 +369,14 @@ fun ChallengeCard(
                 Icon(
                     Icons.Default.Flag,
                     null,
-                    tint = TechColors.NeonBlue,
+                    tint = cs.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "目標: ${challenge.goal.target} ${challenge.goal.unit}",
+                    stringResource(R.string.goal_target, challenge.goal.target.toString(), challenge.goal.unit),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
+                    color = cs.onBackground
                 )
             }
 
@@ -368,14 +389,14 @@ fun ChallengeCard(
                 Icon(
                     Icons.Default.People,
                     null,
-                    tint = Color.White.copy(0.7f),
+                    tint = cs.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "${challenge.participants.size} 人參與",
+                    stringResource(R.string.participants_count, challenge.participants.size),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(0.7f)
+                    color = cs.onSurfaceVariant
                 )
             }
 
@@ -389,13 +410,13 @@ fun ChallengeCard(
                     .height(48.dp)
                     .neonGlowBorder(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = TechColors.NeonBlue.copy(0.2f)
+                    containerColor = cs.primary.copy(0.2f)
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Add, null)
                 Spacer(Modifier.width(8.dp))
-                Text("加入挑戰", fontWeight = FontWeight.Bold, color = TechColors.NeonBlue)
+                Text(stringResource(R.string.join_challenge), fontWeight = FontWeight.Bold, color = cs.primary)
             }
         }
     }
@@ -403,15 +424,16 @@ fun ChallengeCard(
 
 @Composable
 fun Chip(text: String) {
+    val cs = MaterialTheme.colorScheme
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = TechColors.NeonBlue.copy(0.2f)
+        color = cs.primary.copy(0.2f)
     ) {
         Text(
             text,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             style = MaterialTheme.typography.labelSmall,
-            color = TechColors.NeonBlue,
+            color = cs.primary,
             fontWeight = FontWeight.Bold
         )
     }
@@ -422,6 +444,7 @@ fun LeaderboardTab(
     repository: SocialRepository,
     scope: kotlinx.coroutines.CoroutineScope
 ) {
+    val cs = MaterialTheme.colorScheme
     var leaderboard by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
     var selectedMetric by remember { mutableStateOf(ChallengeMetric.TOTAL_CALORIES_BURNED) }
 
@@ -443,10 +466,10 @@ fun LeaderboardTab(
                 .padding(12.dp)
         ) {
             Text(
-                "總消耗卡路里排行榜",
+                stringResource(R.string.calories_leaderboard),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = cs.onBackground
             )
         }
 
@@ -463,11 +486,12 @@ fun LeaderboardTab(
 
 @Composable
 fun LeaderboardEntryCard(entry: LeaderboardEntry) {
+    val cs = MaterialTheme.colorScheme
     val rankColor = when (entry.rank) {
         1 -> Color(0xFFFFD700) // Gold
         2 -> Color(0xFFC0C0C0) // Silver
         3 -> Color(0xFFCD7F32) // Bronze
-        else -> Color.White.copy(0.7f)
+        else -> cs.onSurfaceVariant
     }
 
     Box(
@@ -503,12 +527,12 @@ fun LeaderboardEntryCard(entry: LeaderboardEntry) {
                     entry.userName,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = cs.onBackground
                 )
                 Text(
                     "${entry.score.toInt()} ${entry.metric}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(0.7f)
+                    color = cs.onSurfaceVariant
                 )
             }
 
@@ -533,12 +557,13 @@ fun SearchUserDialog(
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
     val scope = rememberCoroutineScope()
+    val cs = MaterialTheme.colorScheme
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = TechColors.DarkBlue.copy(0.95f),
+        containerColor = cs.surface,
         title = {
-            Text("搜尋好友", fontWeight = FontWeight.Bold, color = TechColors.NeonBlue)
+            Text(stringResource(R.string.search_friend), fontWeight = FontWeight.Bold, color = cs.onBackground)
         },
         text = {
             Column {
@@ -553,13 +578,13 @@ fun SearchUserDialog(
                             }
                         }
                     },
-                    label = { Text("輸入用戶名稱") },
+                    label = { Text(stringResource(R.string.enter_username)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = TechColors.NeonBlue,
-                        unfocusedBorderColor = Color.White.copy(0.5f)
+                        focusedTextColor = cs.onBackground,
+                        unfocusedTextColor = cs.onBackground,
+                        focusedBorderColor = cs.primary,
+                        unfocusedBorderColor = cs.outline
                     )
                 )
 
@@ -570,7 +595,7 @@ fun SearchUserDialog(
                         onClick = { onUserSelected(user.id, user.displayName) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(user.displayName, color = Color.White)
+                        Text(user.displayName, color = cs.onBackground)
                     }
                 }
             }
@@ -578,7 +603,7 @@ fun SearchUserDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = Color.White.copy(0.7f))
+                Text(stringResource(R.string.cancel), color = cs.onSurfaceVariant)
             }
         }
     )
@@ -594,51 +619,52 @@ fun CreateChallengeDialog(
     var description by remember { mutableStateOf("") }
     var target by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    val cs = MaterialTheme.colorScheme
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = TechColors.DarkBlue.copy(0.95f),
+        containerColor = cs.surface,
         title = {
-            Text("創建挑戰", fontWeight = FontWeight.Bold, color = TechColors.NeonBlue)
+            Text(stringResource(R.string.create_challenge), fontWeight = FontWeight.Bold, color = cs.onBackground)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("挑戰名稱") },
+                    label = { Text(stringResource(R.string.challenge_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = TechColors.NeonBlue,
-                        unfocusedBorderColor = Color.White.copy(0.5f)
+                        focusedTextColor = cs.onBackground,
+                        unfocusedTextColor = cs.onBackground,
+                        focusedBorderColor = cs.primary,
+                        unfocusedBorderColor = cs.outline
                     )
                 )
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("描述") },
+                    label = { Text(stringResource(R.string.challenge_description)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = TechColors.NeonBlue,
-                        unfocusedBorderColor = Color.White.copy(0.5f)
+                        focusedTextColor = cs.onBackground,
+                        unfocusedTextColor = cs.onBackground,
+                        focusedBorderColor = cs.primary,
+                        unfocusedBorderColor = cs.outline
                     )
                 )
 
                 OutlinedTextField(
                     value = target,
                     onValueChange = { if (it.all { c -> c.isDigit() }) target = it },
-                    label = { Text("目標數值") },
+                    label = { Text(stringResource(R.string.challenge_target)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = TechColors.NeonBlue,
-                        unfocusedBorderColor = Color.White.copy(0.5f)
+                        focusedTextColor = cs.onBackground,
+                        unfocusedTextColor = cs.onBackground,
+                        focusedBorderColor = cs.primary,
+                        unfocusedBorderColor = cs.outline
                     )
                 )
             }
@@ -667,12 +693,12 @@ fun CreateChallengeDialog(
                     }
                 }
             ) {
-                Text("創建", color = TechColors.NeonBlue, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.create_challenge), color = cs.primary, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = Color.White.copy(0.7f))
+                Text(stringResource(R.string.cancel), color = cs.onSurfaceVariant)
             }
         }
     )

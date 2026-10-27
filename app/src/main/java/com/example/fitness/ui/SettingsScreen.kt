@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import androidx.security.crypto.MasterKey
 import com.example.fitness.data.SyncStrategy
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
@@ -36,9 +36,9 @@ object SecurePrefs {
     private const val KEY_EDAMAM_KEY = "edamam_app_key"
 
     fun getEncryptedPrefs(context: Context) = EncryptedSharedPreferences.create(
-        PREFS_NAME,
-        MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
         context,
+        PREFS_NAME,
+        MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
@@ -92,6 +92,7 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 680.dp)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -105,13 +106,13 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                         value = nickname,
                         onValueChange = { nickname = it },
                         label = "暱稱",
-                        leadingIcon = { Icon(Icons.Default.Person, null, tint = TechColors.NeonBlue) }
+                        leadingIcon = { Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.primary) }
                     )
                     NeonOutlinedTextField(
                         value = age,
                         onValueChange = { if (it.all { char -> char.isDigit() }) age = it },
                         label = "年齡",
-                        leadingIcon = { Icon(Icons.Default.Cake, null, tint = TechColors.NeonBlue) },
+                        leadingIcon = { Icon(Icons.Default.Cake, null, tint = MaterialTheme.colorScheme.primary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -122,7 +123,7 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
             // Sync Strategy Section
             SectionCard(title = "數據同步策略") {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("選擇您的數據存儲和同步方式", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
+                    Text("選擇您的數據存儲和同步方式", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -130,8 +131,8 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Firebase 雲端同步", style = MaterialTheme.typography.bodyMedium, color = Color.White, fontWeight = FontWeight.Medium)
-                            Text("啟用數據雲端備份與多設備同步", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))
+                            Text("Firebase 雲端同步", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
+                            Text("啟用數據雲端備份與多設備同步", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
                             checked = useFirebase,
@@ -150,13 +151,13 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                                     snackbarHostState.showSnackbar("Firebase 同步已${if (enabled) "啟用" else "停用"}")
                                 }
                             },
-                            colors = SwitchDefaults.colors(checkedThumbColor = TechColors.NeonBlue, checkedTrackColor = TechColors.NeonBlue.copy(alpha = 0.3f))
+                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary, checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
                         )
                     }
 
                     if (useFirebase) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        SyncStrategy.Strategy.values().forEach { strategy ->
+                        SyncStrategy.Strategy.entries.forEach { strategy ->
                             if (strategy != SyncStrategy.Strategy.LOCAL_ONLY) {
                                 SyncStrategyOption(strategy = strategy, isSelected = currentStrategy == strategy) {
                                     scope.launch {
@@ -177,8 +178,8 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("離線緩存", style = MaterialTheme.typography.bodyMedium, color = Color.White, fontWeight = FontWeight.Medium)
-                            Text("在無網路時使用本地數據", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))
+                            Text("離線緩存", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
+                            Text("在無網路時使用本地數據", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
                             checked = useOfflineCache,
@@ -189,7 +190,7 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                                     snackbarHostState.showSnackbar("離線緩存設定已更新")
                                 }
                             },
-                            colors = SwitchDefaults.colors(checkedThumbColor = TechColors.NeonBlue, checkedTrackColor = TechColors.NeonBlue.copy(alpha = 0.3f))
+                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary, checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
                         )
                     }
                 }
@@ -200,9 +201,9 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
             // API Keys Section
             SectionCard(title = "API 金鑰設定") {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    NeonOutlinedTextField(value = geminiKey, onValueChange = { geminiKey = it }, label = "Gemini API Key", leadingIcon = { Icon(Icons.Default.VpnKey, null, tint = TechColors.NeonBlue) })
-                    NeonOutlinedTextField(value = edaId, onValueChange = { edaId = it }, label = "Edamam App ID", leadingIcon = { Icon(Icons.Default.Fingerprint, null, tint = TechColors.NeonBlue) })
-                    NeonOutlinedTextField(value = edaKey, onValueChange = { edaKey = it }, label = "Edamam App Key", leadingIcon = { Icon(Icons.Default.Key, null, tint = TechColors.NeonBlue) })
+                    NeonOutlinedTextField(value = geminiKey, onValueChange = { geminiKey = it }, label = "Gemini API Key", leadingIcon = { Icon(Icons.Default.VpnKey, null, tint = MaterialTheme.colorScheme.primary) })
+                    NeonOutlinedTextField(value = edaId, onValueChange = { edaId = it }, label = "Edamam App ID", leadingIcon = { Icon(Icons.Default.Fingerprint, null, tint = MaterialTheme.colorScheme.primary) })
+                    NeonOutlinedTextField(value = edaKey, onValueChange = { edaKey = it }, label = "Edamam App Key", leadingIcon = { Icon(Icons.Default.Key, null, tint = MaterialTheme.colorScheme.primary) })
                 }
             }
 
@@ -214,12 +215,12 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                     onClick = onDone,
                     modifier = Modifier.weight(1f).height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.3f)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(Icons.Default.Close, null, tint = Color.White)
+                    Icon(Icons.Default.Close, null, tint = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.width(8.dp))
-                    Text("取消", color = Color.White)
+                    Text("取消", color = MaterialTheme.colorScheme.onBackground)
                 }
 
                 Button(
@@ -236,7 +237,7 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
                         }
                     },
                     modifier = Modifier.weight(1f).height(50.dp).neonGlowBorder(cornerRadius = 12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = TechColors.NeonBlue.copy(alpha = 0.2f), contentColor = TechColors.NeonBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), contentColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Check, null)
@@ -247,12 +248,12 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(24.dp))
             Box(modifier = Modifier.fillMaxWidth().glassEffect(12.dp).padding(16.dp)) {
-                Text("說明: 暱稱與年齡將用於計算個人化健康建議。API Keys 均經過加密儲存。", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))
+                Text("說明: 暱稱與年齡將用於計算個人化健康建議。API Keys 均經過加密儲存。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
         SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)) { data ->
-            Snackbar(containerColor = TechColors.NeonBlue, contentColor = Color.Black, shape = RoundedCornerShape(12.dp)) {
+            Snackbar(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary, shape = RoundedCornerShape(12.dp)) {
                 Text(data.visuals.message, fontWeight = FontWeight.Bold)
             }
         }
@@ -265,7 +266,7 @@ fun SettingsScreen(onDone: () -> Unit, modifier: Modifier = Modifier) {
 fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().glassEffect(cornerRadius = 24.dp).padding(20.dp)) {
         Column {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(16.dp))
             content()
         }
@@ -274,6 +275,7 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
 
 @Composable
 private fun SyncStrategyOption(strategy: SyncStrategy.Strategy, isSelected: Boolean, onSelect: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
     val (icon, title, description) = when (strategy) {
         SyncStrategy.Strategy.LOCAL_ONLY -> Triple(Icons.Default.CloudOff, "僅本地存儲", "數據僅儲存在本機")
         SyncStrategy.Strategy.FIREBASE_ONLY -> Triple(Icons.Default.Cloud, "僅雲端存儲", "數據僅儲存在 Firebase")
@@ -284,33 +286,34 @@ private fun SyncStrategyOption(strategy: SyncStrategy.Strategy, isSelected: Bool
     Card(
         onClick = onSelect,
         modifier = Modifier.fillMaxWidth().let { if (isSelected) it.neonGlowBorder(cornerRadius = 12.dp) else it },
-        colors = CardDefaults.cardColors(containerColor = if (isSelected) TechColors.NeonBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.1f)),
-        border = BorderStroke(1.dp, if (isSelected) TechColors.NeonBlue else Color.White.copy(alpha = 0.2f)),
+        colors = CardDefaults.cardColors(containerColor = if (isSelected) cs.primary.copy(alpha = 0.2f) else cs.surfaceVariant),
+        border = BorderStroke(1.dp, if (isSelected) cs.primary else cs.outline),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = if (isSelected) TechColors.NeonBlue else Color.White.copy(alpha = 0.7f), modifier = Modifier.size(24.dp))
+            Icon(icon, null, tint = if (isSelected) cs.primary else cs.onSurfaceVariant, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyMedium, color = if (isSelected) TechColors.NeonBlue else Color.White, fontWeight = FontWeight.Medium)
-                Text(description, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))
+                Text(title, style = MaterialTheme.typography.bodyMedium, color = if (isSelected) cs.primary else cs.onBackground, fontWeight = FontWeight.Medium)
+                Text(description, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
             }
-            if (isSelected) Icon(Icons.Default.Check, null, tint = TechColors.NeonBlue, modifier = Modifier.size(20.dp))
+            if (isSelected) Icon(Icons.Default.Check, null, tint = cs.primary, modifier = Modifier.size(20.dp))
         }
     }
 }
 
 @Composable
 private fun SettingsScreenHeader(title: String, subtitle: String? = null, onBack: (() -> Unit)? = null) {
+    val cs = MaterialTheme.colorScheme
     Box(modifier = Modifier.fillMaxWidth().glassEffect(cornerRadius = 20.dp).padding(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) {
-                IconButton(onClick = onBack) { Icon(Icons.Default.Close, null, tint = TechColors.NeonBlue) }
+                IconButton(onClick = onBack) { Icon(Icons.Default.Close, null, tint = cs.primary) }
                 Spacer(Modifier.width(8.dp))
             }
             Column {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TechColors.NeonBlue)
-                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.7f))
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = cs.onBackground)
+                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
             }
         }
     }
@@ -324,6 +327,7 @@ private fun NeonOutlinedTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val cs = MaterialTheme.colorScheme
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -334,13 +338,13 @@ private fun NeonOutlinedTextField(
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = keyboardOptions,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedBorderColor = TechColors.NeonBlue,
-            unfocusedBorderColor = TechColors.NeonBlue.copy(alpha = 0.5f),
-            focusedLabelColor = TechColors.NeonBlue,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-            cursorColor = TechColors.NeonBlue,
+            focusedTextColor = cs.onBackground,
+            unfocusedTextColor = cs.onBackground,
+            focusedBorderColor = cs.primary,
+            unfocusedBorderColor = cs.primary.copy(alpha = 0.5f),
+            focusedLabelColor = cs.primary,
+            unfocusedLabelColor = cs.onSurfaceVariant,
+            cursorColor = cs.primary,
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         )

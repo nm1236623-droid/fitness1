@@ -109,10 +109,15 @@ class AdvancedNutritionRepository(private val context: Context) {
     suspend fun logWaterIntake(amountMl: Double): Result<Unit> {
         return try {
             val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-                ?: return Result.failure(Exception("未登入"))
+            if (userId.isNullOrBlank()) {
+                Log.e("WaterIntake", "用戶未登入")
+                return Result.failure(Exception("未登入"))
+            }
 
             val id = java.util.UUID.randomUUID().toString()
             val nowTs = Timestamp.now()
+
+            Log.d("WaterIntake", "開始記錄水分攝取: userId=$userId, amount=$amountMl ml")
 
             // rules 需要 amount:number，這裡統一寫 amount，並保留 amountMl 方便舊版查詢相容
             val data = hashMapOf(
@@ -130,9 +135,10 @@ class AdvancedNutritionRepository(private val context: Context) {
                 .set(data)
                 .await()
 
+            Log.d("WaterIntake", "水分攝取記錄成功: id=$id, amount=$amountMl ml")
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e("WaterIntake", "Failed to log water intake", e)
+            Log.e("WaterIntake", "記錄水分攝取失敗: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -176,6 +182,7 @@ class AdvancedNutritionRepository(private val context: Context) {
     fun observeTodayWaterIntake(): Flow<Double> = callbackFlow {
         val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
         if (userId.isNullOrBlank()) {
+            Log.w("WaterIntake", "用戶未登入，返回 0.0")
             trySend(0.0)
             close()
             return@callbackFlow
@@ -185,24 +192,59 @@ class AdvancedNutritionRepository(private val context: Context) {
         val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
         val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
 
+        val startMillis = startOfDay.toEpochMilli()
+        val endMillis = endOfDay.toEpochMilli()
+
+        Log.d("WaterIntake", "開始監聽今日水分攝取: userId=$userId, date=$today, startMillis=$startMillis, endMillis=$endMillis")
+
+        // 只使用 userId 查詢，避免複合索引問題，在客戶端過濾日期
         val registration = com.google.firebase.firestore.FirebaseFirestore.getInstance()
             .collection(WATER_COLLECTION)
             .whereEqualTo("userId", userId)
-            .whereGreaterThanOrEqualTo("timestamp", Timestamp(startOfDay.epochSecond, startOfDay.nano))
-            .whereLessThan("timestamp", Timestamp(endOfDay.epochSecond, endOfDay.nano))
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
-                    Log.e("WaterIntake", "Snapshot listener error", e)
+                    Log.e("WaterIntake", "Snapshot listener error: ${e.message}", e)
+                    // 即使有錯誤也嘗試發送 0，不要讓 UI 卡住
                     trySend(0.0)
                     return@addSnapshotListener
                 }
-                val total = snapshot?.documents?.sumOf {
-                    it.getDouble("amount") ?: it.getDouble("amountMl") ?: 0.0
-                } ?: 0.0
+
+                val allRecords = snapshot?.documents ?: emptyList()
+                Log.d("WaterIntake", "收到 ${allRecords.size} 筆總水分記錄，開始過濾今日...")
+
+                // 在客戶端過濾今日的記錄
+                val todayRecords = allRecords.filter { doc ->
+                    val epochMillis = doc.getLong("timestampEpochMillis")
+                    if (epochMillis != null) {
+                        epochMillis in startMillis until endMillis
+                    } else {
+                        // 如果沒有 timestampEpochMillis，嘗試從 timestamp 欄位取得
+                        val ts = doc.getTimestamp("timestamp")
+                        if (ts != null) {
+                            val millis = ts.toDate().time
+                            millis in startMillis until endMillis
+                        } else {
+                            false
+                        }
+                    }
+                }
+
+                Log.d("WaterIntake", "過濾後今日有 ${todayRecords.size} 筆水分記錄")
+
+                val total = todayRecords.sumOf { doc ->
+                    val amount = doc.getDouble("amount") ?: doc.getDouble("amountMl") ?: 0.0
+                    Log.d("WaterIntake", "記錄 ${doc.id}: amount=$amount ml")
+                    amount
+                }
+
+                Log.d("WaterIntake", "今日總水分攝取: $total ml")
                 trySend(total)
             }
 
-        awaitClose { registration.remove() }
+        awaitClose {
+            Log.d("WaterIntake", "停止監聽水分攝取")
+            registration.remove()
+        }
     }
 
     // ==================== 餐食時間分析 ====================

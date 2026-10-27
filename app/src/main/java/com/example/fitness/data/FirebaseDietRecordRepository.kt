@@ -19,30 +19,48 @@ object FirebaseDietRecordRepository {
     private val _records = MutableStateFlow<List<DietRecord>>(emptyList())
     val records = _records.asStateFlow()
 
+    // 追蹤目前 listener 綁定的 uid，避免重複註冊
+    private var listenerUid: String? = null
+    private var listenerRegistration: com.google.firebase.firestore.ListenerRegistration? = null
+
     init {
         listenForUpdates()
     }
 
-    private fun listenForUpdates() {
+    /**
+     * 啟動/重新啟動 Firestore 即時監聽。
+     * 可從外部呼叫（如登入後），會自動移除舊 listener。
+     */
+    fun listenForUpdates() {
         val currentUser = auth.currentUser
-        if (currentUser != null) {
-            collection
-                .whereEqualTo("userId", currentUser.uid)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        Log.e("FirebaseDietRecordRepo", "Listen failed: ${error.message}")
-                        return@addSnapshotListener
-                    }
-
-                    val dietRecords = snapshot?.documents?.mapNotNull { doc ->
-                        parseDietRecord(doc)
-                    } ?: emptyList()
-
-                    _records.value = dietRecords
-                    Log.d("FirebaseDietRecordRepo", "Loaded ${dietRecords.size} diet records from Firestore")
-                }
+        if (currentUser == null) {
+            Log.w("FirebaseDietRecordRepo", "listenForUpdates: user is null, skipping")
+            return
         }
+        // 如果已經在監聽同一個 uid，不需要重複註冊
+        if (listenerUid == currentUser.uid && listenerRegistration != null) return
+
+        // 移除舊 listener
+        listenerRegistration?.remove()
+        listenerUid = currentUser.uid
+
+        Log.d("FirebaseDietRecordRepo", "Starting listener for uid=${currentUser.uid}")
+        listenerRegistration = collection
+            .whereEqualTo("userId", currentUser.uid)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirebaseDietRecordRepo", "Listen failed: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val dietRecords = snapshot?.documents?.mapNotNull { doc ->
+                    parseDietRecord(doc)
+                } ?: emptyList()
+
+                _records.value = dietRecords
+                Log.d("FirebaseDietRecordRepo", "Loaded ${dietRecords.size} diet records from Firestore")
+            }
     }
 
     private fun parseDietRecord(doc: com.google.firebase.firestore.DocumentSnapshot): DietRecord? {
@@ -86,7 +104,9 @@ object FirebaseDietRecordRepository {
         if (currentUser == null) {
             Result.failure(Exception("User not authenticated"))
         } else {
-            // 若外部沒帶 userId/date/timestamp，這裡也補齊，但不會覆蓋合法值
+            // 確保 listener 在運行
+            listenForUpdates()
+
             val recordWithUser = record.copy(
                 userId = currentUser.uid,
                 timestamp = if (record.timestamp > 0L) record.timestamp else System.currentTimeMillis()
@@ -108,6 +128,14 @@ object FirebaseDietRecordRepository {
 
             val documentRef = collection.add(data).await()
             Log.d("FirebaseDietRecordRepo", "Successfully added diet record with ID: ${documentRef.id}")
+
+            // ★ 立即更新本地 _records，不等待 Firestore listener 回傳
+            val savedRecord = recordWithUser.copy(id = documentRef.id)
+            val current = _records.value.toMutableList()
+            current.add(0, savedRecord)
+            _records.value = current
+            Log.d("FirebaseDietRecordRepo", "Immediately added to local records, total: ${current.size}")
+
             Result.success(documentRef.id)
         }
     } catch (e: Exception) {

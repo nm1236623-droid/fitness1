@@ -8,14 +8,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -126,11 +122,6 @@ object NutritionTextStyles {
 fun Modifier.nutritionCard(): Modifier = this
     .background(Color.White.copy(alpha = 0.1f), NutritionShapes.CardShape)
     .border(1.dp, TechColors.NeonBlue.copy(alpha = 0.3f), NutritionShapes.CardShape)
-    .shadow(
-        elevation = 8.dp,
-        shape = NutritionShapes.CardShape,
-        ambientColor = TechColors.NeonBlue.copy(alpha = 0.2f)
-    )
 
 fun Modifier.nutritionProgress(
     color: Color = TechColors.NeonBlue,

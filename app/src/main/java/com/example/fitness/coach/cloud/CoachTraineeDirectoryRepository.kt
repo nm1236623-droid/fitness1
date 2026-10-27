@@ -59,6 +59,20 @@ class CoachTraineeDirectoryRepository(
         }
     }
 
+    suspend fun deleteTrainee(coachId: String, traineeId: String): Result<Unit> {
+        return try {
+            db.collection("coaches")
+                .document(coachId)
+                .collection("trainees")
+                .document(traineeId)
+                .delete()
+                .await()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
+
     fun listenTrainees(
         coachId: String,
         onChange: (Result<List<CoachTrainee>>) -> Unit,

@@ -1,5 +1,6 @@
 package com.example.fitness
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -7,20 +8,28 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import com.example.fitness.util.setupEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fitness.firebase.AuthRepository
+import com.example.fitness.localization.LocaleManager
 import kotlinx.coroutines.launch
 
 class SignUpActivity : AppCompatActivity() {
     private val authRepository = AuthRepository()
 
+    override fun attachBaseContext(newBase: Context) {
+        val localeManager = LocaleManager.getInstance(newBase)
+        val currentLanguage = localeManager.getCurrentLanguageSync()
+        val context = localeManager.applyLanguage(newBase, currentLanguage)
+        super.attachBaseContext(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_sign_up)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

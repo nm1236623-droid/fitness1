@@ -32,6 +32,7 @@ fun ComprehensiveNutritionTestScreen(
     var testResults by remember { mutableStateOf(mapOf<String, Boolean>()) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("營養功能綜合測試") },
@@ -100,7 +101,7 @@ private fun SimpleBottomBar(
     current: String,
     onSelect: (String) -> Unit
 ) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = 0.dp) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -229,7 +230,7 @@ private fun TestSummaryCard(testResults: Map<String, Boolean>) {
 
             if (total > 0) {
                 LinearProgressIndicator(
-                    progress = passed.toFloat() / total,
+                    progress = { passed.toFloat() / total },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

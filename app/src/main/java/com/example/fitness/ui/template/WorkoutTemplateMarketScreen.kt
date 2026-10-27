@@ -7,12 +7,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +56,8 @@ fun WorkoutTemplateMarketScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Box(
             modifier = modifier
@@ -76,7 +78,7 @@ fun WorkoutTemplateMarketScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, null, tint = TechColors.NeonBlue)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TechColors.NeonBlue)
                         }
                         Spacer(Modifier.width(8.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -240,7 +242,7 @@ fun TemplateCard(
             ) {
                 StatItem(Icons.Default.Timer, "${template.estimatedDuration} 分鐘")
                 StatItem(Icons.Default.FitnessCenter, "${template.exercises.size} 動作")
-                StatItem(Icons.Default.TrendingUp, "難度 ${template.difficulty}/5")
+                StatItem(Icons.AutoMirrored.Filled.TrendingUp, "難度 ${template.difficulty}/5")
             }
 
             // Actions
@@ -371,7 +373,7 @@ fun CategoryFilterDialog(
                     )
                 }
 
-                TemplateCategory.values().forEach { category ->
+                TemplateCategory.entries.forEach { category ->
                     TextButton(
                         onClick = { onCategorySelected(category) },
                         modifier = Modifier.fillMaxWidth()

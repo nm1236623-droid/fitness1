@@ -28,8 +28,8 @@ fun LineChart(
     dataPoints: List<Pair<LocalDate, Float>>,
     dateFormatter: DateTimeFormatter,
     modifier: Modifier = Modifier,
-    lineColor: Color = TechColors.NeonBlue,
-    labelColor: Color = Color.White.copy(alpha = 0.7f)
+    lineColor: Color = MaterialTheme.colorScheme.primary,
+    labelColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
 ) {
     if (dataPoints.isEmpty()) return
 
@@ -57,7 +57,7 @@ fun LineChart(
 
                 // Draw Line
                 drawLine(
-                    color = Color.White.copy(alpha = 0.1f),
+                    color = labelColor.copy(alpha = 0.2f),
                     start = Offset(0f, y),
                     end = Offset(width, y),
                     strokeWidth = 1.dp.toPx()
@@ -108,7 +108,7 @@ fun LineChart(
             drawPath(
                 path = path,
                 brush = Brush.horizontalGradient(
-                    colors = listOf(TechColors.NeonBlue, Color(0xFFB388FF))
+                    colors = listOf(lineColor, lineColor.copy(alpha = 0.6f))
                 ),
                 style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
             )
@@ -126,15 +126,14 @@ fun LineChart(
 
                 // Draw Point
                 drawCircle(
-                    color = Color.White,
-                    radius = 3.dp.toPx(),
+                    color = lineColor,
+                    radius = 4.dp.toPx(),
                     center = Offset(x, y)
                 )
                 drawCircle(
-                    color = lineColor,
-                    radius = 5.dp.toPx(),
-                    center = Offset(x, y),
-                    style = Stroke(width = 1.dp.toPx())
+                    color = Color.White,
+                    radius = 2.dp.toPx(),
+                    center = Offset(x, y)
                 )
 
                 // Draw Date Label

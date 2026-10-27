@@ -1,25 +1,28 @@
 package com.example.fitness
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import com.example.fitness.util.setupEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialCancellationException // ★ 新增此 Exception
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.fitness.activity.ActivityLogRepository
 import com.example.fitness.auth.SessionManager
@@ -30,6 +33,7 @@ import com.example.fitness.coach.cloud.CloudSyncUseCase
 import com.example.fitness.data.FirebaseTrainingRecordRepository
 import com.example.fitness.data.TrainingPlanRepository
 import com.example.fitness.firebase.AuthRepository
+import com.example.fitness.localization.LocaleManager
 import com.example.fitness.ui.HomeScreen
 import com.example.fitness.ui.PaywallScreen
 import com.example.fitness.ui.SignInScreen
@@ -47,6 +51,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+
+// ★ UMP 新增的 Imports
+import com.google.android.ump.ConsentDebugSettings
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : ComponentActivity() {
     private val repository = TrainingPlanRepository()
@@ -56,17 +69,67 @@ class MainActivity : ComponentActivity() {
     private val sessionRepository by lazy { SessionRepository(this.applicationContext) }
     private val sessionManager by lazy { SessionManager(authRepository, sessionRepository) }
 
-    // ★ 請確認這是正確的 RevenueCat Key
     private val revenueCatApiKey = "goog_VamwiUCRZkIZdyEueLrLfMmiPMq"
 
+    // ★ UMP 新增：同意聲明資訊與確保廣告只初始化一次的變數
+    private lateinit var consentInformation: ConsentInformation
+    private var isMobileAdsInitializeCalled = AtomicBoolean(false)
+
+    override fun attachBaseContext(newBase: Context) {
+        val localeManager = LocaleManager.getInstance(newBase)
+        val currentLanguage = localeManager.getCurrentLanguageSync()
+        val context = localeManager.applyLanguage(newBase, currentLanguage)
+        super.attachBaseContext(context)
+    }
+
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        MobileAds.initialize(this) { }
-        val configuration = RequestConfiguration.Builder()
-            .setTestDeviceIds(listOf(AdRequest.DEVICE_ID_EMULATOR))
+
+        // ★ UMP 修改：移除原本直接呼叫的 MobileAds.initialize，改為先請求 UMP 同意聲明
+
+        // 1. 設定測試裝置 (模擬在歐洲地區，確保視窗會彈出)
+        val debugSettings = ConsentDebugSettings.Builder(this)
+            .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+            // TODO: 請在執行後查看 Logcat，搜尋 "UserMessagingPlatform"，並將您的模擬器 Hash ID 貼在這裡替換
+            .addTestDeviceHashedId("TEST-DEVICE-HASHED-ID")
             .build()
-        MobileAds.setRequestConfiguration(configuration)
+
+        val params = ConsentRequestParameters.Builder()
+            .setConsentDebugSettings(debugSettings) // 實際上線到 Google Play 時，請務必將這行移除
+            .build()
+
+        consentInformation = UserMessagingPlatform.getConsentInformation(this)
+
+        // 2. 請求同意聲明狀態
+        consentInformation.requestConsentInfoUpdate(
+            this,
+            params,
+            {
+                // 狀態更新成功，載入並顯示表單 (如果需要的話)
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) { loadAndShowError ->
+                    if (loadAndShowError != null) {
+                        Log.w("UMP_AdMob", "${loadAndShowError.errorCode}: ${loadAndShowError.message}")
+                    }
+
+                    // 3. 表單關閉後 (無論同意或拒絕)，檢查是否可以載入廣告
+                    if (consentInformation.canRequestAds()) {
+                        initializeMobileAdsSdk()
+                    }
+                }
+            },
+            { requestConsentError ->
+                Log.w("UMP_AdMob", "${requestConsentError.errorCode}: ${requestConsentError.message}")
+            }
+        )
+
+        // 如果使用者在之前的 Session 已經同意過，我們可以提早初始化廣告
+        if (consentInformation.canRequestAds()) {
+            initializeMobileAdsSdk()
+        }
+        // ★ UMP 設定結束
 
         SubscriptionManager.initialize(
             context = this,
@@ -74,8 +137,10 @@ class MainActivity : ComponentActivity() {
             userId = authRepository.currentUser()?.uid
         )
 
-        enableEdgeToEdge()
         setContent {
+            // ... (下方的 Jetpack Compose UI 程式碼完全保持原樣，不需更動)
+            val windowSizeClass = calculateWindowSizeClass(this)
+            val widthSizeClass = windowSizeClass.widthSizeClass
             val context = LocalContext.current
             val themeManager = remember { ThemeManager.getInstance(context) }
 
@@ -92,10 +157,10 @@ class MainActivity : ComponentActivity() {
 
                 val credentialManager = remember { CredentialManager.create(context) }
                 val firebaseUser = remember { FirebaseAuth.getInstance().currentUser }
-                var isSignedIn by remember { mutableStateOf(firebaseUser != null) }
+                var isSignedIn by rememberSaveable { mutableStateOf(firebaseUser != null) }
 
                 val isPro by SubscriptionManager.isPro.collectAsState()
-                var showPaywall by remember { mutableStateOf(false) }
+                var showPaywall by rememberSaveable { mutableStateOf(false) }
 
                 val cloudSync = remember { CloudSyncUseCase(CoachAuthRepository(appCtx), repository) }
 
@@ -131,7 +196,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                ) { innerPadding ->
                     if (!isSignedIn) {
                         SignInScreen(
                             modifier = Modifier.padding(innerPadding),
@@ -146,13 +214,22 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onGoogleSignIn = { selectedRole ->
-                                // ★ 啟動協程來執行 suspend function
                                 lifecycleScope.launch {
-                                    handleGoogleSignIn(context, credentialManager, auth, selectedRole) {
-                                scope.launch {
-                                    sessionManager.touchIfSignedIn()
-                                    isSignedIn = true
+                                    handleGoogleSignIn(context, credentialManager, auth, selectedRole ?: com.example.fitness.coach.UserRole.TRAINEE) {
+                                        scope.launch {
+                                            sessionManager.touchIfSignedIn()
+                                            isSignedIn = true
+                                        }
+                                    }
                                 }
+                            },
+                            onFacebookSignIn = { selectedRole ->
+                                lifecycleScope.launch {
+                                    handleFacebookSignIn(this@MainActivity, authRepository, selectedRole ?: com.example.fitness.coach.UserRole.TRAINEE) {
+                                        scope.launch {
+                                            sessionManager.touchIfSignedIn()
+                                            isSignedIn = true
+                                        }
                                     }
                                 }
                             },
@@ -169,7 +246,8 @@ class MainActivity : ComponentActivity() {
                                 trainingRecordRepository = trainingRecordRepository,
                                 modifier = Modifier.fillMaxSize(),
                                 isPro = isPro,
-                                onShowPaywall = { showPaywall = true }
+                                onShowPaywall = { showPaywall = true },
+                                widthSizeClass = widthSizeClass
                             )
 
                             if (showPaywall) {
@@ -197,7 +275,44 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // ★ 優化的 Google 登入邏輯，包含完整的角色檢查和保存
+    // ★ UMP 新增：將原本直接呼叫的 AdMob 初始化邏輯移到獨立的方法中
+    private fun initializeMobileAdsSdk() {
+        // 確保 SDK 只會被初始化一次
+        if (isMobileAdsInitializeCalled.getAndSet(true)) {
+            return
+        }
+
+        MobileAds.initialize(this) { }
+
+        // 保留您原本設定 Emulator 為測試裝置的邏輯
+        val configuration = RequestConfiguration.Builder()
+            .setTestDeviceIds(listOf(AdRequest.DEVICE_ID_EMULATOR))
+            .build()
+        MobileAds.setRequestConfiguration(configuration)
+
+        Log.d("UMP_AdMob", "AdMob SDK Initialized Successfully")
+    }
+
+    private suspend fun handleFacebookSignIn(
+        activity: android.app.Activity,
+        authRepository: AuthRepository,
+        selectedRole: com.example.fitness.coach.UserRole,
+        onSuccess: () -> Unit
+    ) {
+        val result = authRepository.firebaseSignInWithFacebook(activity)
+        if (result.isSuccess && result.getOrNull() != null) {
+            val user = result.getOrNull()!!
+            val roleRepo = UserRoleProfileRepository()
+            roleRepo.upsertMyRole(role = selectedRole, nickname = user.displayName ?: "")
+            onSuccess()
+        } else {
+            val err = result.exceptionOrNull()?.localizedMessage
+            if (err != null && !err.contains("canceled", ignoreCase = true) && !err.contains("cancel", ignoreCase = true)) {
+                Toast.makeText(activity, "Facebook 登入失敗: $err", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private suspend fun handleGoogleSignIn(
         context: android.content.Context,
         credentialManager: CredentialManager,
@@ -205,6 +320,7 @@ class MainActivity : ComponentActivity() {
         selectedRole: com.example.fitness.coach.UserRole,
         onSuccess: () -> Unit
     ) {
+        // ... (下方的 Google 登入邏輯保持原樣，不需更動)
         try {
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
@@ -229,12 +345,16 @@ class MainActivity : ComponentActivity() {
                     val user = authResult.user!!
                     val roleRepo = UserRoleProfileRepository()
 
-                    // 檢查是否為新用戶
-                    val existingRole = roleRepo.getMyRole()
-                    val isNewUser = existingRole == null
+                    val uid = user.uid
+                    val docSnapshot = com.google.firebase.firestore.FirebaseFirestore
+                        .getInstance()
+                        .collection("users")
+                        .document(uid)
+                        .get()
+                        .await()
+                    val isNewUser = !docSnapshot.exists()
 
                     if (isNewUser) {
-                        // 新用戶：保存選擇的角色和暱稱
                         val saveResult = roleRepo.upsertMyRole(
                             role = selectedRole,
                             nickname = user.displayName
@@ -246,14 +366,12 @@ class MainActivity : ComponentActivity() {
                             Log.e("Auth", "Failed to save user role", saveResult.exceptionOrNull())
                         }
                     } else {
-                        Log.d("Auth", "Existing user, keeping role: $existingRole")
+                        Log.d("Auth", "Existing user, keeping current role")
                     }
 
-                    // 初始化訂閱管理
                     SubscriptionManager.initialize(context, revenueCatApiKey, user.uid)
                     SubscriptionManager.checkSubscriptionStatus()
 
-                    // 觸發會話管理
                     sessionManager.touchIfSignedIn()
 
                     onSuccess()

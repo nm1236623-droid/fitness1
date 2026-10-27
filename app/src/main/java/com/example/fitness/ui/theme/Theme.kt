@@ -3,83 +3,123 @@ package com.example.fitness.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import com.example.fitness.designsystem.DsProvideTokens
 
-// Enhanced color palette for professional app design
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6366F1),        // Indigo - modern & professional
-    secondary = Color(0xFF8B5CF6),      // Purple - energetic
-    tertiary = Color(0xFF06B6D4),       // Cyan - fresh
-    background = Color(0xFF0F172A),     // Slate 900 - deep & elegant
-    surface = Color(0xFF1E293B),        // Slate 800 - layered depth
-    surfaceVariant = Color(0xFF334155), // Slate 700
+// ===== 統一文字顏色 Token =====
+data class AppTextColors(
+    val primary: Color,          // 主要文字
+    val secondary: Color,        // 次要文字
+    val tertiary: Color,         // 第三層文字（提示）
+    val onPrimary: Color,        // 在主色按鈕上的文字
+    val onSurface: Color,        // 在表面上的文字
+    val onSurfaceVariant: Color, // 在變體表面上的文字
+    val link: Color,             // 連結文字
+    val error: Color,            // 錯誤文字
+    val success: Color,          // 成功文字
+    val warning: Color,          // 警告文字
+)
+
+val LocalAppTextColors = staticCompositionLocalOf {
+    AppTextColors(
+        primary = Color(0xFF0F172A),       // Slate 900 高對比主要文字
+        secondary = Color(0xFF334155),     // Slate 700 次要文字
+        tertiary = Color(0xFF64748B),      // Slate 500 第三層文字
+        onPrimary = Color.White,
+        onSurface = Color(0xFF0F172A),
+        onSurfaceVariant = Color(0xFF334155),
+        link = Color(0xFF4F46E5),
+        error = Color(0xFFDC2626),
+        success = Color(0xFF16A34A),
+        warning = Color(0xFFD97706),
+    )
+}
+
+// 潔白頁面與超高對比配色方案
+private val DarkColorScheme = lightColorScheme(
+    primary = Color(0xFF4F46E5),        // Indigo 600
+    secondary = Color(0xFF7C3AED),      // Purple 600
+    tertiary = Color(0xFF0284C7),       // Cyan 600
+    background = Color(0xFFFFFFFF),     // 純白頁面背景
+    surface = Color(0xFFFFFFFF),        // 純白卡片背景
+    surfaceVariant = Color(0xFFF8FAFC), // Slate 50 變體表面
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = Color(0xFFF1F5F9),   // Slate 100
-    onSurface = Color(0xFFF1F5F9),
-    primaryContainer = Color(0xFF312E81), // Indigo 900
-    onPrimaryContainer = Color(0xFFE0E7FF), // Indigo 100
-    secondaryContainer = Color(0xFF581C87), // Purple 900
-    onSecondaryContainer = Color(0xFFF3E8FF), // Purple 100
-    outline = Color(0xFF475569),        // Slate 600
-    error = Color(0xFFEF4444),          // Red 500
-    errorContainer = Color(0xFF7F1D1D), // Red 900
-    onErrorContainer = Color(0xFFFEE2E2) // Red 100
+    onBackground = Color(0xFF0F172A),   // Slate 900 超高對比文字
+    onSurface = Color(0xFF0F172A),      // Slate 900
+    onSurfaceVariant = Color(0xFF334155), // Slate 700
+    primaryContainer = Color(0xFFEEF2FF), // Indigo 50
+    onPrimaryContainer = Color(0xFF1E1B4B), // Indigo 950
+    secondaryContainer = Color(0xFFF3E8FF), // Purple 50
+    onSecondaryContainer = Color(0xFF581C87), // Purple 900
+    outline = Color(0xFFCBD5E1),        // Slate 300
+    error = Color(0xFFDC2626),          // Red 600
+    errorContainer = Color(0xFFFEE2E2),
+    onErrorContainer = Color(0xFF991B1B)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6366F1),        // Indigo
-    secondary = Color(0xFF8B5CF6),      // Purple
-    tertiary = Color(0xFF06B6D4),       // Cyan
-    background = Color(0xFFF8FAFC),     // Slate 50
-    surface = Color.White,
-    surfaceVariant = Color(0xFFF1F5F9), // Slate 100
+    primary = Color(0xFF4F46E5),        // Indigo 600
+    secondary = Color(0xFF7C3AED),      // Purple 600
+    tertiary = Color(0xFF0284C7),       // Cyan 600
+    background = Color(0xFFFFFFFF),     // 純白頁面背景
+    surface = Color(0xFFFFFFFF),        // 純白卡片背景
+    surfaceVariant = Color(0xFFF8FAFC), // Slate 50 變體表面
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = Color(0xFF0F172A),   // Slate 900
-    onSurface = Color(0xFF1E293B),      // Slate 800
-    primaryContainer = Color(0xFFE0E7FF), // Indigo 100
-    onPrimaryContainer = Color(0xFF312E81), // Indigo 900
-    secondaryContainer = Color(0xFFF3E8FF), // Purple 100
+    onBackground = Color(0xFF0F172A),   // Slate 900 超高對比文字
+    onSurface = Color(0xFF0F172A),      // Slate 900
+    onSurfaceVariant = Color(0xFF334155), // Slate 700
+    primaryContainer = Color(0xFFEEF2FF), // Indigo 50
+    onPrimaryContainer = Color(0xFF1E1B4B), // Indigo 950
+    secondaryContainer = Color(0xFFF3E8FF), // Purple 50
     onSecondaryContainer = Color(0xFF581C87), // Purple 900
     outline = Color(0xFFCBD5E1),        // Slate 300
-    error = Color(0xFFEF4444),          // Red 500
-    errorContainer = Color(0xFFFEE2E2), // Red 100
-    onErrorContainer = Color(0xFF7F1D1D) // Red 900
+    error = Color(0xFFDC2626),          // Red 600
+    errorContainer = Color(0xFFFEE2E2),
+    onErrorContainer = Color(0xFF991B1B)
 )
 
 @Composable
 fun FitnessTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = LightColorScheme
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = com.example.fitness.ui.theme.Shapes
-    ) {
-        DsProvideTokens(darkTheme = darkTheme) {
-            content()
+    val textColors = AppTextColors(
+        primary = Color(0xFF0F172A),       // 主要文字 - Slate 900
+        secondary = Color(0xFF334155),     // 次要文字 - Slate 700
+        tertiary = Color(0xFF64748B),      // 第三層文字 - Slate 500
+        onPrimary = Color.White,
+        onSurface = Color(0xFF0F172A),
+        onSurfaceVariant = Color(0xFF334155),
+        link = colorScheme.primary,
+        error = Color(0xFFDC2626),
+        success = Color(0xFF16A34A),
+        warning = Color(0xFFD97706),
+    )
+
+    CompositionLocalProvider(LocalAppTextColors provides textColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = Shapes
+        ) {
+            DsProvideTokens(darkTheme = false) {
+                content()
+            }
         }
     }
 }
@@ -114,13 +154,29 @@ fun FitnessTheme(
         baseScheme.withPrimary(primary = primary)
     }
 
-    MaterialTheme(
-        colorScheme = appliedScheme,
-        typography = Typography,
-        shapes = com.example.fitness.ui.theme.Shapes
-    ) {
-        DsProvideTokens(darkTheme = darkTheme) {
-            content()
+    // 統一文字顏色
+    val textColors = AppTextColors(
+        primary = Color(0xFF0F172A),       // 主要文字 - Slate 900 深黑高對比
+        secondary = Color(0xFF334155),     // 次要文字 - Slate 700
+        tertiary = Color(0xFF64748B),      // 第三層文字 - Slate 500
+        onPrimary = Color.White,
+        onSurface = Color(0xFF0F172A),
+        onSurfaceVariant = Color(0xFF334155),
+        link = primary,
+        error = Color(0xFFDC2626),
+        success = Color(0xFF16A34A),
+        warning = Color(0xFFD97706),
+    )
+
+    CompositionLocalProvider(LocalAppTextColors provides textColors) {
+        MaterialTheme(
+            colorScheme = appliedScheme,
+            typography = Typography,
+            shapes = Shapes
+        ) {
+            DsProvideTokens(darkTheme = false) {
+                content()
+            }
         }
     }
 }
@@ -161,3 +217,13 @@ private fun ColorScheme.toPrimaryColor(): Color = when (this) {
     ColorScheme.RED -> Color(0xFFF44336)
     ColorScheme.CUSTOM -> TechColors.NeonBlue
 }
+
+/**
+ * 方便的擴展屬性，讓任何 @Composable 函數都能輕鬆存取統一的文字顏色
+ */
+object AppTheme {
+    val textColors: AppTextColors
+        @Composable
+        get() = LocalAppTextColors.current
+}
+

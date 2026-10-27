@@ -1,104 +1,96 @@
 package com.example.fitness.food
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.view.Surface
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.fitness.activity.ActivityLogRepository
-import com.example.fitness.activity.ActivityRecord
-import com.example.fitness.data.DietRecord
-import com.example.fitness.data.FirebaseDietRecordRepository
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.util.UUID
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import java.util.concurrent.Executors
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import androidx.compose.ui.Alignment
-import kotlin.math.roundToInt
-import org.json.JSONObject
-import com.example.fitness.ui.theme.glassEffect
-import com.example.fitness.ui.theme.neonGlowBorder
-import com.example.fitness.ui.theme.TechColors
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.border
-import androidx.compose.ui.draw.shadow
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.InputStream
-import java.util.concurrent.TimeUnit
-import android.content.Context
-import java.net.URLEncoder
-import android.view.Surface
-
-// CameraX imports
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.fitness.R
+import com.example.fitness.activity.ActivityLogRepository
+import com.example.fitness.data.DietRecord
+import com.example.fitness.data.FirebaseDietRecordRepository
+import com.example.fitness.ui.SecurePrefs
+import com.example.fitness.ui.theme.TechColors
+import com.example.fitness.ui.theme.glassEffect
+import com.example.fitness.ui.theme.neonGlowBorder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import com.example.fitness.ui.SecurePrefs
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStream
+import java.net.URLEncoder
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 // Data model
 data class FoodAnalysis(
     val name: String,
     val calories: Double?,
     val nutrients: Map<String, Double>,
-    // AI 額外輸出（可選）
     val items: List<String>? = null,
     val rawText: String? = null
 )
 
 @Composable
-fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, modifier: Modifier = Modifier) {
+fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, modifier: Modifier = Modifier, onBack: () -> Unit = {}) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
     val dietRepository = remember { FirebaseDietRecordRepository }
 
-    // ★ 修改處：畫面啟動時，自動執行一次模型檢查
+    // 初始化與模型檢查
     LaunchedEffect(Unit) {
         initGlobalContext(context)
         FoodRecognitionService.debugListModels(context)
+        // ★ 確保飲食紀錄 listener 已啟動
+        FirebaseDietRecordRepository.listenForUpdates()
     }
 
     var previewBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
@@ -112,13 +104,21 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
 
     // portion controls
     var portionQuantity by remember { mutableStateOf(1f) }
-    var portionUnit by remember { mutableStateOf("serving") }
+    val portionUnit by remember { mutableStateOf("serving") }
 
     // time and meal type controls
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var selectedTime by remember { mutableStateOf(LocalTime.now()) }
-    var mealType by remember { mutableStateOf("午餐") }
-    val mealTypes = listOf("早餐", "午餐", "晚餐", "點心")
+    val selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val selectedTime by remember { mutableStateOf(LocalTime.now()) }
+
+    // Localized meal types
+    val breakfastStr = stringResource(R.string.breakfast)
+    val lunchStr = stringResource(R.string.lunch)
+    val dinnerStr = stringResource(R.string.dinner)
+    val snackStr = stringResource(R.string.snack)
+    val mealTypes = remember(breakfastStr, lunchStr, dinnerStr, snackStr) {
+        listOf(breakfastStr, lunchStr, dinnerStr, snackStr)
+    }
+    var mealType by remember { mutableStateOf(lunchStr) }
 
     // permission
     var hasCameraPermission by remember {
@@ -130,6 +130,11 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
 
     // CameraX imageCapture holder
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
+
+    // Localized error messages
+    val recognitionFailedStr = stringResource(R.string.recognition_failed)
+    val readPhotoFailedStr = stringResource(R.string.read_photo_failed)
+    val recognitionErrorStr = stringResource(R.string.recognition_error)
 
     // gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -149,25 +154,28 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                     try {
                         context.contentResolver.openInputStream(it)?.use { ins ->
                             var res = FoodRecognitionService.analyzeImageWithGemini(ins, context, SecurePrefs.readGeminiKey(context))
-                            if (res != null) {
-                                // if calories missing, try Edamam
-                                if (res.calories == null) {
-                                    val kcal = FoodRecognitionService.fetchCaloriesFromEdamam(res.name, context)
-                                    if (kcal != null) res = res.copy(calories = kcal)
-                                }
-                                analysisResult = res
-                                showSaveDialog = true
-                            } else errorMsg = "辨識失敗，請檢查網路連線或稍後重試"
-                        } ?: run { errorMsg = "無法讀取圖片" }
+                                if (res != null) {
+                                    if (res.calories == null) {
+                                        val kcal = FoodRecognitionService.fetchCaloriesFromEdamam(res.name, context)
+                                        if (kcal != null) res = res.copy(calories = kcal)
+                                    }
+                                    analysisResult = res
+                                    // 5秒後自動跳出儲存對話框
+                                    kotlinx.coroutines.delay(5000L)
+                                    if (analysisResult != null && !savedToLog) {
+                                        showSaveDialog = true
+                                    }
+                                } else errorMsg = recognitionFailedStr
+                        } ?: run { errorMsg = readPhotoFailedStr }
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        errorMsg = "辨識錯誤：${e.message}"
+                        errorMsg = "$recognitionErrorStr：${e.message}"
                     }
                     finally { analyzing = false }
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                errorMsg = "讀取圖片失敗"
+                errorMsg = readPhotoFailedStr
             }
         }
     }
@@ -184,33 +192,40 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .widthIn(max = 840.dp)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 🎯 縮小的頂部食物辨識框
+            // 🎯 頂部標題框
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
-                    .glassEffect(cornerRadius = 16.dp)
-                    .padding(16.dp)
+                    .glassEffect(cornerRadius = 24.dp)
+                    .padding(12.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "🍽食物辨識",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            text = stringResource(R.string.food_recognition),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.ExtraBold
                         )
                         Text(
-                            text = "AI 營養分析",
+                            text = stringResource(R.string.ai_nutrition_analysis),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                         )
                     }
 
@@ -224,7 +239,7 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                "✓ 已儲存",
+                                stringResource(R.string.saved_label),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = TechColors.NeonGreen
                             )
@@ -247,13 +262,13 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            "需要相機權限",
+                            stringResource(R.string.need_camera_permission),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color(0xFFFF6B6B),
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "為了辨識食物，需要存取您的相機",
+                            stringResource(R.string.camera_permission_reason),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.7f)
                         )
@@ -267,20 +282,20 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                 contentColor = TechColors.NeonBlue
                             )
                         ) {
-                            Text("授予相機權限", color = Color.White)
+                            Text(stringResource(R.string.grant_camera_permission), color = Color.White)
                         }
                     }
                 }
                 return@Column
             }
 
-            // 📸 相機預覽 - 佔據主要中間空間
+            // 📸 相機預覽
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .glassEffect(cornerRadius = 20.dp)
-                    .clip(RoundedCornerShape(20.dp))
+                    .glassEffect(cornerRadius = 24.dp)
+                    .clip(RoundedCornerShape(24.dp))
             ) {
                 val previewView = remember { PreviewView(context) }
 
@@ -311,7 +326,6 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                     }
                             )
 
-                            // 中央提示文字
                             Box(
                                 modifier = Modifier
                                     .offset(y = 80.dp)
@@ -322,7 +336,7 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
                                 Text(
-                                    "將食物置於框內",
+                                    stringResource(R.string.place_food_in_frame),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White
                                 )
@@ -347,7 +361,7 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                     strokeWidth = 3.dp
                                 )
                                 Text(
-                                    "AI 分析中...",
+                                    stringResource(R.string.ai_analyzing),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = Color.White
                                 )
@@ -377,7 +391,7 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                             imageCapture = ic
                         } catch (exc: Exception) {
                             exc.printStackTrace()
-                            errorMsg = "啟動相機失敗: ${exc.message}"
+                            errorMsg = context.getString(R.string.camera_start_failed) + ": ${exc.message}"
                         }
                     }
                     cameraProviderFuture.addListener(listener, ContextCompat.getMainExecutor(previewView.context))
@@ -392,7 +406,7 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                 }
             }
 
-            // 📸 拍照按鈕
+            // 📸 拍照/相簿按鈕 (中間)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -401,36 +415,32 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                     onClick = { galleryLauncher.launch("image/*") },
                     modifier = Modifier
                         .weight(1f)
-                        .height(50.dp),
+                        .height(52.dp),
                     enabled = !analyzing,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.5.dp,
-                        Brush.linearGradient(
-                            listOf(
-                                TechColors.NeonBlue.copy(alpha = 0.8f),
-                                TechColors.NeonBlue.copy(alpha = 0.4f)
-                            )
-                        )
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                     ),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = TechColors.NeonBlue
+                        contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = TechColors.NeonBlue
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("相簿", color = Color.White)
+                    Text(stringResource(R.string.gallery), color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
                     onClick = {
                         val ic = imageCapture
                         if (ic == null) {
-                            errorMsg = "相機尚未就緒"
+                            errorMsg = context.getString(R.string.camera_not_ready)
                             return@Button
                         }
                         savedToLog = false
@@ -468,48 +478,54 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                                         if (kcal != null) res = res.copy(calories = kcal)
                                                     }
                                                     analysisResult = res
-                                                    showSaveDialog = true
+                                                    // 5秒後自動跳出儲存對話框
+                                                    kotlinx.coroutines.delay(5000L)
+                                                    if (analysisResult != null && !savedToLog) {
+                                                        showSaveDialog = true
+                                                    }
                                                 } else {
-                                                    errorMsg = "辨識失敗，請重試"
+                                                    errorMsg = context.getString(R.string.recognition_failed)
                                                 }
                                             }
                                         } catch (e: Exception) {
                                             e.printStackTrace()
-                                            errorMsg = "辨識錯誤：${e.message}"
+                                            errorMsg = context.getString(R.string.recognition_error) + "：${e.message}"
                                         } finally {
                                             analyzing = false
                                         }
                                     }
                                 } catch (ex: Exception) {
                                     ex.printStackTrace()
-                                    errorMsg = "讀取拍攝圖片失敗"
+                                    errorMsg = context.getString(R.string.read_photo_failed)
                                 }
                             }
 
                             override fun onError(exception: ImageCaptureException) {
                                 exception.printStackTrace()
-                                errorMsg = "拍照失敗: ${exception.message}"
+                                errorMsg = context.getString(R.string.photo_failed) + ": ${exception.message}"
                             }
                         })
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(50.dp)
-                        .neonGlowBorder(cornerRadius = 12.dp),
+                        .height(52.dp)
+                        .neonGlowBorder(cornerRadius = 16.dp, glowColor = MaterialTheme.colorScheme.primary),
                     enabled = !analyzing,
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = TechColors.NeonBlue.copy(alpha = 0.2f),
-                        contentColor = TechColors.NeonBlue
-                    )
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Camera,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = TechColors.NeonBlue
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(" 拍照", color = Color.White)
+                    Text(stringResource(R.string.take_photo), color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -519,8 +535,8 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
-                        .glassEffect(cornerRadius = 12.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .glassEffect(cornerRadius = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 ) {
                     Image(
                         bitmap = previewBitmap!!.asImageBitmap(),
@@ -530,39 +546,25 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                 }
             }
 
-            // 📊 分析結果顯示 - 高對比背景
+            // 📊 分析結果顯示 (底部Overlay)
             analysisResult?.let { r ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(16.dp),
-                            ambientColor = TechColors.NeonBlue.copy(alpha = 0.3f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .glassEffect(cornerRadius = 20.dp)
+                        .border(
+                            width = 1.dp,
+                            color = TechColors.NeonBlue.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(20.dp)
                         )
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color.Black,
-                                    Color(0xFF1A1A2E)
-                                )
-                            ),
-                            RoundedCornerShape(16.dp)
-                        )
-                        .drawBehind {
-                            val strokeWidth = 2.dp.toPx()
-                            drawRoundRect(
-                                color = TechColors.NeonBlue,
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx())
-                            )
-                        }
                         .padding(16.dp)
                 ) {
+                    val cs = MaterialTheme.colorScheme
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // 食物名稱 - 高對比
+                        // 食物名稱
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -570,29 +572,28 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "🍽️ 辨識結果",
+                                    text = stringResource(R.string.recognition_result),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = TechColors.NeonBlue.copy(alpha = 0.8f),
+                                    color = cs.primary.copy(alpha = 0.8f),
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
                                     text = r.name,
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = Color.White,
+                                    color = cs.onBackground,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
                         }
 
-                        // 營養資訊卡片 - 高對比設計
+                        // 營養資訊卡片 (動態顯示：數值 * portionQuantity)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // 熱量卡片
                             NutritionCardHighContrast(
                                 icon = "🔥",
-                                label = "熱量",
+                                label = stringResource(R.string.calorie),
                                 value = r.calories?.let { String.format("%.0f", it * portionQuantity) } ?: "?",
                                 unit = "kcal",
                                 modifier = Modifier.weight(1f),
@@ -600,11 +601,10 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                 borderColor = Color(0xFFFF6B35)
                             )
 
-                            // 蛋白質卡片
                             val protein = r.nutrients["protein"]
                             NutritionCardHighContrast(
                                 icon = "💪",
-                                label = "蛋白質",
+                                label = stringResource(R.string.protein_label),
                                 value = protein?.let { String.format("%.1f", it * portionQuantity) } ?: "?",
                                 unit = "g",
                                 modifier = Modifier.weight(1f),
@@ -617,11 +617,10 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // 脂肪卡片
                             val fat = r.nutrients["fat"]
                             NutritionCardHighContrast(
                                 icon = "🥑",
-                                label = "脂肪",
+                                label = stringResource(R.string.fat_label),
                                 value = fat?.let { String.format("%.1f", it * portionQuantity) } ?: "?",
                                 unit = "g",
                                 modifier = Modifier.weight(1f),
@@ -629,11 +628,10 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                 borderColor = Color(0xFF95E77E)
                             )
 
-                            // 碳水卡片
                             val carbs = r.nutrients["carbs"]
                             NutritionCardHighContrast(
                                 icon = "🌾",
-                                label = "碳水",
+                                label = stringResource(R.string.carbs_label),
                                 value = carbs?.let { String.format("%.1f", it * portionQuantity) } ?: "?",
                                 unit = "g",
                                 modifier = Modifier.weight(1f),
@@ -642,15 +640,21 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                             )
                         }
 
-                        // 份量調整 - 高對比
+                        // 份量調整滑桿
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(
-                                    Color.White.copy(alpha = 0.1f),
-                                    RoundedCornerShape(12.dp)
+                                    cs.primary.copy(alpha = 0.06f),
+                                    RoundedCornerShape(16.dp)
                                 )
-                                .padding(12.dp)
+                                .border(
+                                    1.dp,
+                                    cs.primary.copy(alpha = 0.1f),
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .padding(14.dp)
                         ) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -661,15 +665,15 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        "📏 份量調整",
+                                        stringResource(R.string.portion_adjust),
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = Color.White,
+                                        color = cs.onBackground,
                                         fontWeight = FontWeight.Medium
                                     )
                                     Text(
                                         "${(portionQuantity * 100).roundToInt()}%",
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = TechColors.NeonBlue,
+                                        color = cs.primary,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -680,100 +684,85 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                                     valueRange = 0.1f..3f,
                                     steps = 29,
                                     colors = SliderDefaults.colors(
-                                        thumbColor = TechColors.NeonBlue,
-                                        activeTrackColor = TechColors.NeonBlue,
-                                        inactiveTrackColor = TechColors.NeonBlue.copy(alpha = 0.3f)
+                                        thumbColor = cs.primary,
+                                        activeTrackColor = cs.primary,
+                                        inactiveTrackColor = cs.primary.copy(alpha = 0.3f)
                                     )
                                 )
                             }
                         }
 
-                        // 操作按鈕
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (!savedToLog) {
-                                Button(
-                                    onClick = { showSaveDialog = true },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(45.dp)
-                                        .neonGlowBorder(cornerRadius = 12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = TechColors.NeonBlue.copy(alpha = 0.3f),
-                                        contentColor = TechColors.NeonBlue
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Save,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text("儲存", color = Color.White)
-                                }
-                            } else {
-                                OutlinedButton(
-                                    onClick = {
-                                        analysisResult = null
-                                        savedToLog = false
-                                        previewBitmap = null
-                                        bitmapAvailable = false
-                                    },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(45.dp)
-                                        .neonGlowBorder(cornerRadius = 12.dp, borderWidth = 1.5.dp),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        1.5.dp,
-                                        Brush.linearGradient(
-                                            listOf(
-                                                TechColors.NeonBlue.copy(alpha = 0.8f),
-                                                TechColors.NeonBlue.copy(alpha = 0.4f)
-                                            )
-                                        )
-                                    ),
-                                    colors = ButtonDefaults.outlinedButtonColors(
-                                        contentColor = TechColors.NeonBlue
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text("再拍", color = Color.White)
-                                }
-                            }
+                        Spacer(modifier = Modifier.height(20.dp))
 
+                        // ★★★★★ 自適應寬度的底部按鈕 (返回 & 儲存) ★★★★★
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // 1. 左側：返回/取消
                             OutlinedButton(
-                                onClick = { /* TODO: Share */ },
+                                onClick = {
+                                    analysisResult = null
+                                    savedToLog = false
+                                    previewBitmap = null
+                                    bitmapAvailable = false
+                                },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(45.dp)
-                                    .neonGlowBorder(cornerRadius = 12.dp, borderWidth = 1.5.dp),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.5.dp,
-                                    Brush.linearGradient(
-                                        listOf(
-                                            TechColors.NeonPurple.copy(alpha = 0.8f),
-                                            TechColors.NeonPurple.copy(alpha = 0.4f)
-                                        )
-                                    )
-                                ),
+                                    .height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.dp, cs.primary.copy(alpha = 0.3f)),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = TechColors.NeonPurple
+                                    containerColor = Color.Transparent,
+                                    contentColor = cs.onBackground
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Share,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Return",
+                                    modifier = Modifier.size(20.dp)
                                 )
-                                Spacer(Modifier.width(6.dp))
-                                Text("分享", color = Color.White)
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    stringResource(R.string.back),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            // 2. 右側：儲存
+                            Button(
+                                onClick = {
+                                    if (!savedToLog) {
+                                        showSaveDialog = true
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                // 已儲存後鎖定
+                                enabled = !savedToLog,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (savedToLog) TechColors.NeonGreen.copy(alpha = 0.9f) else TechColors.NeonBlue,
+                                    disabledContainerColor = TechColors.NeonGreen.copy(alpha = 0.6f),
+                                    contentColor = Color.White,
+                                    disabledContentColor = Color.White
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = if (savedToLog) Icons.Default.Check else Icons.Default.Save,
+                                    contentDescription = "Save",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = if (savedToLog) stringResource(R.string.saved) else stringResource(R.string.save),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -785,16 +774,17 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
                         .background(
-                            Color(0xFFFF6B6B).copy(alpha = 0.2f),
-                            RoundedCornerShape(12.dp)
+                            Color(0xFFFF4757).copy(alpha = 0.15f),
+                            RoundedCornerShape(16.dp)
                         )
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFFF6B6B).copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(12.dp)
+                            color = Color(0xFFFF4757).copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(16.dp)
                         )
-                        .padding(12.dp)
+                        .padding(14.dp)
                 ) {
                     Text(
                         text = "⚠️ $it",
@@ -806,8 +796,9 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
         }
     }
 
-    // 儲存對話框
+    // 儲存對話框 (確認視窗，會顯示乘上倍率後的數值)
     if (showSaveDialog && analysisResult != null) {
+        val dialogCs = MaterialTheme.colorScheme
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -816,186 +807,209 @@ fun FoodRecognitionScreenOptimized(activityRepository: ActivityLogRepository, mo
                 onDismissRequest = { showSaveDialog = false },
                 title = {
                     Text(
-                        "儲存到日誌",
-                        color = Color.White,
+                        stringResource(R.string.save_to_log),
+                        color = dialogCs.onBackground,
                         fontWeight = FontWeight.Bold
                     )
                 },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        "食物：${analysisResult!!.name}",
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    analysisResult!!.calories?.let { calories ->
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(
-                            "熱量：${String.format("%.0f", calories * portionQuantity)} kcal",
-                            color = Color(0xFFFF6B35),
+                            stringResource(R.string.food_label, analysisResult!!.name),
+                            color = dialogCs.onBackground.copy(alpha = 0.9f),
                             fontWeight = FontWeight.Medium
                         )
-                    }
 
-                    // 顯示主要營養成分
-                    val protein = analysisResult!!.nutrients["protein"]
-                    val fat = analysisResult!!.nutrients["fat"]
-                    val carbs = analysisResult!!.nutrients["carbs"]
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        protein?.let {
+                        analysisResult!!.calories?.let { calories ->
                             Text(
-                                "蛋白質：${String.format("%.1f", it * portionQuantity)}g",
-                                color = Color(0xFF4ECDC4),
-                                style = MaterialTheme.typography.bodySmall
+                                stringResource(R.string.calorie_label, String.format("%.0f", calories * portionQuantity)),
+                                color = dialogCs.primary,
+                                fontWeight = FontWeight.Medium
                             )
                         }
-                        fat?.let {
-                            Text(
-                                "脂肪：${String.format("%.1f", it * portionQuantity)}g",
-                                color = Color(0xFF95E77E),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        carbs?.let {
-                            Text(
-                                "碳水：${String.format("%.1f", it * portionQuantity)}g",
-                                color = Color(0xFFA78BFA),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
 
-                    if (portionQuantity != 1f) {
-                        Text(
-                            "份量：${String.format("%.1f", portionQuantity)} $portionUnit",
-                            color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+                        // 顯示主要營養成分
+                        val protein = analysisResult!!.nutrients["protein"]
+                        val fat = analysisResult!!.nutrients["fat"]
+                        val carbs = analysisResult!!.nutrients["carbs"]
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // 時間和餐食類型選擇
-                    Text(
-                        "記錄時間設定",
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    // 餐食類型選擇
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        mealTypes.forEach { type ->
-                            FilterChip(
-                                onClick = { mealType = type },
-                                label = { Text(type, fontSize = 12.sp) },
-                                selected = mealType == type,
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = TechColors.NeonBlue.copy(alpha = 0.3f),
-                                    selectedLabelColor = Color.White
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            protein?.let {
+                                Text(
+                                    stringResource(R.string.protein_value, String.format("%.1f", it * portionQuantity)),
+                                    color = Color(0xFF4ECDC4),
+                                    style = MaterialTheme.typography.bodySmall
                                 )
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // 日期和時間顯示
-                    Text(
-                        "日期：${selectedDate}  時間：${selectedTime}",
-                        color = Color.White.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        "確定要將以上營養資訊儲存到今日日誌嗎？",
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            try {
-                                // 計算正確的時間戳
-                                val recordEpochMillis = selectedDate
-    .atTime(selectedTime)
-    .atZone(ZoneId.systemDefault())
-    .toInstant()
-    .toEpochMilli()
-
-                                val dietRecord = DietRecord(
-                                    id = UUID.randomUUID().toString(),
-                                    foodName = analysisResult!!.name,
-                                    calories = (analysisResult!!.calories?.times(portionQuantity))?.toInt() ?: 0,
-                                    date = selectedDate,
-                                    mealType = mealType,
-                                    proteinG = analysisResult!!.nutrients["protein"]?.times(portionQuantity),
-                                    carbsG = analysisResult!!.nutrients["carbs"]?.times(portionQuantity),
-                                    fatG = analysisResult!!.nutrients["fat"]?.times(portionQuantity),
-                                    timestamp = recordEpochMillis,
-                                    // 讓 repository 補齊 userId（也可自行填 currentUser.uid）
-                                    userId = null,
-                                    items = analysisResult!!.items,
-                                    rawAnalysisText = analysisResult!!.rawText
+                            }
+                            fat?.let {
+                                Text(
+                                    stringResource(R.string.fat_value, String.format("%.1f", it * portionQuantity)),
+                                    color = Color(0xFF95E77E),
+                                    style = MaterialTheme.typography.bodySmall
                                 )
-                                try {
-                                    val result = com.example.fitness.data.FirebaseDietRecordRepository.addRecord(dietRecord)
-                                    result.fold(
-                                        onSuccess = {
-                                            savedToLog = true
-                                            showSaveDialog = false
-                                            errorMsg = null
-                                            Log.d("FoodRecognition", "Saved diet record: $it")
-                                        },
-                                        onFailure = { err ->
-                                            errorMsg = "儲存失敗: ${err.message}"
-                                            Log.e("FoodRecognition", "Save failed", err)
-                                        }
-                                    )
-                                } catch (e: Exception) {
-                                    errorMsg = "儲存失敗: ${e.message}"
-                                }
-                            } catch (e: Exception) {
-                                errorMsg = "儲存失敗: ${e.message}"
+                            }
+                            carbs?.let {
+                                Text(
+                                    stringResource(R.string.carbs_value, String.format("%.1f", it * portionQuantity)),
+                                    color = Color(0xFFA78BFA),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
                         }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = TechColors.NeonBlue,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("確定儲存")
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showSaveDialog = false },
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        TechColors.NeonBlue.copy(alpha = 0.5f)
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = TechColors.NeonBlue
-                    )
-                ) {
-                    Text("取消")
-                }
-            },
-            containerColor = Color(0xFF1A1A2E),
-            titleContentColor = Color.White
-        )
+
+                        if (portionQuantity != 1f) {
+                            Text(
+                                stringResource(R.string.portion_label, "${String.format("%.1f", portionQuantity)} $portionUnit"),
+                                color = dialogCs.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 時間和餐食類型選擇
+                        Text(
+                            stringResource(R.string.record_time_setting),
+                            color = dialogCs.onBackground.copy(alpha = 0.9f),
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        // 餐食類型選擇
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            mealTypes.forEach { type ->
+                                FilterChip(
+                                    onClick = { mealType = type },
+                                    label = {
+                                        Text(
+                                            type,
+                                            fontSize = 11.sp,
+                                            maxLines = 1,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    },
+                                    selected = mealType == type,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(36.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = dialogCs.primary.copy(alpha = 0.3f),
+                                        selectedLabelColor = dialogCs.onBackground,
+                                        containerColor = dialogCs.surfaceVariant.copy(alpha = 0.3f),
+                                        labelColor = dialogCs.onBackground.copy(alpha = 0.8f)
+                                    )
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // 日期和時間顯示
+                        Text(
+                            stringResource(R.string.date_time_label, selectedDate.toString(), selectedTime.toString()),
+                            color = dialogCs.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            stringResource(R.string.confirm_save_to_log),
+                            color = dialogCs.onBackground.copy(alpha = 0.8f)
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                try {
+                                    val recordEpochMillis = selectedDate
+                                        .atTime(selectedTime)
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant()
+                                        .toEpochMilli()
+
+                                    // ★ 關鍵：建立資料時乘上 portionQuantity
+                                    val dietRecord = DietRecord(
+                                        id = UUID.randomUUID().toString(),
+                                        foodName = analysisResult!!.name,
+                                        calories = (analysisResult!!.calories?.times(portionQuantity))?.toInt()
+                                            ?: 0,
+                                        date = selectedDate,
+                                        mealType = mealType,
+                                        proteinG = analysisResult!!.nutrients["protein"]?.times(
+                                            portionQuantity
+                                        ),
+                                        carbsG = analysisResult!!.nutrients["carbs"]?.times(
+                                            portionQuantity
+                                        ),
+                                        fatG = analysisResult!!.nutrients["fat"]?.times(
+                                            portionQuantity
+                                        ),
+                                        timestamp = recordEpochMillis,
+                                        userId = null,
+                                        items = analysisResult!!.items,
+                                        rawAnalysisText = analysisResult!!.rawText
+                                    )
+                                    try {
+                                        val result =
+                                            com.example.fitness.data.FirebaseDietRecordRepository.addRecord(
+                                                dietRecord
+                                            )
+                                        result.fold(
+                                            onSuccess = {
+                                                savedToLog = true
+                                                showSaveDialog = false
+                                                errorMsg = null
+                                                Log.d("FoodRecognition", "Saved diet record: $it")
+                                            },
+                                            onFailure = { err ->
+                                                errorMsg = context.getString(R.string.save_error) + ": ${err.message}"
+                                                Log.e("FoodRecognition", "Save failed", err)
+                                            }
+                                        )
+                                    } catch (e: Exception) {
+                                        errorMsg = context.getString(R.string.save_error) + ": ${e.message}"
+                                    }
+                                } catch (e: Exception) {
+                                    errorMsg = context.getString(R.string.save_error) + ": ${e.message}"
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = dialogCs.primary,
+                            contentColor = dialogCs.onPrimary
+                        )
+                    ) {
+                        Text(stringResource(R.string.confirm_save))
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = { showSaveDialog = false },
+                        border = BorderStroke(
+                            1.dp,
+                            dialogCs.primary.copy(alpha = 0.5f)
+                        ),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = dialogCs.primary
+                        )
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                },
+                containerColor = TechColors.DarkBlue,
+                titleContentColor = dialogCs.onBackground,
+                shape = RoundedCornerShape(24.dp)
+            )
         }
     }
 }
@@ -1010,43 +1024,57 @@ private fun NutritionCardHighContrast(
     bgColor: Color,
     borderColor: Color
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = modifier
-            .background(
-                bgColor,
-                RoundedCornerShape(12.dp)
-            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(bgColor)
             .border(
-                width = 1.5.dp,
-                color = borderColor.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(12.dp)
+                width = 1.dp,
+                color = borderColor.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(16.dp)
             )
-            .padding(12.dp)
+            .padding(14.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = icon,
-                style = MaterialTheme.typography.titleMedium
+                fontSize = 22.sp
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.8f)
+                color = cs.onBackground.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Medium
             )
-            Text(
-                text = "$value $unit",
-                style = MaterialTheme.typography.titleSmall,
-                color = borderColor,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = borderColor,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    text = unit,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = borderColor.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 1.dp)
+                )
+            }
         }
     }
 }
 
-// 從原檔案複製必要的函數和類別
+// Service Logic
 object FoodRecognitionService {
     private const val GEMINI_API_KEY = ""
     private const val MODEL = "gemini-2.5-flash"
@@ -1105,22 +1133,8 @@ object FoodRecognitionService {
 
             if (!response.isSuccessful) {
                 android.util.Log.e("GeminiAPI", "Error Code: ${response.code}, Body: $respText")
-                when (response.code) {
-                    408 -> {
-                        android.util.Log.w("GeminiAPI", "Request timeout - increasing timeout for next attempt")
-                        response.close()
-                        return@withContext null
-                    }
-                    429 -> {
-                        android.util.Log.w("GeminiAPI", "Rate limit exceeded - please wait before trying again")
-                        response.close()
-                        return@withContext null
-                    }
-                    else -> {
-                        response.close()
-                        return@withContext null
-                    }
-                }
+                response.close()
+                return@withContext null
             }
             response.close()
 
@@ -1132,45 +1146,25 @@ object FoodRecognitionService {
             val parts = content?.optJSONArray("parts")
             val textRaw = parts?.optJSONObject(0)?.optString("text") ?: ""
 
-            android.util.Log.d("GeminiAPI", "Raw response: $textRaw")
-
             val cleanJson = textRaw.replace("```json", "").replace("```", "").trim()
-
-            if (cleanJson.isEmpty()) {
-                android.util.Log.e("GeminiAPI", "Empty response after cleaning")
-                return@withContext null
-            }
-
-            android.util.Log.d("GeminiAPI", "Cleaned JSON: $cleanJson")
+            if (cleanJson.isEmpty()) return@withContext null
 
             val json = try {
                 JSONObject(cleanJson)
             } catch (e: Exception) {
-                android.util.Log.e("GeminiAPI", "JSON parse error: ${e.message}")
                 val start = cleanJson.indexOf('{')
                 val end = cleanJson.lastIndexOf('}')
-                if (start >= 0 && end > start) {
-                    val substring = cleanJson.substring(start, end + 1)
-                    android.util.Log.d("GeminiAPI", "Trying substring: $substring")
-                    JSONObject(substring)
-                } else {
-                    android.util.Log.e("GeminiAPI", "No valid JSON found in response")
-                    null
-                }
+                if (start >= 0 && end > start) JSONObject(cleanJson.substring(start, end + 1)) else null
             } ?: return@withContext null
 
             val name = json.optString("name", "未知食物")
             val calories = json.optDouble("calories", Double.NaN).takeIf { !it.isNaN() }
 
-            android.util.Log.d("GeminiAPI", "Parsed name: $name, calories: $calories")
-
             val nutrients = json.optJSONObject("nutrients")?.let { nut ->
-                android.util.Log.d("GeminiAPI", "Nutrients object: $nut")
                 mutableMapOf<String, Double>().also { map ->
                     nut.keys().forEach { key ->
                         val v = nut.optDouble(key)
                         if (!v.isNaN()) {
-                            // 標準化鍵名為英文
                             val standardKey = when (key.lowercase()) {
                                 "protein", "蛋白質", "蛋白质" -> "protein"
                                 "fat", "脂肪" -> "fat"
@@ -1178,40 +1172,18 @@ object FoodRecognitionService {
                                 else -> key.lowercase()
                             }
                             map[standardKey] = v
-                            android.util.Log.d("GeminiAPI", "Added nutrient $key -> $standardKey: $v")
                         }
                     }
                 }
-            } ?: run {
-                // 如果沒有nutrients對象，嘗試從頂級字段解析
-                android.util.Log.d("GeminiAPI", "No nutrients object, trying top-level fields")
-                mutableMapOf<String, Double>().also { map ->
-                    listOf("protein", "fat", "carbs", "蛋白質", "脂肪", "碳水化合物", "碳水").forEach { key ->
-                        val v = json.optDouble(key, Double.NaN)
-                        if (!v.isNaN()) {
-                            val standardKey = when (key.lowercase()) {
-                                "protein", "蛋白質", "蛋白质" -> "protein"
-                                "fat", "脂肪" -> "fat"
-                                "carbs", "carbohydrates", "碳水化合物", "碳水" -> "carbs"
-                                else -> key.lowercase()
-                            }
-                            map[standardKey] = v
-                            android.util.Log.d("GeminiAPI", "Added top-level nutrient $key -> $standardKey: $v")
-                        }
-                    }
-                }
-            }
-
-            android.util.Log.d("GeminiAPI", "Final nutrients map: $nutrients")
+            } ?: mutableMapOf() // simplified fallback
 
             // 如果營養成分為空，提供默認估算
             val finalNutrients = if (nutrients.isEmpty()) {
-                android.util.Log.w("GeminiAPI", "No nutrients parsed, providing default estimates")
                 calories?.let { cal ->
                     mapOf(
-                        "protein" to cal * 0.15 / 4,  // 15% of calories from protein
-                        "fat" to cal * 0.25 / 9,     // 25% of calories from fat
-                        "carbs" to cal * 0.60 / 4    // 60% of calories from carbs
+                        "protein" to cal * 0.15 / 4,
+                        "fat" to cal * 0.25 / 9,
+                        "carbs" to cal * 0.60 / 4
                     )
                 } ?: emptyMap()
             } else {
@@ -1222,7 +1194,6 @@ object FoodRecognitionService {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            android.util.Log.e("GeminiAPI", "Exception: ${e.message}")
             return@withContext null
         } finally {
             try { input.close() } catch (_: Exception) {}
@@ -1243,17 +1214,9 @@ object FoodRecognitionService {
 
                 val client = OkHttpClient()
                 val response = client.newCall(request).execute()
-                val body = response.body?.string() ?: ""
-
-                if (response.isSuccessful) {
-                    android.util.Log.d("GeminiList", "✅ Available Models: $body")
-                } else {
-                    android.util.Log.e("GeminiList", "❌ Failed to list models: ${response.code} - $body")
-                }
                 response.close()
             } catch (e: Exception) {
                 e.printStackTrace()
-                android.util.Log.e("GeminiList", "Exception listing models: ${e.message}")
             }
         }
     }
@@ -1290,16 +1253,9 @@ object FoodRecognitionService {
 
 // 輔助函數
 private var globalContext: Context? = null
-
 fun initGlobalContext(context: Context) {
     globalContext = context.applicationContext
 }
-
-private fun androidContextForService(): Context {
-    return globalContext ?: throw IllegalStateException("Global context not initialized. Call initGlobalContext() first.")
-}
-
 private fun readBuildConfigGeminiKey(): String {
-    // 從 BuildConfig 讀取 API key
     return com.example.fitness.BuildConfig.GEMINI_API_KEY
 }

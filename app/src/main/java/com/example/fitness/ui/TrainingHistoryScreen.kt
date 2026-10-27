@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,9 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.fitness.R
 import com.example.fitness.data.FirebaseTrainingRecordRepository
 import com.example.fitness.data.TrainingRecord
 import com.example.fitness.ui.theme.TechColors
@@ -61,13 +64,14 @@ fun TrainingHistoryScreen(
 
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
 
-    // 改成只訂閱「當天」資料，避免全量 + filter 造成回看缺紀錄
-    val dailyRecords by trainingRecordRepository
-        .observeRecordsForDate(currentDate)
-        .collectAsStateWithLifecycle(initialValue = emptyList())
+    // 使用 key 來確保日期變更時重新訂閱 Flow
+    val recordsFlow = remember(currentDate) {
+        trainingRecordRepository.observeRecordsForDate(currentDate)
+    }
+    val dailyRecords by recordsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    Column(modifier = modifier.fillMaxSize().padding(12.dp)) {
-        ScreenHeader(title = "訓練日誌", subtitle = "依日期查看訓練紀錄", onBack = onBack)
+    Column(modifier = modifier.fillMaxSize().widthIn(max = 840.dp).padding(12.dp)) {
+        ScreenHeader(title = stringResource(R.string.training_log), subtitle = stringResource(R.string.view_by_date), onBack = onBack)
         Spacer(Modifier.height(12.dp))
 
         // 日期選擇列（風格沿用 FoodLog 的前後日切換）
@@ -109,19 +113,19 @@ fun TrainingHistoryScreen(
         Box(modifier = Modifier.fillMaxWidth().glassEffect(16.dp).padding(12.dp)) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                "當日總結", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                stringResource(R.string.daily_summary_title), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     SummaryStat(
-                        title = "熱量",
+                        title = stringResource(R.string.calories),
                         value = totalCalories.toInt().toString(),
                         unit = "kcal",
                         icon = Icons.Default.LocalFireDepartment,
                         modifier = Modifier.weight(1f)
                     )
                     SummaryStat(
-                        title = "時間",
+                        title = stringResource(R.string.time),
                         value = String.format(Locale.US, "%.0f", totalDurationMin),
-                        unit = "min",
+                        unit = stringResource(R.string.minutes),
                         icon = Icons.Default.FitnessCenter,
                         modifier = Modifier.weight(1f)
                     )
@@ -131,12 +135,16 @@ fun TrainingHistoryScreen(
 
         Spacer(Modifier.height(12.dp))
 
+        val noRecordTitle = stringResource(R.string.no_training_record)
+        val noRecordSubtitle = stringResource(R.string.training_record_hint)
+        val unnamedTraining = stringResource(R.string.unnamed_training)
+
         if (dailyRecords.isEmpty()) {
-            EmptyState(title = "這天尚無訓練紀錄", subtitle = "完成訓練後會自動出現在這裡。")
+            EmptyState(title = noRecordTitle, subtitle = noRecordSubtitle)
         } else {
             // 依課表名稱分組，讓同天多筆更清楚
-            val grouped = remember(dailyRecords) {
-                dailyRecords.groupBy { it.planName.ifBlank { "未命名訓練" } }
+            val grouped = remember(dailyRecords, unnamedTraining) {
+                dailyRecords.groupBy { it.planName.ifBlank { unnamedTraining } }
             }
 
             LazyColumn(
@@ -148,11 +156,11 @@ fun TrainingHistoryScreen(
                         Text(
                             planName,
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White.copy(alpha = 0.85f),
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                         )
                     }
-                    items(records) { rec ->
+                    items(records, key = { it.id }) { rec ->
                         TrainingRecordCard(rec)
                     }
                 }
@@ -164,6 +172,10 @@ fun TrainingHistoryScreen(
 @Composable
 private fun TrainingRecordCard(record: TrainingRecord) {
     var expanded by remember(record.id) { mutableStateOf(false) }
+    val unnamedTrainingText = stringResource(R.string.unnamed_training)
+    val minutesText = stringResource(R.string.minutes)
+    val actionsText = stringResource(R.string.actions)
+    val notesText = stringResource(R.string.notes)
 
     Card(
         modifier = Modifier
@@ -174,46 +186,50 @@ private fun TrainingRecordCard(record: TrainingRecord) {
     ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                record.planName.ifBlank { "未命名訓練" },
+                record.planName.ifBlank { unnamedTrainingText },
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                StatPill(label = "${record.durationInSeconds / 60} 分鐘")
+                StatPill(label = "${record.durationInSeconds / 60} $minutesText")
                 StatPill(label = "${record.caloriesBurned.toInt()} kcal")
-                StatPill(label = "${record.exercises.size} 動作")
+                StatPill(label = "${record.exercises.size} $actionsText")
             }
 
             if (!record.notes.isNullOrBlank()) {
-                Text("備註：${record.notes}", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.75f))
+                Text("$notesText：${record.notes}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f))
             }
 
             if (record.exercises.isNotEmpty()) {
-                HorizontalDivider(color = Color.White.copy(alpha = 0.08f), thickness = 0.5.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), thickness = 0.5.dp)
 
                 val list = if (expanded) record.exercises else record.exercises.take(6)
                 list.forEach { ex ->
+                    val exerciseText = if (ex.weight != null) {
+                        stringResource(R.string.exercise_format_with_weight, ex.name, ex.sets, ex.reps, ex.weight)
+                    } else {
+                        stringResource(R.string.exercise_format, ex.name, ex.sets, ex.reps)
+                    }
                     Text(
-                        text = "• ${ex.name}  ${ex.sets} 組 × ${ex.reps} 次" +
-                            (ex.weight?.let { "  @ ${String.format(Locale.US, "%.1f", it)} kg" } ?: ""),
+                        text = exerciseText,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
                 if (!expanded && record.exercises.size > 6) {
                     Text(
-                        "…還有 ${record.exercises.size - 6} 個動作（點擊展開）",
+                        stringResource(R.string.more_actions, record.exercises.size - 6),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 } else if (expanded && record.exercises.size > 6) {
                     Text(
-                        "點擊可收合",
+                        stringResource(R.string.click_to_collapse),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -226,9 +242,9 @@ private fun StatPill(label: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(999.dp))
-            .background(Color.White.copy(alpha = 0.08f))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = Color.White)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 }

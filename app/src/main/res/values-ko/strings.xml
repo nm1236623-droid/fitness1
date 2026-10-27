@@ -1,0 +1,562 @@
+<resources>
+    <!-- 앱 기본 -->
+    <string name="app_name">피트니스 트레이너</string>
+    <string name="welcome_back">다시 오셨군요</string>
+    <string name="login_continue">로그인하여 계속하기</string>
+
+    <!-- 내비게이션 -->
+    <string name="nav_home">홈</string>
+    <string name="nav_calendar">캘린더</string>
+    <string name="nav_camera">인식</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_analytics">분석</string>
+
+    <!-- 홈 -->
+    <string name="training_summary">운동 요약</string>
+    <string name="today_intake">오늘 섭취</string>
+    <string name="today_burned">오늘 소모</string>
+    <string name="nutrition_intake">영양 섭취</string>
+    <string name="water_tracking">수분 추적</string>
+    <string name="set_goal">목표 설정</string>
+    <string name="remaining">남은</string>
+    <string name="over_limit">초과</string>
+
+    <!-- 운동 -->
+    <string name="workout">운동</string>
+    <string name="workout_plan">운동 계획</string>
+    <string name="create_plan">계획 생성</string>
+    <string name="ai_training_plan">AI 운동 계획</string>
+    <string name="ai_generate_plan">AI 스마트 플랜 생성기</string>
+    <string name="generate_plan">계획 생성</string>
+    <string name="save_plan">계획 저장</string>
+    <string name="preview_plan">계획 미리보기</string>
+    <string name="training_history">운동 기록</string>
+    <string name="training_log">운동 로그</string>
+    <string name="select_body_part">운동 부위 선택</string>
+    <string name="start_workout">운동 시작</string>
+    <string name="finish_workout">운동 완료</string>
+    <string name="no_training_record">이 날의 운동 기록이 없습니다</string>
+    <string name="training_record_hint">운동 후 기록이 여기에 표시됩니다.</string>
+    <string name="view_by_date">날짜별 운동 기록 보기</string>
+    <string name="unnamed_training">이름 없는 운동</string>
+    <string name="duration">시간</string>
+    <string name="calories_burned">소모 칼로리</string>
+    <string name="exercises">운동</string>
+    <string name="sets">세트</string>
+    <string name="reps">회</string>
+    <string name="ai_thinking">AI 생각 중...</string>
+    <string name="api_key_not_set">API Key가 설정되지 않았습니다</string>
+    <string name="please_enter_age">나이를 입력하세요</string>
+    <string name="ai_service_failed">AI 서비스 호출 실패</string>
+    <string name="generate_failed">생성 실패</string>
+    <string name="save_training_plan">운동 계획 저장</string>
+    <string name="save_plan_confirm">\'%s\'를 내 운동 계획에 저장할까요?</string>
+    <string name="save_template_hint">팁: 템플릿으로 저장하면 나중에 편리합니다</string>
+    <string name="save_template">템플릿으로 저장</string>
+    <string name="save_template_desc">저장하면 언제든지 이 템플릿을 적용할 수 있습니다</string>
+    <string name="plan_saved">계획이 저장되었습니다</string>
+
+    <!-- 식단 -->
+    <string name="diet_log">식단 로그</string>
+    <string name="ai_nutrition_analysis">AI 영양 분석</string>
+    <string name="daily_summary">오늘의 요약</string>
+    <string name="calories">칼로리</string>
+    <string name="protein">단백질</string>
+    <string name="carbs">탄수화물</string>
+    <string name="fat">지방</string>
+    <string name="breakfast">아침</string>
+    <string name="lunch">점심</string>
+    <string name="dinner">저녁</string>
+    <string name="snack">간식</string>
+    <string name="add_food">음식 추가</string>
+    <string name="food_name">음식 이름</string>
+    <string name="analyze_food">음식 분석</string>
+    <string name="no_food_record">이 날의 식단 기록이 없습니다</string>
+    <string name="food_record_hint">아래 버튼을 눌러 식단 기록 추가</string>
+    <string name="water">수분</string>
+    <string name="water_recorded">%d ml 수분 기록됨</string>
+    <string name="water_record_failed">수분 기록 실패</string>
+    <string name="set_water_goal">일일 수분 목표 설정</string>
+    <string name="enter_goal_ml">목표 입력 (ml)</string>
+    <string name="example_2000">예: 2000</string>
+
+    <!-- 설정 -->
+    <string name="settings">설정</string>
+    <string name="advanced_settings">고급 설정</string>
+    <string name="personalize_experience">경험 개인화</string>
+    <string name="appearance">외관 설정</string>
+    <string name="theme_mode">테마 모드</string>
+    <string name="color_style">색상 스타일</string>
+    <string name="language_settings">언어 설정</string>
+    <string name="app_language">앱 언어</string>
+    <string name="light_mode">라이트 모드</string>
+    <string name="dark_mode">다크 모드</string>
+    <string name="system_mode">시스템 설정</string>
+    <string name="neon_blue">네온 블루</string>
+    <string name="purple">퍼플</string>
+    <string name="green">그린</string>
+    <string name="orange">오렌지</string>
+    <string name="red">레드</string>
+    <string name="custom">커스텀</string>
+
+    <!-- 계정 삭제 -->
+    <string name="danger_zone">위험 영역</string>
+    <string name="delete_account">계정 삭제</string>
+    <string name="delete_account_description">계정과 모든 데이터를 영구적으로 삭제합니다</string>
+    <string name="delete_account_warning">⚠️ 이 작업은 되돌릴 수 없습니다!\n\n계정을 삭제하면 다음이 영구적으로 삭제됩니다:\n• 모든 개인 데이터\n• 훈련 기록\n• 운동 계획 및 템플릿\n• 프로필 사진\n\n비밀번호를 입력하여 확인하세요.</string>
+    <string name="delete_account_confirm_title">계정 삭제 확인</string>
+    <string name="enter_password_to_confirm">확인을 위해 비밀번호 입력</string>
+    <string name="deleting_account">계정 삭제 중…</string>
+    <string name="account_deleted">계정이 성공적으로 삭제되었습니다</string>
+    <string name="delete_account_failed">계정 삭제 실패: %1$s</string>
+    <string name="password_required">비밀번호를 입력하세요</string>
+    <string name="confirm_delete">삭제 확인</string>
+
+    <!-- 템플릿 -->
+    <string name="my_templates">내 템플릿</string>
+    <string name="save_as_template">템플릿으로 저장</string>
+    <string name="save_as_template_title">템플릿으로 저장</string>
+    <string name="template_save_hint">저장 후 언제든지 이 템플릿을 사용할 수 있습니다</string>
+    <string name="save_as_template_hint">팁: 이 계획을 템플릿으로 저장하면 나중에 편리하게 사용할 수 있습니다</string>
+    <string name="template_name">템플릿 이름</string>
+    <string name="template_description">설명 (선택사항)</string>
+    <string name="no_templates">템플릿이 없습니다. 계획을 생성하고 템플릿으로 저장하세요.</string>
+    <string name="template_applied">템플릿 적용됨</string>
+    <string name="template_saved">템플릿 저장됨</string>
+    <string name="template_deleted">템플릿 삭제됨</string>
+    <string name="delete_template">템플릿 삭제</string>
+    <string name="delete_template_confirm">템플릿 \'%s\'를 삭제할까요?</string>
+    <string name="save_failed">저장 실패</string>
+    <string name="delete_failed">삭제 실패</string>
+    <string name="please_enter_template_name">템플릿 이름을 입력하세요</string>
+    <string name="days_per_week_format">주 %d일</string>
+
+    <!-- 목표 및 레벨 -->
+    <string name="set_target">목표 설정</string>
+    <string name="goal_bulk">벌크업</string>
+    <string name="goal_cut">다이어트</string>
+    <string name="level">레벨</string>
+    <string name="level_beginner">초보자</string>
+    <string name="level_intermediate">중급자</string>
+    <string name="level_advanced">고급자</string>
+    <string name="description">설명</string>
+    <string name="user_data">사용자 정보</string>
+    <string name="age">나이</string>
+    <string name="height">신장</string>
+    <string name="weight">체중</string>
+    <string name="body_fat">체지방</string>
+    <string name="muscle_mass">근육량</string>
+    <string name="days_per_week">주간 일수</string>
+    <string name="training_level">운동 레벨</string>
+
+    <!-- 공통 버튼 -->
+    <string name="save">저장</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+    <string name="confirm">확인</string>
+    <string name="close">닫기</string>
+    <string name="back">뒤로</string>
+    <string name="next">다음</string>
+    <string name="previous">이전</string>
+    <string name="done">완료</string>
+    <string name="edit">편집</string>
+    <string name="add">추가</string>
+    <string name="remove">제거</string>
+    <string name="reset">초기화</string>
+    <string name="refresh">새로고침</string>
+    <string name="retry">재시도</string>
+    <string name="loading">로딩 중…</string>
+    <string name="error">오류</string>
+    <string name="success">성공</string>
+    <string name="please_enter">입력하세요</string>
+    <string name="not_logged_in">로그인되지 않음</string>
+    <string name="unknown_error">알 수 없는 오류</string>
+    <string name="no_data">데이터 없음</string>
+    <string name="today">오늘</string>
+    <string name="yesterday">어제</string>
+    <string name="tomorrow">내일</string>
+    <string name="previous_day">전날</string>
+    <string name="next_day">다음 날</string>
+
+    <!-- 빠른 실행 -->
+    <string name="quick_open">빠른 실행</string>
+    <string name="social_center">소셜</string>
+    <string name="social_subtitle">친구와 함께 운동하기</string>
+    <string name="friends_tab">친구</string>
+    <string name="challenges_tab">챌린지</string>
+    <string name="leaderboard_tab">리더보드</string>
+    <string name="cardio">유산소</string>
+    <string name="inbody">InBody</string>
+    <string name="body_photos">바디 포토</string>
+    <string name="running">러닝</string>
+    <string name="cycling">사이클링</string>
+    <string name="swimming">수영</string>
+
+    <!-- 코치/트레이니 -->
+    <string name="coach">코치</string>
+    <string name="trainee">트레이니</string>
+    <string name="coach_center">코치 센터</string>
+    <string name="trainee_center">트레이니 센터</string>
+    <string name="my_students">내 수강생</string>
+    <string name="my_coach">내 코치</string>
+    <string name="send_plan">계획 보내기</string>
+    <string name="receive_plan">계획 받기</string>
+    <string name="coach_only_hint">코치 센터는 코치 계정만 사용할 수 있습니다.</string>
+    <string name="coach_plan_hint">알림: 코치가 게시한 계획은 트레이니 센터에만 표시됩니다.</string>
+    <string name="trainee_account_hint">이 기능은 코치 계정 전용입니다.\n\n현재 트레이니 계정입니다. 트레이니 센터에서 코치의 계획을 받을 수 있습니다.</string>
+    <string name="go_to_trainee_center">트레이니 센터로 이동</string>
+    <string name="trainee_center_guide">Workout → 코치 / 트레이니 → 트레이니 센터로 이동하세요</string>
+    <string name="coach_id">코치 ID</string>
+    <string name="coach_nickname">코치 닉네임</string>
+    <string name="set_coach_nickname">코치 닉네임 설정</string>
+    <string name="edit_coach_nickname">코치 닉네임 편집</string>
+    <string name="nickname_saved">닉네임 저장됨</string>
+    <string name="save_failed_msg_simple">저장 실패: %s</string>
+    <string name="copy_coach_id">코치 ID 복사</string>
+    <string name="copied_coach_id">코치 ID 복사됨</string>
+    <string name="trainee_list">트레이니 목록</string>
+    <string name="trainee_list_hint">추가 후 선택적으로 게시할 수 있습니다</string>
+    <string name="refresh_trainee">트레이니 새로고침</string>
+    <string name="read_trainee_failed">트레이니 읽기 실패: %s</string>
+    <string name="id_label">ID</string>
+    <string name="nickname_label">닉네임</string>
+    <string name="add_btn_simple">추가</string>
+    <string name="trainee_added">트레이니 추가/업데이트됨</string>
+    <string name="add_trainee_failed">추가 실패: %s</string>
+    <string name="all_trainees">모든 트레이니</string>
+    <string name="select_trainee_label">트레이니 선택</string>
+    <string name="no_trainees_yet">트레이니가 아직 없습니다</string>
+    <string name="coach_schedule">코치 스케줄</string>
+    <string name="exercises_count_format">%d개 운동</string>
+    <string name="no_plans_yet">아직 계획이 없습니다</string>
+    <string name="trainee_completion_report">트레이니 완료 보고</string>
+    <string name="trainee_label">트레이니: %s</string>
+    <string name="unnamed">(이름 없음)</string>
+    <string name="completed_label">완료: %s</string>
+    <!-- 트레이니 센터 -->
+    <string name="copy_trainee_id">트레이니 ID 복사</string>
+    <string name="copied_trainee_id">트레이니 ID 복사됨</string>
+    <string name="update_coach_list">코치 목록 업데이트</string>
+    <string name="coach_list_updated">코치 목록 업데이트됨</string>
+    <string name="update_failed">업데이트 실패: %s</string>
+    <string name="nickname_example">예: 민수</string>
+    <string name="reset_label">리셋</string>
+    <string name="no_coach_yet">아직 코치에 가입하지 않았습니다</string>
+    <string name="no_nickname_set">(닉네임 미설정)</string>
+    <string name="join_and_sync">가입하고 동기화 시작</string>
+    <string name="join_failed">가입 실패: %s</string>
+    <string name="leave_coach">코치 탈퇴</string>
+    <string name="leave_coach_confirm">코치 %s를 탈퇴하시겠습니까?</string>
+    <string name="left_coach">코치 탈퇴됨</string>
+    <string name="leave_failed">탈퇴 실패: %s</string>
+    <string name="coach_published_plans">코치 게시 계획</string>
+    <string name="no_coach_plans">코치 계획이 아직 없습니다</string>
+    <string name="import_to_local">로컬로 가져오기</string>
+    <string name="imported_success">가져오기 완료</string>
+    <string name="import_failed">가져오기 실패: %s</string>
+    <string name="start_training">운동 시작</string>
+    <string name="report_completion">완료 보고</string>
+    <string name="completion_reported">완료 보고됨</string>
+    <string name="report_failed">보고 실패: %s</string>
+
+    <!-- 로그인 -->
+    <string name="login">로그인</string>
+    <string name="logout">로그아웃</string>
+    <string name="sign_up">회원가입</string>
+    <string name="sign_in">로그인</string>
+    <string name="signing_in">로그인 중...</string>
+    <string name="email">이메일</string>
+    <string name="password">비밀번호</string>
+    <string name="google_sign_in">Google로 로그인</string>
+    <string name="phone_sign_in">전화번호로 로그인</string>
+    <string name="forgot_password">비밀번호 찾기</string>
+    <string name="create_account">계정 만들기</string>
+    <string name="already_have_account">이미 계정이 있으신가요?</string>
+    <string name="no_account">계정이 없으신가요?</string>
+    <string name="sign_in_subtitle">피트니스 여정을 계속하려면 로그인하세요</string>
+    <string name="or_continue_with">또는 다음으로 계속</string>
+    <string name="remember_me">로그인 유지</string>
+    <string name="remember_me_hint">로그인 상태 유지 (30일 비활동 시 자동 로그아웃)</string>
+    <string name="reset_password">비밀번호 재설정</string>
+    <string name="reset_password_hint">이메일을 입력하세요. 비밀번호 재설정 링크를 보내드립니다.</string>
+    <string name="send_reset_email">보내기</string>
+    <string name="reset_email_sent">재설정 이메일 전송됨</string>
+    <string name="please_enter_valid_email">유효한 이메일을 입력해주세요</string>
+    <string name="sign_in_failed">로그인 실패</string>
+    <string name="failed_to_send_reset_email">재설정 이메일 전송 실패</string>
+    <!-- 회원가입 -->
+    <string name="create_account_title">계정 만들기</string>
+    <string name="join_fitness_journey">피트니스의 미래에 합류하세요</string>
+    <string name="select_role">역할 선택</string>
+    <string name="min_password_chars">최소 6자</string>
+    <string name="your_display_name">표시 이름</string>
+    <string name="or_connect_with">또는 연결</string>
+    <string name="account_created">계정이 생성되었습니다! 로그인하세요.</string>
+    <string name="sign_up_failed">회원가입 실패</string>
+    <string name="invalid_email_or_password">잘못된 이메일 또는 비밀번호 (최소 6자)</string>
+    <string name="failed_to_save_profile">프로필 저장 실패</string>
+    <string name="profile_photo">프로필 사진</string>
+    <string name="choose_avatar_source">아바타 소스 선택</string>
+    <string name="camera">카메라</string>
+    <string name="avatar_captured">아바타 촬영됨</string>
+    <string name="avatar_selected">아바타 선택됨</string>
+    <string name="failed_to_load_image">이미지 로드 실패</string>
+    <string name="camera_permission_denied">카메라 권한이 거부되었습니다</string>
+    <string name="show_password">비밀번호 표시</string>
+    <string name="hide_password">비밀번호 숨기기</string>
+    <string name="google">Google</string>
+    <string name="phone">전화</string>
+
+    <!-- 분석 -->
+    <string name="analytics">분석</string>
+    <string name="weekly_summary">주간 요약</string>
+    <string name="monthly_summary">월간 요약</string>
+    <string name="progress">진행</string>
+    <string name="trend">트렌드</string>
+    <string name="statistics">통계</string>
+
+    <!-- 메시지 -->
+    <string name="messages">메시지</string>
+    <string name="chat">채팅</string>
+    <string name="send">보내기</string>
+    <string name="type_message">메시지를 입력하세요...</string>
+
+    <!-- 소셜 센터 -->
+    <string name="no_friends_yet">아직 친구가 없습니다</string>
+    <string name="add_friends_hint">오른쪽 상단을 눌러 친구 추가</string>
+    <string name="friend_request_sent">친구 요청을 보냈습니다</string>
+    <string name="send_failed">전송 실패</string>
+    <string name="challenge_created">챌린지가 생성되었습니다!</string>
+    <string name="joined_challenge">챌린지에 참여했습니다!</string>
+    <string name="friend_since">%s부터 친구</string>
+    <string name="goal_target">목표: %1$s %2$s</string>
+    <string name="participants_count">%d명 참여</string>
+    <string name="join_challenge">챌린지 참여</string>
+    <string name="calories_leaderboard">총 소모 칼로리 순위</string>
+    <string name="search_friend">친구 검색</string>
+    <string name="enter_username">사용자 이름 입력</string>
+    <string name="create_challenge">챌린지 만들기</string>
+    <string name="challenge_name">챌린지 이름</string>
+    <string name="challenge_description">설명</string>
+    <string name="challenge_target">목표 값</string>
+    <string name="challenge_days">일수</string>
+
+    <!-- 유산소 트래커 -->
+    <string name="cardio_tracker">유산소 트래커</string>
+    <string name="cardio_type">유형</string>
+    <string name="min_short">분</string>
+    <string name="sec_short">초</string>
+    <string name="speed">속도</string>
+    <string name="incline">경사</string>
+    <string name="history_record">기록</string>
+    <string name="no_record_yet">기록이 없습니다</string>
+    <string name="cardio_spin_bike">스핀 바이크</string>
+    <string name="cardio_elliptical">일립티컬</string>
+    <string name="cardio_rowing">로잉 머신</string>
+    <string name="cardio_stair">스테어 클라이머</string>
+    <string name="cardio_cycling">사이클링</string>
+    <string name="cardio_walk_jog">걷기/조깅</string>
+
+    <!-- 프로필 -->
+    <string name="profile">프로필</string>
+    <string name="edit_profile">프로필 편집</string>
+    <string name="nickname">닉네임</string>
+    <string name="birthday">생일</string>
+    <string name="gender">성별</string>
+    <string name="male">남성</string>
+    <string name="female">여성</string>
+    <string name="other">기타</string>
+    <string name="profile_basic_settings">프로필 설정</string>
+    <string name="basic_info">기본 정보</string>
+    <string name="body_data">신체 데이터</string>
+    <string name="nutrition_goal">영양 목표</string>
+    <string name="weight_kg_label">체중 (kg)</string>
+    <string name="height_cm_label">키 (cm)</string>
+    <string name="daily_calorie_goal">일일 칼로리 목표 (kcal)</string>
+    <string name="protein_goal_label">단백질 목표 (g)</string>
+    <string name="check_input_format">입력 형식을 확인해주세요</string>
+    <string name="saved">저장되었습니다</string>
+    <string name="save_failed_msg">저장 실패: %s</string>
+    <string name="profile_hint">팁: 이 데이터는 클라우드에 저장되어 홈 화면 계산에 사용됩니다.</string>
+
+    <!-- 음식 인식 -->
+    <string name="food_recognition">음식 인식</string>
+    <string name="saved_label">✓ 저장됨</string>
+    <string name="need_camera_permission">카메라 권한 필요</string>
+    <string name="camera_permission_reason">음식을 인식하려면 카메라 접근이 필요합니다</string>
+    <string name="grant_camera_permission">카메라 권한 부여</string>
+    <string name="place_food_in_frame">프레임 안에 음식을 놓으세요</string>
+    <string name="ai_analyzing">AI 분석 중...</string>
+    <string name="camera_start_failed">카메라 시작 실패</string>
+    <string name="gallery">갤러리</string>
+    <string name="take_photo">촬영</string>
+    <string name="camera_not_ready">카메라가 준비되지 않았습니다</string>
+    <string name="recognition_failed">인식 실패, 다시 시도해주세요</string>
+    <string name="recognition_error">인식 오류</string>
+    <string name="read_photo_failed">사진 읽기 실패</string>
+    <string name="photo_failed">촬영 실패</string>
+    <string name="recognition_result">🍽️ 인식 결과</string>
+    <string name="calorie">칼로리</string>
+    <string name="protein_label">단백질</string>
+    <string name="fat_label">지방</string>
+    <string name="carbs_label">탄수화물</string>
+    <string name="portion_adjust">📏 분량 조절</string>
+    <string name="retake">다시 촬영</string>
+    <string name="save_to_log">로그에 저장</string>
+    <string name="meal_type">식사 유형</string>
+    <string name="save_success">식단 로그에 저장되었습니다</string>
+    <string name="save_error">저장 실패</string>
+    <string name="food_label">음식: %s</string>
+    <string name="calorie_label">칼로리: %s kcal</string>
+    <string name="protein_value">단백질: %sg</string>
+    <string name="fat_value">지방: %sg</string>
+    <string name="carbs_value">탄수화물: %sg</string>
+    <string name="portion_label">분량: %s</string>
+    <string name="record_time_setting">기록 시간 설정</string>
+    <string name="date_time_label">날짜: %1$s  시간: %2$s</string>
+    <string name="confirm_save_to_log">이 영양 정보를 오늘 로그에 저장하시겠습니까?</string>
+    <string name="confirm_save">저장 확인</string>
+
+    <!-- 바디 포토 -->
+    <string name="record_body_changes">체형 변화 기록</string>
+    <string name="recent_photos">최근 사진</string>
+    <string name="no_records">기록 없음</string>
+    <string name="no_photos_this_month">이번 달 사진 없음</string>
+    <string name="delete_photo">사진 삭제</string>
+    <string name="year_month_format">%d년 %02d월</string>
+    <string name="year_suffix">년</string>
+    <string name="month_suffix">월</string>
+
+    <!-- InBody -->
+    <string name="inbody_tracker">InBody 추적기</string>
+    <string name="inbody_analysis">InBody 분석</string>
+    <string name="track_body_metrics">체중, 체지방, 근육량 추이 추적</string>
+    <string name="add_measurement">측정 추가</string>
+    <string name="weight_kg">체중 (kg)</string>
+    <string name="body_fat_percent">체지방률 (%)</string>
+    <string name="muscle_mass_kg">근육량 (kg)</string>
+    <string name="save_record">기록 저장</string>
+    <string name="history_records">기록</string>
+    <string name="no_inbody_records">InBody 기록 없음</string>
+    <string name="data_statistics">데이터 통계</string>
+    <string name="latest">최신</string>
+    <string name="change">변화</string>
+    <string name="average">평균</string>
+    <string name="range">범위</string>
+    <string name="trend_chart">트렌드 차트</string>
+    <string name="please_add_inbody_data">InBody 데이터를 먼저 추가하세요</string>
+    <string name="operation_guide">사용 안내</string>
+    <string name="chart_tips">• 차트의 점을 탭하여 상세 보기\n• 핀치로 확대/축소\n• 좌우 스와이프로 더 많은 데이터 확인</string>
+
+    <!-- 부위 분석 -->
+    <string name="part_analysis">부위 분석</string>
+    <string name="data_analysis">데이터 분석</string>
+    <string name="track_progress">운동 진행 상황 추적</string>
+    <string name="track_weight_trend">부위별 중량 추이 추적</string>
+    <string name="select_training_part">훈련 부위 선택</string>
+    <string name="chest">가슴</string>
+    <string name="back_part">등</string>
+    <string name="legs">다리</string>
+    <string name="shoulders">어깨</string>
+    <string name="arms">팔</string>
+    <string name="abs">복근</string>
+    <string name="other_part">기타</string>
+    <string name="select_exercise">운동 선택</string>
+    <string name="no_exercise_in_part">이 부위에 기록이 없습니다\n(기록이 있다면 \"기타\"를 확인하세요)</string>
+    <string name="please_select_exercise">운동을 선택하세요</string>
+    <string name="exercise_name">운동 이름</string>
+    <string name="weight_statistics">중량 통계</string>
+    <string name="latest_weight">최근 중량</string>
+    <string name="total_progress">총 진전</string>
+    <string name="historical_max">최고 기록</string>
+    <string name="average_weight">평균 중량</string>
+    <string name="weight_trend">중량 추이</string>
+    <string name="no_data_for_chart">차트를 그릴 데이터가 부족합니다</string>
+    <string name="select_exercise_to_view">분석을 보려면 운동을 선택하세요</string>
+
+    <!-- 데이터 분석 화면 -->
+    <string name="inbody_analysis_title">InBody 분석</string>
+    <string name="inbody_analysis_desc">체중, 체지방, 근육량 추이 그래프</string>
+    <string name="part_analysis_title">부위 분석</string>
+    <string name="part_analysis_desc">훈련 중량 진척 추적</string>
+    <string name="tip">팁</string>
+    <string name="analytics_tip">부위 분석은 훈련 기록의 운동 이름으로 자동 분류됩니다. 기록이 많을수록 분석이 정확해집니다!</string>
+
+    <!-- 영양 패널 -->
+    <string name="nutrients">영양소</string>
+    <string name="can_still_intake">%d kcal 더 섭취 가능</string>
+    <string name="over_intake">%d kcal 초과</string>
+    <string name="daily_summary_title">오늘의 요약</string>
+    <string name="time">시간</string>
+    <string name="minutes">분</string>
+    <string name="actions">동작</string>
+    <string name="notes">메모</string>
+    <string name="calories_label">칼로리 (kcal)</string>
+    <string name="nutrient_analysis_hint">영양소 분석 (수동 수정 가능)</string>
+    <string name="calories_consumed">소모: %d kcal</string>
+    <string name="more_actions">…%d개 더 (탭하여 펼치기)</string>
+    <string name="click_to_collapse">탭하여 접기</string>
+    <string name="exercise_format">• %1$s  %2$d세트 × %3$d회</string>
+    <string name="exercise_format_with_weight">• %1$s  %2$d세트 × %3$d회  @ %4$.1f kg</string>
+
+    <!-- Chat Screen -->
+    <string name="training_assistant">트레이닝 어시스턴트</string>
+    <string name="ai_fitness_helper">AI 피트니스 도우미</string>
+    <string name="no_chat_yet">메시지가 없습니다. 채팅을 시작하세요</string>
+    <string name="api_key_missing">API 키가 설정되지 않았습니다</string>
+    <string name="input_message">메시지 입력...</string>
+
+    <!-- 캘린더 -->
+    <string name="create_plan_btn">계획 만들기</string>
+    <string name="add_existing">기존 추가</string>
+    <string name="no_plan_for_day">이 날에 훈련 계획이 없습니다</string>
+    <string name="exercises_count">%d개 운동</string>
+    <string name="remove_schedule">일정에서 제거</string>
+    <string name="select_plan_to_add">추가할 훈련 계획 선택</string>
+    <string name="no_plans_create_first">훈련 계획이 없습니다. 먼저 만들어 주세요.</string>
+    <string name="add_btn">추가</string>
+    <string name="day_sun">일</string>
+    <string name="day_mon">월</string>
+    <string name="day_tue">화</string>
+    <string name="day_wed">수</string>
+    <string name="day_thu">목</string>
+    <string name="day_fri">금</string>
+    <string name="day_sat">토</string>
+    <string name="training_label">훈련</string>
+    <string name="create_plan_for_date">%s 계획 만들기</string>
+    <string name="plan_name_optional">계획 이름 (선택사항)</string>
+    <string name="select_body_part_label">훈련 부위 선택</string>
+
+    <!-- Create Plan Dialog -->
+    <string name="added_exercises">추가된 운동 (%d)</string>
+    <string name="sets_x_weight">%d세트 × %dkg</string>
+    <string name="more_exercises">… %d개 더</string>
+    <string name="clear_all_exercises">모두 지우기</string>
+    <string name="publish">게시</string>
+    <string name="part_training_options">%s 훈련 옵션</string>
+    <string name="weight_label">무게: %d kg</string>
+    <string name="sets_label">세트:</string>
+    <string name="confirm_add">추가 확인</string>
+    <string name="select_trainee">수강생 선택</string>
+    <string name="publish_to">게시 대상:</string>
+    <string name="confirm_publish">게시 확인</string>
+    <string name="chest_part">가슴</string>
+    <string name="back_part_full">등</string>
+    <string name="legs_part">다리</string>
+    <string name="arms_part">팔</string>
+    <string name="shoulders_part">어깨</string>
+    <string name="abs_part">복근</string>
+    <string name="plan_name_example">예: 가슴 운동 / 상체</string>
+    <string name="plan_auto_generate">계획 이름: 자동 생성</string>
+    <string name="plan_name_display">계획 이름: %s</string>
+    <string name="current_exercises_count">현재 %d개 운동 추가됨</string>
+    <string name="no_exercises_added">(아직 운동이 추가되지 않음)</string>
+    <string name="clear_btn">지우기</string>
+    <string name="publish_cloud">클라우드에 게시</string>
+    <string name="saved_plan">저장됨: %s</string>
+    <string name="published_cloud">클라우드에 게시됨: %s</string>
+    <string name="publish_failed">게시 실패: %s</string>
+    <string name="no_trainee_hint">아직 트레이니가 없습니다. 코치 센터에서 추가해주세요</string>
+    <string name="added_to_plan">%d개 운동을 계획에 추가했습니다</string>
+    <string name="published_to_trainee">트레이니에게 게시됨: %s</string>
+</resources>

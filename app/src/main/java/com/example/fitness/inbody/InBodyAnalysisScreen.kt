@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.ui.LineChart
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -25,14 +27,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 private enum class InBodyMetric(
-    val label: String,
+    val labelResId: Int,
     val icon: String,
     val unit: String,
     val color: @Composable () -> androidx.compose.ui.graphics.Color
 ) {
-    WEIGHT("體重", "⚖️", "kg", { MaterialTheme.colorScheme.primary }),
-    BODY_FAT("體脂率", "📉", "%", { MaterialTheme.colorScheme.tertiary }),
-    MUSCLE("肌肉量", "💪", "kg", { MaterialTheme.colorScheme.secondary }),
+    WEIGHT(R.string.weight, "⚖️", "kg", { MaterialTheme.colorScheme.primary }),
+    BODY_FAT(R.string.body_fat, "📉", "%", { MaterialTheme.colorScheme.tertiary }),
+    MUSCLE(R.string.muscle_mass, "💪", "kg", { MaterialTheme.colorScheme.secondary }),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,25 +45,26 @@ fun InBodyAnalysisScreen(
 ) {
     var selectedMetric by remember { mutableStateOf(InBodyMetric.WEIGHT) }
     val records by inBodyRepository.records.collectAsState(initial = emptyList())
+    val cs = MaterialTheme.colorScheme
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Top Bar
         TopAppBar(
             title = {
                 Text(
-                    "InBody 分析",
+                    stringResource(R.string.inbody_analysis),
                     fontWeight = FontWeight.Bold
                 )
             },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent,
-                titleContentColor = TechColors.NeonBlue,
-                navigationIconContentColor = Color.White
+                titleContentColor = cs.primary,
+                navigationIconContentColor = cs.onBackground
             )
         )
 
@@ -70,7 +73,7 @@ fun InBodyAnalysisScreen(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(TechColors.DarkBlue, TechColors.DeepPurple)
+                        listOf(cs.background, cs.background)
                     )
                 )
         ) {
@@ -113,7 +116,7 @@ fun InBodyAnalysisScreen(
                                 style = MaterialTheme.typography.headlineSmall
                             )
                             Text(
-                                text = metric.label,
+                                text = stringResource(metric.labelResId),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = if (isSelected)
                                     TechColors.NeonBlue
@@ -168,7 +171,7 @@ fun InBodyAnalysisScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "數據統計",
+                            text = stringResource(R.string.data_statistics),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -180,7 +183,7 @@ fun InBodyAnalysisScreen(
                         ) {
                             // Latest Value
                             StatCard(
-                                label = "最新",
+                                label = stringResource(R.string.latest),
                                 value = String.format(Locale.getDefault(), "%.1f", latest),
                                 unit = selectedMetric.unit,
                                 modifier = Modifier.weight(1f)
@@ -188,7 +191,7 @@ fun InBodyAnalysisScreen(
 
                             // Change
                             StatCard(
-                                label = "變化",
+                                label = stringResource(R.string.change),
                                 value = String.format(
                                     Locale.getDefault(),
                                     "%+.1f",
@@ -214,7 +217,7 @@ fun InBodyAnalysisScreen(
                         ) {
                             // Average
                             StatCard(
-                                label = "平均",
+                                label = stringResource(R.string.average),
                                 value = String.format(Locale.getDefault(), "%.1f", average),
                                 unit = selectedMetric.unit,
                                 modifier = Modifier.weight(1f)
@@ -222,7 +225,7 @@ fun InBodyAnalysisScreen(
 
                             // Range
                             StatCard(
-                                label = "範圍",
+                                label = stringResource(R.string.range),
                                 value = String.format(
                                     Locale.getDefault(),
                                     "%.1f-%.1f",
@@ -256,13 +259,13 @@ fun InBodyAnalysisScreen(
                     ) {
                         Column {
                             Text(
-                                text = "趨勢圖表",
+                                text = stringResource(R.string.trend_chart),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
-                                text = "${selectedMetric.label} (${selectedMetric.unit})",
+                                text = "${stringResource(selectedMetric.labelResId)} (${selectedMetric.unit})",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.7f)
                             )
@@ -297,13 +300,13 @@ fun InBodyAnalysisScreen(
                                     modifier = Modifier.size(48.dp)
                                 )
                                 Text(
-                                    "尚無記錄",
+                                    stringResource(R.string.no_records),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = Color(0xFFFF6B6B),
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    "請先添加 InBody 數據",
+                                    stringResource(R.string.please_add_inbody_data),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White.copy(alpha = 0.7f)
                                 )
@@ -339,14 +342,14 @@ fun InBodyAnalysisScreen(
                     )
                     Column {
                         Text(
-                            text = "操作說明",
+                            text = stringResource(R.string.operation_guide),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "• 點擊圖表上的點查看詳細數據\n• 雙指縮放可放大圖表\n• 左右滑動查看更多數據",
+                            text = stringResource(R.string.chart_tips),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.7f)
                         )

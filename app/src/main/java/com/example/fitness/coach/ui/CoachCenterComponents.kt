@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -110,40 +112,86 @@ fun PlanShareCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
+        shape = RoundedCornerShape(16.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isPublished) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isPublished) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+            containerColor = if (isPublished)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+            else
+                MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Text(
-                plan.name,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text(
+                    plan.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
 
-            // CHANGED: remove always-visible picker; publish triggers a trainee single-select dialog
-            if (onPublishToTrainee != null) {
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = { pickingTrainee = true },
-                    enabled = trainees.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth().height(40.dp)
-                ) {
-                    Text("發布", style = MaterialTheme.typography.bodySmall)
+                if (isPublished) {
+                    com.example.fitness.ui.theme.AppBadge(
+                        text = "已發布",
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
+
+            if (onPublishToTrainee != null) {
+                Button(
+                    onClick = { pickingTrainee = true },
+                    enabled = trainees.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth().height(42.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        if (trainees.isEmpty()) "尚未加入學員" else "發布給特定學員",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     enabled = !isPublished,
-                    onClick = onPublishCloud
-                ) { Text(if (isPublished) "已發布" else "發布雲端") }
+                    onClick = onPublishCloud,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (isPublished) "已同步雲端" else "發布至雲端")
+                }
 
                 if (onDeleteLocal != null) {
-                    OutlinedButton(onClick = onDeleteLocal) { Text("刪除") }
+                    OutlinedButton(
+                        onClick = onDeleteLocal,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("刪除")
+                    }
                 }
             }
         }

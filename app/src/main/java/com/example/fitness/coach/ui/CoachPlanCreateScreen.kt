@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -44,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -55,8 +57,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.coach.CoachAuthRepository
 import com.example.fitness.coach.cloud.CloudSyncUseCase
 import com.example.fitness.coach.cloud.CoachTrainee
@@ -114,8 +119,14 @@ fun CoachPlanCreateScreen(
 
     // Resolve coachId once for publish
     var coachId by remember { mutableStateOf("") }
+
+    // Custom exercises from coach
+    val customExercises by cloudSync.customExercisesFlow()
+        .collectAsState(initial = emptyList())
+
     LaunchedEffect(Unit) {
         coachId = FirebaseAuth.getInstance().currentUser?.uid ?: authRepository.ensureUserId()
+        cloudSync.startListeningCustomExercises()
 
         // Load trainees for publish dialog
         if (coachId.isNotBlank()) {
@@ -225,10 +236,10 @@ fun CoachPlanCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "教練中心 - 建立計畫", style = MaterialTheme.typography.titleLarge)
+                Text(text = "${stringResource(R.string.coach_center)} - ${stringResource(R.string.create_plan)}", style = MaterialTheme.typography.titleLarge)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -237,14 +248,14 @@ fun CoachPlanCreateScreen(
                 value = planName,
                 onValueChange = { planName = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("計劃名稱") },
-                placeholder = { Text("例如：胸部訓練 / 上肢力量") },
+                label = { Text(stringResource(R.string.plan_name_optional)) },
+                placeholder = { Text(stringResource(R.string.plan_name_example)) },
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(text = "選擇訓練部位", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.select_body_part), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             BoxWithConstraints(modifier = Modifier.weight(1f)) {
@@ -315,16 +326,16 @@ fun CoachPlanCreateScreen(
                 ) {
                     val previewTitle = if (planName.trim()
                             .isBlank()
-                    ) "計劃名稱：自動產生" else "計劃名稱：${planName.trim()}"
+                    ) stringResource(R.string.plan_auto_generate) else stringResource(R.string.plan_name_display, planName.trim())
                     Text(previewTitle, style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "目前已加入 ${planExercises.size} 個動作",
+                        stringResource(R.string.current_exercises_count, planExercises.size),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
                     if (planExercises.isEmpty()) {
                         Text(
-                            "（尚未加入動作）",
+                            stringResource(R.string.no_exercises_added),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -342,7 +353,7 @@ fun CoachPlanCreateScreen(
                                     val sets = e.sets
                                     val reps = e.reps
                                     val w = e.weight
-                                    if (sets != null) append("  ${sets}組")
+                                    if (sets != null) append("  ${sets}${appCtx.getString(R.string.sets)}")
                                     if (reps != null) append("x${reps}")
                                     if (w != null) append("  ${w.roundToInt()}kg")
                                 }
@@ -358,12 +369,12 @@ fun CoachPlanCreateScreen(
                         TextButton(
                             onClick = onBack,
                             modifier = Modifier.height(56.dp).width(110.dp)
-                        ) { Text("返回") }
+                        ) { Text(stringResource(R.string.back)) }
                         TextButton(
                             enabled = planExercises.isNotEmpty(),
                             onClick = { planExercises.clear() },
                             modifier = Modifier.height(56.dp).width(110.dp)
-                        ) { Text("清空") }
+                        ) { Text(stringResource(R.string.clear_btn)) }
 
                         // Save locally only (name no longer required)
                         Button(
@@ -379,25 +390,25 @@ fun CoachPlanCreateScreen(
                                         updatedAt = now,
                                     )
                                     onSave(plan)
-                                    snackbarHostState.showSnackbar("已儲存：${plan.name}")
+                                    snackbarHostState.showSnackbar(appCtx.getString(R.string.saved_plan, plan.name))
                                     onBack()
                                 }
                             },
                             modifier = Modifier.height(56.dp).weight(1f)
-                        ) { Text("儲存") }
+                        ) { Text(stringResource(R.string.save)) }
 
                         // Publish: open trainee picker dialog (single target)
                         Button(
                             enabled = coachId.isNotBlank() && planExercises.isNotEmpty(),
                             onClick = {
                                 if (trainees.isEmpty()) {
-                                    scope.launch { snackbarHostState.showSnackbar("尚未新增學員，請先到教練中心新增學員") }
+                                    scope.launch { snackbarHostState.showSnackbar(appCtx.getString(R.string.no_trainee_hint)) }
                                 } else {
                                     confirmPublishToTrainee = true
                                 }
                             },
                             modifier = Modifier.height(56.dp).width(150.dp)
-                        ) { Text("發佈") }
+                        ) { Text(stringResource(R.string.publish)) }
 
                         // Optional: keep cloud publish as separate action
                         OutlinedButton(
@@ -419,15 +430,15 @@ fun CoachPlanCreateScreen(
                                         plan = plan
                                     )
                                     if (r.isSuccess) {
-                                        snackbarHostState.showSnackbar("已發佈雲端：${plan.name}")
+                                        snackbarHostState.showSnackbar(appCtx.getString(R.string.published_cloud, plan.name))
                                         onBack()
                                     } else {
-                                        snackbarHostState.showSnackbar("發佈失敗：${r.exceptionOrNull()?.message ?: ""}")
+                                        snackbarHostState.showSnackbar(appCtx.getString(R.string.publish_failed, r.exceptionOrNull()?.message ?: ""))
                                     }
                                 }
                             },
                             modifier = Modifier.height(56.dp).width(150.dp)
-                        ) { Text("發佈雲端") }
+                        ) { Text(stringResource(R.string.publish_cloud)) }
                     }
                 }
             }
@@ -438,18 +449,27 @@ fun CoachPlanCreateScreen(
         // --- Dialog mapping (mirror TrainingPlanScreen) ---
 
         // Dialog content groups (shared with TrainingPlanScreen)
-        val groupsToShow = remember(activeDialog) {
+        val groupsToShow = remember(activeDialog, customExercises) {
             val key = activeDialog
-            if (key.isNullOrBlank()) emptyList() else PartExerciseCatalog.groupsForPart(key)
+            if (key.isNullOrBlank()) emptyList()
+            else {
+                val catalogGroups = PartExerciseCatalog.groupsForPart(key)
+                // Append custom exercises that match this body part
+                val customForPart = customExercises
+                    .filter { it.bodyPart == key }
+                    .map { it.name }
+                if (customForPart.isEmpty()) catalogGroups
+                else catalogGroups + listOf("自訂動作" to customForPart)
+            }
         }
 
         val partDisplayName = when (activeDialog) {
-            "chest" -> "胸部"
-            "back" -> "背部"
-            "legs" -> "腿部"
-            "arms" -> "手臂"
-            "shoulders" -> "肩部"
-            "abs" -> "腹部"
+            "chest" -> stringResource(R.string.chest_part)
+            "back" -> stringResource(R.string.back_part_full)
+            "legs" -> stringResource(R.string.legs_part)
+            "arms" -> stringResource(R.string.arms_part)
+            "shoulders" -> stringResource(R.string.shoulders_part)
+            "abs" -> stringResource(R.string.abs_part)
             else -> ""
         }
 
@@ -474,13 +494,13 @@ fun CoachPlanCreateScreen(
                                 )
                             }
                             planExercises.addAll(newEntries)
-                            scope.launch { snackbarHostState.showSnackbar("已加入 ${newEntries.size} 個動作到計劃") }
+                            scope.launch { snackbarHostState.showSnackbar(appCtx.getString(R.string.added_to_plan, newEntries.size)) }
 
                             activeDialog = null
                             selectedItems.clear(); selectedSets.clear(); selectedWeights.clear()
                         },
                         modifier = Modifier.height(56.dp).width(160.dp)
-                    ) { Text("加入到計劃") }
+                    ) { Text(stringResource(R.string.confirm_add)) }
                 },
                 dismissButton = {
                     TextButton(
@@ -489,9 +509,9 @@ fun CoachPlanCreateScreen(
                             selectedItems.clear(); selectedSets.clear(); selectedWeights.clear()
                         },
                         modifier = Modifier.height(56.dp).width(120.dp)
-                    ) { Text("取消") }
+                    ) { Text(stringResource(R.string.cancel)) }
                 },
-                title = { Text(text = "$partDisplayName 訓練選項") },
+                title = { Text(text = stringResource(R.string.part_training_options, partDisplayName)) },
                 text = {
                     Column(
                         modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp)
@@ -544,7 +564,7 @@ fun CoachPlanCreateScreen(
                                             modifier = Modifier.fillMaxWidth()
                                                 .padding(start = 40.dp, top = 6.dp)
                                         ) {
-                                            Text(text = "重量: ${selectedWeights[item]?.roundToInt() ?: defaultWeight.toInt()} kg")
+                                            Text(text = stringResource(R.string.weight_label, selectedWeights[item]?.roundToInt() ?: defaultWeight.toInt()))
                                             Slider(
                                                 value = selectedWeights[item] ?: defaultWeight,
                                                 onValueChange = { v ->
@@ -555,7 +575,7 @@ fun CoachPlanCreateScreen(
                                                 steps = 99
                                             )
                                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Text(text = "Sets:")
+                                                Text(text = stringResource(R.string.sets_label))
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Button(onClick = {
                                                     val cur = selectedSets[item] ?: defaultSets
@@ -583,11 +603,11 @@ fun CoachPlanCreateScreen(
         if (confirmPublishToTrainee) {
             AlertDialog(
                 onDismissRequest = { confirmPublishToTrainee = false },
-                title = { Text("選擇發布學員") },
+                title = { Text(stringResource(R.string.select_trainee)) },
                 text = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "發布給：",
+                            text = stringResource(R.string.publish_to),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -625,19 +645,19 @@ fun CoachPlanCreateScreen(
                                 if (r.isSuccess) {
                                     confirmPublishToTrainee = false
                                     snackbarHostState.showSnackbar(
-                                        "已發布給：${target.displayName.ifBlank { target.traineeId }}"
+                                        appCtx.getString(R.string.published_to_trainee, target.displayName.ifBlank { target.traineeId })
                                     )
                                     onBack()
                                 } else {
-                                    snackbarHostState.showSnackbar("發布失敗：${r.exceptionOrNull()?.message ?: ""}")
+                                    snackbarHostState.showSnackbar(appCtx.getString(R.string.publish_failed, r.exceptionOrNull()?.message ?: ""))
                                 }
                             }
                         },
                         enabled = publishTarget != null && coachId.isNotBlank() && planExercises.isNotEmpty()
-                    ) { Text("確認發布") }
+                    ) { Text(stringResource(R.string.confirm_publish)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { confirmPublishToTrainee = false }) { Text("取消") }
+                    TextButton(onClick = { confirmPublishToTrainee = false }) { Text(stringResource(R.string.cancel)) }
                 }
             )
         }

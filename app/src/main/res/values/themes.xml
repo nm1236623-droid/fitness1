@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Fitness" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Edge-to-edge is handled by enableEdgeToEdge() in each Activity.
+             android:statusBarColor and android:navigationBarColor are deprecated
+             since Android 15 (SDK 35) and must not be used. -->
     </style>
 </resources>

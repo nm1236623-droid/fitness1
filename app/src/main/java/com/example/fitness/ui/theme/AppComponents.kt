@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.sp
  */
 
 // ========== 顏色系統 ==========
-object AppColors {
+object AppGradients {
     val GradientPrimary = listOf(
         Color(0xFF6366F1), // Indigo
         Color(0xFF8B5CF6)  // Purple
@@ -66,7 +65,7 @@ object AppColors {
 @Composable
 fun PremiumCard(
     modifier: Modifier = Modifier,
-    gradient: List<Color> = AppColors.GradientPrimary,
+    gradient: List<Color> = AppGradients.GradientPrimary,
     elevation: Dp = 2.dp,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
@@ -78,7 +77,7 @@ fun PremiumCard(
     }
 
     Card(
-        modifier = cardModifier.shadow(elevation, RoundedCornerShape(20.dp)),
+        modifier = cardModifier,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
@@ -116,7 +115,7 @@ fun GlassCard(
     }
 
     Card(
-        modifier = cardModifier.shadow(2.dp, RoundedCornerShape(20.dp)),
+        modifier = cardModifier,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor.copy(alpha = 0.95f)
@@ -137,7 +136,7 @@ fun PremiumButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    gradient: List<Color> = AppColors.GradientPrimary,
+    gradient: List<Color> = AppGradients.GradientPrimary,
     icon: ImageVector? = null,
     enabled: Boolean = true
 ) {
@@ -150,8 +149,7 @@ fun PremiumButton(
         onClick = onClick,
         modifier = modifier
             .height(56.dp)
-            .scale(scale)
-            .shadow(if (enabled) 4.dp else 1.dp, RoundedCornerShape(16.dp)),
+            .scale(scale),
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
@@ -243,7 +241,7 @@ fun StatCard(
     value: String,
     subtitle: String? = null,
     icon: ImageVector? = null,
-    gradient: List<Color> = AppColors.GradientPrimary,
+    gradient: List<Color> = AppGradients.GradientPrimary,
     modifier: Modifier = Modifier
 ) {
     PremiumCard(
@@ -307,7 +305,7 @@ fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     size: Dp = 120.dp,
     strokeWidth: Dp = 12.dp,
-    gradient: List<Color> = AppColors.GradientSuccess,
+    gradient: List<Color> = AppGradients.GradientSuccess,
     label: String = "",
     value: String = ""
 ) {
@@ -365,7 +363,7 @@ fun PremiumChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    selectedGradient: List<Color> = AppColors.GradientPrimary
+    selectedGradient: List<Color> = AppGradients.GradientPrimary
 ) {
     val backgroundColor by animateColorAsState(
         targetValue = if (selected) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant,
@@ -383,7 +381,7 @@ fun PremiumChip(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
-        shadowElevation = if (selected) 4.dp else 0.dp
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier
@@ -461,6 +459,180 @@ fun EmptyState(
     }
 }
 
+// ========== 標籤與徽章組件 ==========
+@Composable
+fun AppBadge(
+    text: String,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = containerColor
+    ) {
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+        )
+    }
+}
+
+// ========== 區塊標題組件 ==========
+@Composable
+fun AppSectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    badgeText: String? = null,
+    actionText: String? = null,
+    onActionClick: (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            if (badgeText != null) {
+                AppBadge(text = badgeText)
+            }
+        }
+
+        if (actionText != null && onActionClick != null) {
+            TextButton(
+                onClick = onActionClick,
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = actionText,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+// ========== 結構化通用卡片 ==========
+@Composable
+fun AppCard(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    borderColor: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+    onClick: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val cardModifier = if (onClick != null) {
+        modifier.clickable { onClick() }
+    } else {
+        modifier
+    }
+
+    Card(
+        modifier = cardModifier,
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            content = content
+        )
+    }
+}
+
+// ========== 統一高對比輸入框 ==========
+@Composable
+fun AppTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    placeholder: String? = null,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    singleLine: Boolean = true,
+    keyboardOptions: androidx.compose.foundation.text.KeyboardOptions = androidx.compose.foundation.text.KeyboardOptions.Default,
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None,
+) {
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = if (label != null) { { Text(label, fontWeight = FontWeight.Medium) } } else null,
+            placeholder = if (placeholder != null) { { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)) } } else null,
+            leadingIcon = if (leadingIcon != null) { { Icon(leadingIcon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) } } else null,
+            trailingIcon = trailingIcon,
+            isError = isError,
+            singleLine = singleLine,
+            keyboardOptions = keyboardOptions,
+            visualTransformation = visualTransformation,
+            shape = RoundedCornerShape(14.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+            )
+        )
+        if (isError && !errorMessage.isNullOrBlank()) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
+    }
+}
+
 // ========== 成功動畫 ==========
 @Composable
 fun SuccessAnimation(
@@ -486,4 +658,5 @@ fun SuccessAnimation(
         )
     }
 }
+
 

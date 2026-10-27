@@ -25,8 +25,8 @@ service cloud.firestore {
       allow read: if isSelf(uid);
       // 創建時必須指定角色
       allow create: if isSelf(uid) && request.resource.data.role in ['COACH', 'TRAINEE'];
-      // 更新時禁止修改角色 (Role is immutable)
-      allow update: if isSelf(uid) && request.resource.data.role == resource.data.role;
+      // 更新時允許本人修改（包含角色變更）
+      allow update: if isSelf(uid) && request.resource.data.role in ['COACH', 'TRAINEE'];
       allow delete: if false;
     }
 
@@ -77,6 +77,13 @@ service cloud.firestore {
 
         allow update, delete: if false;
       }
+
+      // 教練自訂動作
+      match /customExercises/{exerciseId} {
+        allow read: if isSelf(coachId);
+        allow create, update, delete: if isSelf(coachId)
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'COACH';
+      }
     }
 
     // --- 學員專區 (Trainees Area) ---
@@ -97,6 +104,18 @@ service cloud.firestore {
         allow create, update, delete: if signedIn()
           && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'COACH'
           && get(/databases/$(database)/documents/trainees/$(traineeId)/memberships/$(request.auth.uid)).data.coachId == request.auth.uid
+          && request.resource.data.coachId == request.auth.uid
+          && request.resource.data.traineeId == traineeId;
+      }
+
+      // 飲食建議收件匣 (教練派發的飲食建議)
+      match /inboxDietSuggestions/{suggestionId} {
+        // 學員可以讀取和刪除自己的飲食建議
+        allow read, delete: if isSelf(traineeId);
+
+        // 教練可以發送飲食建議
+        allow create, update: if signedIn()
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'COACH'
           && request.resource.data.coachId == request.auth.uid
           && request.resource.data.traineeId == traineeId;
       }
@@ -268,6 +287,17 @@ service cloud.firestore {
     match /workout_templates/{templateId} {
       allow read: if signedIn();
       allow create, update, delete: if signedIn();
+    }
+
+    // === KOL 公開資料 ===
+    match /kol_sources/{sourceId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    match /kol_items/{itemId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
     }
 
     // 拒絕所有未明確定義的存取

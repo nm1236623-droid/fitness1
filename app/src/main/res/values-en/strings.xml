@@ -1,0 +1,642 @@
+<resources>
+    <!-- App Basic -->
+    <string name="app_name">Fitness Trainer</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_continue">Login to continue</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_camera">Scan</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_analytics">Analytics</string>
+
+    <!-- Home -->
+    <string name="training_summary">Training Summary</string>
+    <string name="today_intake">Today\'s Intake</string>
+    <string name="today_burned">Today\'s Burned</string>
+    <string name="nutrition_intake">Nutrition Intake</string>
+    <string name="water_tracking">Water Tracking</string>
+    <string name="set_goal">Set Goal</string>
+    <string name="remaining">Remaining</string>
+    <string name="over_limit">Over Limit</string>
+
+    <!-- Workout -->
+    <string name="workout">Workout</string>
+    <string name="workout_plan">Workout Plan</string>
+    <string name="create_plan">Create Plan</string>
+    <string name="ai_training_plan">AI Training Plan</string>
+    <string name="ai_generate_plan">AI Smart Plan Generator</string>
+    <string name="generate_plan">Generate Plan</string>
+    <string name="save_plan">Save Plan</string>
+    <string name="preview_plan">Preview Plan</string>
+    <string name="training_history">Training History</string>
+    <string name="training_log">Training Log</string>
+    <string name="select_body_part">Select Body Part</string>
+    <string name="start_workout">Start Workout</string>
+    <string name="finish_workout">Finish Workout</string>
+    <string name="no_training_record">No training records for this day</string>
+    <string name="training_record_hint">Records will appear here after workouts.</string>
+    <string name="view_by_date">View training records by date</string>
+    <string name="unnamed_training">Unnamed Workout</string>
+    <string name="duration">Duration</string>
+    <string name="calories_burned">Calories Burned</string>
+    <string name="exercises">Exercises</string>
+    <string name="sets">Sets</string>
+    <string name="reps">Reps</string>
+    <string name="ai_thinking">AI Thinking...</string>
+    <string name="api_key_not_set">API Key not set</string>
+    <string name="please_enter_age">Please enter age</string>
+    <string name="ai_service_failed">AI service failed</string>
+    <string name="generate_failed">Generation failed</string>
+    <string name="save_training_plan">Save Training Plan</string>
+    <string name="save_plan_confirm">Save \'%s\' to my training plans?</string>
+    <string name="save_template_hint">Tip: You can also save as template for future use</string>
+    <string name="save_template">Save as Template</string>
+    <string name="save_template_desc">Save to quickly create training plans anytime</string>
+    <string name="plan_saved">Plan saved</string>
+
+    <!-- Diet -->
+    <string name="diet_log">Diet Log</string>
+    <string name="ai_nutrition_analysis">AI Nutrition Analysis</string>
+    <string name="daily_summary">Daily Summary</string>
+    <string name="calories">Calories</string>
+    <string name="protein">Protein</string>
+    <string name="carbs">Carbs</string>
+    <string name="fat">Fat</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="lunch">Lunch</string>
+    <string name="dinner">Dinner</string>
+    <string name="snack">Snack</string>
+    <string name="add_food">Add Food</string>
+    <string name="food_name">Food Name</string>
+    <string name="analyze_food">Analyze Food</string>
+    <string name="no_food_record">No food records for this day</string>
+    <string name="food_record_hint">Tap button below to add food records</string>
+    <string name="water">Water</string>
+    <string name="water_recorded">Recorded %d ml water</string>
+    <string name="water_record_failed">Failed to record water</string>
+    <string name="set_water_goal">Set Daily Water Goal</string>
+    <string name="enter_goal_ml">Enter goal (ml)</string>
+    <string name="example_2000">e.g. 2000</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="personalize_experience">Personalize your experience</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="color_style">Color Style</string>
+    <string name="language_settings">Language Settings</string>
+    <string name="app_language">App Language</string>
+    <string name="light_mode">Light</string>
+    <string name="dark_mode">Dark</string>
+    <string name="system_mode">System</string>
+    <string name="neon_blue">Neon Blue</string>
+    <string name="purple">Purple</string>
+    <string name="green">Green</string>
+    <string name="orange">Orange</string>
+    <string name="red">Red</string>
+    <string name="custom">Custom</string>
+
+    <!-- Delete Account -->
+    <string name="danger_zone">Danger Zone</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_description">Permanently delete your account and all data</string>
+    <string name="delete_account_warning">⚠️ This action cannot be undone!\n\nDeleting your account will permanently remove:\n• All personal data\n• Training records\n• Workout plans and templates\n• Profile photos\n\nPlease enter your password to confirm.</string>
+    <string name="delete_account_confirm_title">Confirm Account Deletion</string>
+    <string name="enter_password_to_confirm">Enter password to confirm</string>
+    <string name="deleting_account">Deleting account…</string>
+    <string name="account_deleted">Account successfully deleted</string>
+    <string name="delete_account_failed">Failed to delete account: %1$s</string>
+    <string name="password_required">Please enter your password</string>
+    <string name="confirm_delete">Confirm Delete</string>
+
+    <!-- Workout Templates -->
+    <string name="my_templates">My Templates</string>
+    <string name="save_as_template">Save as Template</string>
+    <string name="save_as_template_title">Save as Template</string>
+    <string name="template_save_hint">Save to quickly create training plans anytime</string>
+    <string name="save_as_template_hint">Tip: You can also save as a template for future use</string>
+    <string name="template_name">Template Name</string>
+    <string name="template_description">Description (Optional)</string>
+    <string name="no_templates">No templates yet. Generate a plan and save as template.</string>
+    <string name="template_applied">Template Applied</string>
+    <string name="template_saved">Template Saved</string>
+    <string name="template_deleted">Template Deleted</string>
+    <string name="delete_template">Delete Template</string>
+    <string name="delete_template_confirm">Delete template \'%s\'?</string>
+    <string name="save_failed">Save failed</string>
+    <string name="delete_failed">Delete failed</string>
+    <string name="please_enter_template_name">Please enter template name</string>
+    <string name="days_per_week_format">%d days/week</string>
+
+    <!-- Goals and Levels -->
+    <string name="set_target">Set Target</string>
+    <string name="goal_bulk">Bulk</string>
+    <string name="goal_cut">Cut</string>
+    <string name="level">Level</string>
+    <string name="level_beginner">Beginner</string>
+    <string name="level_intermediate">Intermediate</string>
+    <string name="level_advanced">Advanced</string>
+    <string name="description">Description</string>
+    <string name="user_data">User Data</string>
+    <string name="age">Age</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="body_fat">Body Fat</string>
+    <string name="muscle_mass">Muscle Mass</string>
+    <string name="days_per_week">Days/Week</string>
+    <string name="training_level">Training Level</string>
+
+    <!-- Common Buttons -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="done">Done</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="reset">Reset</string>
+    <string name="refresh">Refresh</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    <string name="please_enter">Please enter</string>
+    <string name="not_logged_in">Not logged in</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="no_data">No data</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="previous_day">Previous Day</string>
+    <string name="next_day">Next Day</string>
+
+    <!-- Quick Actions -->
+    <string name="quick_open">Quick Open</string>
+    <string name="social_center">Social</string>
+    <string name="social_subtitle">Workout with friends</string>
+    <string name="friends_tab">Friends</string>
+    <string name="challenges_tab">Challenges</string>
+    <string name="leaderboard_tab">Leaderboard</string>
+    <string name="cardio">Cardio</string>
+    <string name="inbody">InBody</string>
+    <string name="body_photos">Body Photos</string>
+    <string name="running">Running</string>
+    <string name="cycling">Cycling</string>
+    <string name="swimming">Swimming</string>
+
+    <!-- Coach/Trainee -->
+    <string name="coach">Coach</string>
+    <string name="trainee">Trainee</string>
+    <string name="coach_center">Coach Center</string>
+    <string name="trainee_center">Trainee Center</string>
+    <string name="my_students">My Students</string>
+    <string name="my_coach">My Coach</string>
+    <string name="send_plan">Send Plan</string>
+    <string name="receive_plan">Receive Plan</string>
+    <string name="coach_only_hint">Coach Center is only available for coach accounts.</string>
+    <string name="coach_plan_hint">Reminder: Plans published by coaches will only appear in the Trainee Center.</string>
+    <string name="trainee_account_hint">This feature is only available for coach accounts.\n\nYou are currently a trainee account, please use Trainee Center to receive plans from coaches.</string>
+    <string name="go_to_trainee_center">Go to Trainee Center</string>
+    <string name="trainee_center_guide">Please go to Workout → Coach / Trainee → Trainee Center</string>
+    <string name="coach_id">Coach ID</string>
+    <string name="coach_nickname">Coach Nickname</string>
+    <string name="set_coach_nickname">Set Coach Nickname</string>
+    <string name="edit_coach_nickname">Edit Coach Nickname</string>
+    <string name="nickname_saved">Nickname Saved</string>
+    <string name="save_failed_msg_simple">Save failed: %s</string>
+    <string name="copy_coach_id">Copy Coach ID</string>
+    <string name="copied_coach_id">Coach ID Copied</string>
+    <string name="trainee_list">Trainee List</string>
+    <string name="trainee_list_hint">Add trainees for selective publishing</string>
+    <string name="refresh_trainee">Refresh Trainees</string>
+    <string name="read_trainee_failed">Failed to read trainees: %s</string>
+    <string name="id_label">ID</string>
+    <string name="nickname_label">Nickname</string>
+    <string name="add_btn_simple">Add</string>
+    <string name="trainee_added">Trainee added/updated</string>
+    <string name="add_trainee_failed">Add failed: %s</string>
+    <string name="all_trainees">All Trainees</string>
+    <string name="select_trainee_label">Select Trainee</string>
+    <string name="no_trainees_yet">No trainees yet</string>
+    <string name="coach_schedule">Coach Schedule</string>
+    <string name="exercises_count_format">%d exercises</string>
+    <string name="no_plans_yet">No plans created yet</string>
+    <string name="trainee_completion_report">Trainee Completion Reports</string>
+    <string name="trainee_label">Trainee: %s</string>
+    <string name="unnamed">(Unnamed)</string>
+    <string name="completed_label">Completed: %s</string>
+    <!-- Trainee Center -->
+    <string name="copy_trainee_id">Copy Trainee ID</string>
+    <string name="copied_trainee_id">Trainee ID Copied</string>
+    <string name="update_coach_list">Update Coach List</string>
+    <string name="coach_list_updated">Coach list updated</string>
+    <string name="update_failed">Update failed: %s</string>
+    <string name="nickname_example">e.g., John</string>
+    <string name="reset_label">Reset</string>
+    <string name="no_coach_yet">No coaches joined yet</string>
+    <string name="no_nickname_set">(No nickname set)</string>
+    <string name="join_and_sync">Joined and syncing</string>
+    <string name="join_failed">Join failed: %s</string>
+    <string name="leave_coach">Leave Coach</string>
+    <string name="leave_coach_confirm">Leave coach %s?</string>
+    <string name="left_coach">Left coach</string>
+    <string name="leave_failed">Leave failed: %s</string>
+    <string name="coach_published_plans">Coach Published Plans</string>
+    <string name="no_coach_plans">No coach plans yet</string>
+    <string name="import_to_local">Import to Local</string>
+    <string name="imported_success">Imported</string>
+    <string name="import_failed">Import failed: %s</string>
+    <string name="start_training">Start Training</string>
+    <string name="report_completion">Report Completion</string>
+    <string name="completion_reported">Completion reported</string>
+    <string name="report_failed">Report failed: %s</string>
+
+    <!-- Login -->
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+    <string name="signing_in">Signing In...</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="google_sign_in">Sign in with Google</string>
+    <string name="phone_sign_in">Phone Sign In</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="no_account">Don\'t have an account?</string>
+    <string name="sign_in_subtitle">Sign in to access your fitness journey</string>
+    <string name="or_continue_with">OR CONTINUE WITH</string>
+    <string name="remember_me">Remember me</string>
+    <string name="remember_me_hint">Stay logged in (auto logout after 30 days of inactivity)</string>
+    <string name="reset_password">Reset password</string>
+    <string name="reset_password_hint">Enter your email. We\'ll send you a password reset link.</string>
+    <string name="send_reset_email">Send</string>
+    <string name="reset_email_sent">Reset email sent</string>
+    <string name="please_enter_valid_email">Please enter a valid email</string>
+    <string name="sign_in_failed">Sign in failed</string>
+    <string name="failed_to_send_reset_email">Failed to send reset email</string>
+    <!-- Sign Up -->
+    <string name="create_account_title">CREATE ACCOUNT</string>
+    <string name="join_fitness_journey">Join the Future of Fitness</string>
+    <string name="select_role">SELECT ROLE</string>
+    <string name="min_password_chars">Min 6 characters</string>
+    <string name="your_display_name">Your display name</string>
+    <string name="or_connect_with">OR CONNECT WITH</string>
+    <string name="account_created">Account created! Please sign in.</string>
+    <string name="sign_up_failed">Sign up failed</string>
+    <string name="invalid_email_or_password">Invalid email or password (min 6 chars)</string>
+    <string name="failed_to_save_profile">Failed to save profile</string>
+    <string name="profile_photo">Profile Photo</string>
+    <string name="choose_avatar_source">Choose a source for your avatar</string>
+    <string name="camera">Camera</string>
+    <string name="avatar_captured">Avatar captured</string>
+    <string name="avatar_selected">Avatar selected</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="camera_permission_denied">Camera permission denied</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="google">Google</string>
+    <string name="phone">Phone</string>
+
+    <!-- Analytics -->
+    <string name="analytics">Analytics</string>
+    <string name="weekly_summary">Weekly Summary</string>
+    <string name="monthly_summary">Monthly Summary</string>
+    <string name="progress">Progress</string>
+    <string name="trend">Trend</string>
+    <string name="statistics">Statistics</string>
+
+    <!-- Messages -->
+    <string name="messages">Messages</string>
+    <string name="chat">Chat</string>
+    <string name="send">Send</string>
+    <string name="type_message">Type a message...</string>
+
+    <!-- Social Center -->
+    <string name="no_friends_yet">No friends yet</string>
+    <string name="add_friends_hint">Tap top right to add friends</string>
+    <string name="friend_request_sent">Friend request sent</string>
+    <string name="send_failed">Send failed</string>
+    <string name="challenge_created">Challenge created!</string>
+    <string name="joined_challenge">Joined challenge!</string>
+    <string name="friend_since">Friends since %s</string>
+    <string name="goal_target">Goal: %1$s %2$s</string>
+    <string name="participants_count">%d participants</string>
+    <string name="join_challenge">Join Challenge</string>
+    <string name="calories_leaderboard">Total Calories Leaderboard</string>
+    <string name="search_friend">Search Friends</string>
+    <string name="enter_username">Enter username</string>
+    <string name="create_challenge">Create Challenge</string>
+    <string name="challenge_name">Challenge Name</string>
+    <string name="challenge_description">Description</string>
+    <string name="challenge_target">Target Value</string>
+    <string name="challenge_days">Days</string>
+
+    <!-- Cardio Tracker -->
+    <string name="cardio_tracker">Cardio Tracker</string>
+    <string name="cardio_type">Type</string>
+    <string name="min_short">Min</string>
+    <string name="sec_short">Sec</string>
+    <string name="speed">Speed</string>
+    <string name="incline">Incline</string>
+    <string name="history_record">History</string>
+    <string name="no_record_yet">No records yet</string>
+    <string name="cardio_spin_bike">Spin Bike</string>
+    <string name="cardio_elliptical">Elliptical</string>
+    <string name="cardio_rowing">Rowing Machine</string>
+    <string name="cardio_stair">Stair Climber</string>
+    <string name="cardio_cycling">Cycling</string>
+    <string name="cardio_walk_jog">Walk/Jog</string>
+
+    <!-- Profile -->
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="nickname">Nickname</string>
+    <string name="birthday">Birthday</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="profile_basic_settings">Profile Settings</string>
+    <string name="basic_info">Basic Info</string>
+    <string name="body_data">Body Data</string>
+    <string name="nutrition_goal">Nutrition Goal</string>
+    <string name="weight_kg_label">Weight (kg)</string>
+    <string name="height_cm_label">Height (cm)</string>
+    <string name="daily_calorie_goal">Daily Calorie Goal (kcal)</string>
+    <string name="protein_goal_label">Protein Goal (g)</string>
+    <string name="check_input_format">Please check input format</string>
+    <string name="saved">Saved</string>
+    <string name="save_failed_msg">Save failed: %s</string>
+    <string name="profile_hint">Tip: This data will be saved to cloud and used for homepage calculations.</string>
+
+    <!-- Food Recognition -->
+    <string name="food_recognition">Food Recognition</string>
+    <string name="saved_label">✓ Saved</string>
+    <string name="need_camera_permission">Camera Permission Required</string>
+    <string name="camera_permission_reason">Camera access is needed to recognize food</string>
+    <string name="grant_camera_permission">Grant Camera Permission</string>
+    <string name="place_food_in_frame">Place food in frame</string>
+    <string name="ai_analyzing">AI Analyzing...</string>
+    <string name="camera_start_failed">Failed to start camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="take_photo">Photo</string>
+    <string name="camera_not_ready">Camera not ready</string>
+    <string name="recognition_failed">Recognition failed, please retry</string>
+    <string name="recognition_error">Recognition error</string>
+    <string name="read_photo_failed">Failed to read photo</string>
+    <string name="photo_failed">Photo capture failed</string>
+    <string name="recognition_result">🍽️ Recognition Result</string>
+    <string name="calorie">Calories</string>
+    <string name="protein_label">Protein</string>
+    <string name="fat_label">Fat</string>
+    <string name="carbs_label">Carbs</string>
+    <string name="portion_adjust">📏 Portion Adjust</string>
+    <string name="retake">Retake</string>
+    <string name="save_to_log">Save to Log</string>
+    <string name="meal_type">Meal Type</string>
+    <string name="save_success">Saved to diet log</string>
+    <string name="save_error">Save failed</string>
+    <string name="food_label">Food: %s</string>
+    <string name="calorie_label">Calories: %s kcal</string>
+    <string name="protein_value">Protein: %sg</string>
+    <string name="fat_value">Fat: %sg</string>
+    <string name="carbs_value">Carbs: %sg</string>
+    <string name="portion_label">Portion: %s</string>
+    <string name="record_time_setting">Record Time Setting</string>
+    <string name="date_time_label">Date: %1$s  Time: %2$s</string>
+    <string name="confirm_save_to_log">Save this nutrition info to today\'s log?</string>
+    <string name="confirm_save">Confirm Save</string>
+
+    <!-- Body Photos -->
+    <string name="record_body_changes">Record body changes</string>
+    <string name="recent_photos">Recent Photos</string>
+    <string name="no_records">No records</string>
+    <string name="no_photos_this_month">No photos this month</string>
+    <string name="delete_photo">Delete Photo</string>
+    <string name="year_month_format">%d/%02d</string>
+    <string name="year_suffix"></string>
+    <string name="month_suffix"></string>
+
+    <!-- InBody -->
+    <string name="inbody_tracker">InBody Tracker</string>
+    <string name="inbody_analysis">InBody Analysis</string>
+    <string name="track_body_metrics">Track weight, body fat &amp; muscle mass trends</string>
+    <string name="add_measurement">Add Measurement</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="body_fat_percent">Body Fat (%)</string>
+    <string name="muscle_mass_kg">Muscle Mass (kg)</string>
+    <string name="save_record">Save Record</string>
+    <string name="history_records">History</string>
+    <string name="no_inbody_records">No InBody records yet</string>
+    <string name="add_first_measurement">Add your first measurement to start tracking</string>
+    <string name="data_statistics">Statistics</string>
+    <string name="latest">Latest</string>
+    <string name="change">Change</string>
+    <string name="average">Average</string>
+    <string name="range">Range</string>
+    <string name="trend_chart">Trend Chart</string>
+    <string name="please_add_inbody_data">Please add InBody data first</string>
+    <string name="operation_guide">Instructions</string>
+    <string name="chart_tips">• Tap points on chart to view details\n• Pinch to zoom\n• Swipe left/right for more data</string>
+
+    <!-- Part Analysis -->
+    <string name="part_analysis">Part Analysis</string>
+    <string name="data_analysis">Data Analysis</string>
+    <string name="track_progress">Track your training progress</string>
+    <string name="track_weight_trend">Track weight trends by body part</string>
+    <string name="select_training_part">Select Training Part</string>
+    <string name="chest">Chest</string>
+    <string name="back_part">Back</string>
+    <string name="legs">Legs</string>
+    <string name="shoulders">Shoulders</string>
+    <string name="arms">Arms</string>
+    <string name="abs">Abs</string>
+    <string name="other_part">Other</string>
+    <string name="select_exercise">Select Exercise</string>
+    <string name="no_exercise_in_part">No exercise records for this part\n(Check \"Other\" if you have records)</string>
+    <string name="please_select_exercise">Please select an exercise</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="weight_statistics">Weight Statistics</string>
+    <string name="latest_weight">Latest Weight</string>
+    <string name="total_progress">Total Progress</string>
+    <string name="historical_max">Max Record</string>
+    <string name="average_weight">Average Weight</string>
+    <string name="weight_trend">Weight Trend</string>
+    <string name="no_data_for_chart">Not enough data to draw chart</string>
+    <string name="select_exercise_to_view">Select an exercise to view analysis</string>
+
+    <!-- Analytics Screen -->
+    <string name="inbody_analysis_title">InBody Analysis</string>
+    <string name="inbody_analysis_desc">Weight, Body Fat, Muscle Mass Trends</string>
+    <string name="part_analysis_title">Part Analysis</string>
+    <string name="part_analysis_desc">Track Training Weight Progress</string>
+    <string name="tip">Tip</string>
+    <string name="analytics_tip">Part analysis automatically classifies exercises from your training records. More records mean more accurate analysis!</string>
+
+    <!-- Nutrition Panel -->
+    <string name="nutrients">Nutrients</string>
+    <string name="can_still_intake">Can still intake %d kcal</string>
+    <string name="over_intake">Over by %d kcal</string>
+    <string name="daily_summary_title">Daily Summary</string>
+    <string name="time">Time</string>
+    <string name="minutes">min</string>
+    <string name="actions">Actions</string>
+    <string name="notes">Notes</string>
+    <string name="calories_label">Calories (kcal)</string>
+    <string name="nutrient_analysis_hint">Nutrient analysis (editable)</string>
+    <string name="calories_consumed">Consumed: %d kcal</string>
+    <string name="more_actions">…%d more actions (tap to expand)</string>
+    <string name="click_to_collapse">Tap to collapse</string>
+    <string name="exercise_format">• %1$s  %2$d sets × %3$d reps</string>
+    <string name="exercise_format_with_weight">• %1$s  %2$d sets × %3$d reps  @ %4$.1f kg</string>
+
+    <!-- Chat Screen -->
+    <string name="training_assistant">Training Assistant</string>
+    <string name="ai_fitness_helper">AI Fitness Helper</string>
+    <string name="no_chat_yet">No messages yet, start chatting</string>
+    <string name="api_key_missing">API Key not configured</string>
+    <string name="input_message">Enter message...</string>
+
+    <!-- Calendar -->
+    <string name="create_plan_btn">Create Plan</string>
+    <string name="add_existing">Add Existing</string>
+    <string name="no_plan_for_day">No training plan for this day</string>
+    <string name="exercises_count">%d exercises</string>
+    <string name="remove_schedule">Remove from schedule</string>
+    <string name="select_plan_to_add">Select a plan to add</string>
+    <string name="no_plans_create_first">No training plans yet, please create one first.</string>
+    <string name="add_btn">Add</string>
+    <string name="day_sun">Sun</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="training_label">Training</string>
+    <string name="create_plan_for_date">Create Plan for %s</string>
+    <string name="plan_name_optional">Plan Name (Optional)</string>
+    <string name="select_body_part_label">Select Body Part</string>
+
+    <!-- Create Plan Dialog -->
+    <string name="added_exercises">Added Exercises (%d)</string>
+    <string name="sets_x_weight">%d sets × %dkg</string>
+    <string name="more_exercises">… %d more exercises</string>
+    <string name="clear_all_exercises">Clear All Exercises</string>
+    <string name="publish">Publish</string>
+    <string name="part_training_options">%s Training Options</string>
+    <string name="weight_label">Weight: %d kg</string>
+    <string name="sets_label">Sets:</string>
+    <string name="confirm_add">Confirm Add</string>
+    <string name="select_trainee">Select Trainee</string>
+    <string name="publish_to">Publish to:</string>
+    <string name="confirm_publish">Confirm Publish</string>
+    <string name="chest_part">Chest</string>
+    <string name="back_part_full">Back</string>
+    <string name="legs_part">Legs</string>
+    <string name="arms_part">Arms</string>
+    <string name="shoulders_part">Shoulders</string>
+    <string name="abs_part">Abs</string>
+    <string name="plan_name_example">e.g., Chest Training / Upper Body</string>
+    <string name="plan_auto_generate">Plan Name: Auto-generated</string>
+    <string name="plan_name_display">Plan Name: %s</string>
+    <string name="current_exercises_count">Currently %d exercises added</string>
+    <string name="no_exercises_added">(No exercises added yet)</string>
+    <string name="clear_btn">Clear</string>
+    <string name="publish_cloud">Publish to Cloud</string>
+
+    <!-- Workout Template -->
+    <string name="add_workout_template">Add Workout Template</string>
+    <string name="load_template">Load Template</string>
+    <string name="template_name_hint">Enter template name (e.g., Push Day, Pull Day)</string>
+    <string name="saved_templates">Saved Templates</string>
+    <string name="no_saved_templates">No saved templates</string>
+    <string name="use_template">Use Template</string>
+    <string name="template_loaded">Template loaded</string>
+    <string name="last_used">Last used: %s</string>
+    <string name="create_new_or_use_template">Create new or use saved template</string>
+
+    <string name="saved_plan">Saved: %s</string>
+    <string name="published_cloud">Published to Cloud: %s</string>
+    <string name="publish_failed">Publish failed: %s</string>
+    <string name="no_trainee_hint">No trainees yet, please add trainees in Coach Center first</string>
+    <string name="added_to_plan">Added %d exercises to plan</string>
+    <string name="published_to_trainee">Published to trainee: %s</string>
+
+    <!-- Custom Exercises -->
+    <string name="custom_exercises">Custom Exercises</string>
+    <string name="custom_exercise_name">Exercise Name</string>
+    <string name="custom_exercise_desc">Description (optional)</string>
+    <string name="custom_exercise_bodypart">Body Part</string>
+    <string name="custom_exercise_equipment">Equipment (optional)</string>
+    <string name="add_custom_exercise">Add Exercise</string>
+    <string name="custom_exercise_added">Custom exercise added</string>
+    <string name="custom_exercise_deleted">Custom exercise deleted</string>
+    <string name="custom_exercise_add_failed">Failed to add: %s</string>
+    <string name="no_custom_exercises">No custom exercises yet</string>
+    <string name="custom_group_label">Custom Exercises</string>
+    <string name="custom_exercise_name_required">Please enter exercise name</string>
+
+    <!-- Diet Suggestions -->
+    <string name="diet_suggestion">Diet Suggestion</string>
+    <string name="diet_suggestion_title">Title</string>
+    <string name="diet_suggestion_content">Diet Suggestion Content</string>
+    <string name="diet_suggestion_title_hint">e.g. Muscle Gain Diet Guide</string>
+    <string name="diet_suggestion_content_hint">Enter nutrition advice, recipes, calorie allocation…</string>
+    <string name="send_diet_suggestion">Send Diet Suggestion</string>
+    <string name="diet_suggestion_sent">Diet suggestion sent to: %s</string>
+    <string name="diet_suggestion_send_failed">Send failed: %s</string>
+    <string name="select_trainee_for_diet">Select trainee</string>
+    <string name="diet_title_required">Please enter a title</string>
+    <string name="diet_content_required">Please enter diet suggestion content</string>
+
+    <!-- Delete Trainee -->
+    <string name="delete_trainee">Remove Trainee</string>
+    <string name="delete_trainee_confirm">Are you sure you want to remove trainee \"%s\"? After removal, you will not be able to publish plans or diet suggestions to this trainee.</string>
+    <string name="trainee_deleted">Trainee removed</string>
+    <string name="delete_trainee_failed">Remove failed: %s</string>
+
+    <!-- Trainee sync features -->
+    <string name="diet_suggestions_from_coach">Diet Suggestions from Coach</string>
+    <string name="diet_received_count">Received %d suggestions</string>
+    <string name="no_diet_suggestions">No diet suggestions received</string>
+    <string name="diet_suggestion_deleted">Diet suggestion deleted</string>
+    <string name="diet_delete_failed">Delete failed: %s</string>
+    <string name="delete_diet_suggestion">Delete Suggestion</string>
+    <string name="delete_diet_confirm">Are you sure you want to delete \"%s\"? This cannot be undone.</string>
+    <string name="coach_plans_title">Coach Published Plans</string>
+    <string name="no_plans_received">No plans received (join a coach first, and coach must publish)</string>
+    <string name="plans_received_count">Received %d plans</string>
+    <string name="no_plans_to_receive">No plans to receive</string>
+    <string name="stop_sync">Stop Sync</string>
+    <string name="sync_stopped">Sync stopped</string>
+    <string name="no_coach_cannot_report">No coach joined, cannot report completion</string>
+    <string name="report_failed_msg">Report failed: %s</string>
+    <string name="reported_to_coaches">Reported completion to %d coach(es)</string>
+    <string name="marked_as_read">Marked as read: %s</string>
+    <string name="removed_from_list">Removed from list: %s</string>
+    <string name="delete_plan_title">Delete Plan</string>
+    <string name="delete_plan_confirm">Are you sure you want to delete \'%s\'?\n\nThis only removes it from your trainee list, not from the coach\'s cloud data (may reappear on re-sync).</string>
+    <string name="report_complete_title">Report Completion</string>
+    <string name="report_complete_confirm_single">Report completion of \'%1$s\'?\nCoach: %2$s</string>
+    <string name="report_complete_confirm_multi">Report completion of \'%1$s\'?\nJoined %2$d coaches, will notify all.</string>
+    <string name="report_complete_no_coach">(You have not joined any coach)</string>
+    <string name="exercise_count_label">Exercises: %d</string>
+    <string name="published_at_label">Published: %s</string>
+    <string name="source_label">Source: %s</string>
+    <string name="direct_publish_tag">Direct Publish</string>
+    <string name="no_exercises_in_plan">(No exercises in this plan)</string>
+    <string name="complete_and_report">Complete &amp; Report</string>
+    <string name="report_btn">Report</string>
+    <string name="from_coach">From Coach</string>
+</resources>

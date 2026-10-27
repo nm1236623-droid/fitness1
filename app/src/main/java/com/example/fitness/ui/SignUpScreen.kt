@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,9 +45,14 @@ import com.example.fitness.coach.UserRole
 import com.example.fitness.firebase.AuthRepository
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
-import com.example.fitness.ui.theme.neonGlowBorder
 import com.example.fitness.user.UserRoleProfileRepository
+import com.example.fitness.user.FirebaseUserProfileFirestoreRepository
+import com.example.fitness.user.UserProfile
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 
 @Composable
 fun SignUpScreen(
@@ -54,19 +60,19 @@ fun SignUpScreen(
     authRepository: AuthRepository = remember { AuthRepository() },
     onSignedUp: () -> Unit = {},
     onNavigateToSignIn: () -> Unit = {},
-    // ★ 修改：讓 Callback 可以接收選擇的角色
     onGoogleSignUp: (UserRole) -> Unit = {},
-    onPhoneSignUp: (UserRole) -> Unit = {}
+    onFacebookSignUp: (UserRole) -> Unit = {},
+    onPhoneSignUp: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var nickname by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var nickname by rememberSaveable { mutableStateOf("") }
+    var loading by rememberSaveable { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     // 角色選擇 (預設為學員)
-    var selectedRole by remember { mutableStateOf(UserRole.TRAINEE) }
+    var selectedRole by rememberSaveable { mutableStateOf(UserRole.TRAINEE) }
 
     // 頭像處理
     var avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -101,11 +107,13 @@ fun SignUpScreen(
 
     var avatarChooserOpen by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+    val cs = MaterialTheme.colorScheme
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier.fillMaxSize(),
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -116,6 +124,7 @@ fun SignUpScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .widthIn(max = 540.dp)
                     .padding(16.dp)
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -132,12 +141,12 @@ fun SignUpScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = onNavigateToSignIn) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TechColors.NeonBlue)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = cs.primary)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("CREATE ACCOUNT", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TechColors.NeonBlue, letterSpacing = 1.sp)
-                            Text("Join the Future of Fitness", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.7f))
+                            Text("CREATE ACCOUNT", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = cs.primary, letterSpacing = 1.sp)
+                            Text("Join the Future of Fitness", style = MaterialTheme.typography.bodySmall, color = cs.onBackground.copy(alpha = 0.7f))
                         }
                     }
                 }
@@ -158,15 +167,15 @@ fun SignUpScreen(
                             Box(
                                 modifier = Modifier
                                     .size(100.dp)
-                                    .border(2.dp, TechColors.NeonBlue, CircleShape)
+                                    .border(2.dp, cs.primary, CircleShape)
                                     .clip(CircleShape)
-                                    .background(Color.Black.copy(alpha = 0.3f)),
+                                    .background(cs.surface.copy(alpha = 0.3f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (avatarBitmap != null) {
                                     Image(bitmap = avatarBitmap!!.asImageBitmap(), contentDescription = "Avatar", modifier = Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
                                 } else {
-                                    Icon(Icons.Default.Person, "Placeholder", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
+                                    Icon(Icons.Default.Person, "Placeholder", tint = cs.onBackground.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
                                 }
                             }
                             Box(
@@ -175,11 +184,11 @@ fun SignUpScreen(
                                     .offset(x = (-4).dp, y = (-4).dp)
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(TechColors.NeonBlue)
+                                    .background(cs.primary)
                                     .clickable { avatarChooserOpen = true },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.CameraAlt, "Edit", tint = Color.Black, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.CameraAlt, "Edit", tint = cs.onPrimary, modifier = Modifier.size(16.dp))
                             }
                         }
 
@@ -190,7 +199,7 @@ fun SignUpScreen(
                             NeonSignUpTextField(value = nickname, onValueChange = { nickname = it }, label = "Nickname", placeholder = "Your display name")
 
                             // Role Selection
-                            Text("SELECT ROLE", style = MaterialTheme.typography.labelSmall, color = TechColors.NeonBlue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+                            Text("SELECT ROLE", style = MaterialTheme.typography.labelSmall, color = cs.primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 NeonRoleOption("Trainee", selectedRole == UserRole.TRAINEE, { selectedRole = UserRole.TRAINEE }, Modifier.weight(1f))
                                 NeonRoleOption("Coach", selectedRole == UserRole.COACH, { selectedRole = UserRole.COACH }, Modifier.weight(1f))
@@ -227,6 +236,49 @@ fun SignUpScreen(
                                                 loading = false
                                                 return@launch
                                             }
+
+                                            // ★ 上傳頭像並儲存 URI 到 Firestore
+                                            val uid = FirebaseAuth.getInstance().currentUser?.uid
+                                            if (uid != null && avatarBitmap != null) {
+                                                try {
+                                                    val baos = ByteArrayOutputStream()
+                                                    avatarBitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                                                    val data = baos.toByteArray()
+                                                    val ref = FirebaseStorage.getInstance()
+                                                        .reference.child("user_avatars/$uid/avatar.jpg")
+                                                    ref.putBytes(data).await()
+                                                    val downloadUrl = ref.downloadUrl.await().toString()
+                                                    // 同步更新 Firebase Auth profile
+                                                    val defaultName = if (selectedRole == UserRole.COACH) "Coach" else "Trainee"
+                                                    val displayName = nickname.ifBlank { defaultName }
+                                                    val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(displayName)
+                                                        .setPhotoUri(android.net.Uri.parse(downloadUrl))
+                                                        .build()
+                                                    FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)?.await()
+                                                    // 儲存到 Firestore
+                                                    val profileRepo = FirebaseUserProfileFirestoreRepository()
+                                                    profileRepo.saveMyProfile(
+                                                        UserProfile(
+                                                            nickname = displayName,
+                                                            avatarUri = downloadUrl
+                                                        )
+                                                    )
+                                                } catch (_: Exception) { /* 頭像上傳失敗不影響註冊 */ }
+                                            } else if (uid != null && nickname.isNotBlank()) {
+                                                try {
+                                                    // 同步更新 Firebase Auth displayName
+                                                    val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(nickname)
+                                                        .build()
+                                                    FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)?.await()
+                                                    val profileRepo = FirebaseUserProfileFirestoreRepository()
+                                                    profileRepo.saveMyProfile(
+                                                        UserProfile(nickname = nickname)
+                                                    )
+                                                } catch (_: Exception) { }
+                                            }
+
                                             authRepository.signOut()
                                             scope.launch { snackbarHostState.showSnackbar("Account created! Please sign in.") }
                                             onSignedUp()
@@ -243,55 +295,66 @@ fun SignUpScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
-                                .neonGlowBorder(cornerRadius = 16.dp),
+                                .height(52.dp),
                             enabled = !loading,
-                            colors = ButtonDefaults.buttonColors(containerColor = TechColors.NeonBlue.copy(alpha = 0.2f), contentColor = TechColors.NeonBlue, disabledContainerColor = Color.White.copy(alpha = 0.1f)),
-                            shape = RoundedCornerShape(16.dp)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = cs.primary,
+                                contentColor = cs.onPrimary,
+                                disabledContainerColor = cs.primary.copy(alpha = 0.5f)
+                            ),
+                            shape = RoundedCornerShape(14.dp)
                         ) {
                             if (loading) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = TechColors.NeonBlue, strokeWidth = 2.dp)
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = cs.onPrimary, strokeWidth = 2.dp)
                             } else {
-                                Text("SIGN UP", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("CREATE ACCOUNT", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // --- ★★★ 社交帳號註冊區塊 (傳遞選擇的角色) ★★★ ---
+                        // --- 社交帳號註冊區塊 (傳遞選擇的角色) ---
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.2f))
+                            HorizontalDivider(modifier = Modifier.weight(1f), color = cs.onBackground.copy(alpha = 0.2f))
                             Text(
                                 text = "OR CONNECT WITH",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.5f),
+                                color = cs.onBackground.copy(alpha = 0.5f),
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
-                            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.2f))
+                            HorizontalDivider(modifier = Modifier.weight(1f), color = cs.onBackground.copy(alpha = 0.2f))
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             // Google Button
                             NeonSocialButton(
                                 text = "Google",
                                 icon = null,
-                                onClick = { onGoogleSignUp(selectedRole) }, // ★ 傳遞選中的角色
+                                onClick = { onGoogleSignUp(selectedRole) },
                                 modifier = Modifier.weight(1f)
                             )
 
-                            // ★ Phone Button
+                            // Facebook Button
+                            NeonSocialButton(
+                                text = "Facebook",
+                                icon = null,
+                                onClick = { onFacebookSignUp(selectedRole) },
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            // Phone Button
                             NeonSocialButton(
                                 text = "Phone",
                                 icon = Icons.Default.Smartphone,
-                                onClick = { onPhoneSignUp(selectedRole) }, // ★ 傳遞選中的角色 (雖然電話登入頁面有自己的選擇，但這裡傳過去也無妨或可作為預設值)
+                                onClick = { onPhoneSignUp() },
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -301,9 +364,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Already have an account?", color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyMedium)
+                    Text("Already have an account?", color = cs.onBackground.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyMedium)
                     TextButton(onClick = onNavigateToSignIn) {
-                        Text("Sign In", color = TechColors.NeonBlue, fontWeight = FontWeight.Bold)
+                        Text("Sign In", color = cs.primary, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -312,15 +375,15 @@ fun SignUpScreen(
         }
     }
 
-    // Avatar Chooser Dialog (保持不變)
+    // Avatar Chooser Dialog
     if (avatarChooserOpen) {
         AlertDialog(
             onDismissRequest = { avatarChooserOpen = false },
-            containerColor = TechColors.DarkBlue.copy(alpha = 0.95f),
-            titleContentColor = TechColors.NeonBlue,
-            textContentColor = Color.White,
-            title = { Text("Profile Photo", fontWeight = FontWeight.Bold) },
-            text = { Text("Choose a source for your avatar") },
+            containerColor = cs.surface,
+            titleContentColor = cs.primary,
+            textContentColor = cs.onBackground,
+            title = { Text("Profile Photo", fontWeight = FontWeight.Bold, color = cs.onBackground) },
+            text = { Text("Choose a source for your avatar", color = cs.onBackground.copy(alpha = 0.8f)) },
             confirmButton = {
                 TextButton(onClick = {
                     avatarChooserOpen = false
@@ -329,19 +392,19 @@ fun SignUpScreen(
                     } else {
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
-                }) { Text("Camera", color = TechColors.NeonBlue) }
+                }) { Text("Camera", color = cs.primary) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     avatarChooserOpen = false
                     galleryLauncher.launch("image/*")
-                }) { Text("Gallery", color = Color.White.copy(alpha = 0.7f)) }
+                }) { Text("Gallery", color = cs.onBackground.copy(alpha = 0.7f)) }
             }
         )
     }
 }
 
-// ... (NeonSocialButton, NeonSignUpTextField, NeonRoleOption 等元件保持不變) ...
+// ...existing code (NeonSocialButton)...
 @Composable
 private fun NeonSocialButton(
     text: String,
@@ -349,13 +412,14 @@ private fun NeonSocialButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
         modifier = modifier
             .height(50.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.White.copy(alpha = 0.05f)
+            .border(1.dp, cs.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp)),
+        shape = RoundedCornerShape(14.dp),
+        color = cs.surfaceVariant.copy(alpha = 0.3f)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -366,24 +430,32 @@ private fun NeonSocialButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = cs.onBackground,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             } else if (text == "Google") {
                 Text(
                     text = "G",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
+                    color = cs.primary,
+                    fontWeight = FontWeight.ExtraBold,
                     fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = 6.dp)
+                )
+            } else if (text == "Facebook") {
+                Text(
+                    text = "f",
+                    color = Color(0xFF1877F2),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(end = 6.dp)
                 )
             }
 
             Text(
                 text = text,
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
+                color = cs.onBackground,
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -399,13 +471,14 @@ private fun NeonSignUpTextField(
     placeholder: String? = null,
     isPassword: Boolean = false
 ) {
+    val cs = MaterialTheme.colorScheme
     var passwordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
-        placeholder = placeholder?.let { { Text(it, color = Color.White.copy(alpha = 0.3f)) } },
+        label = { Text(label, fontWeight = FontWeight.Medium) },
+        placeholder = placeholder?.let { { Text(it, color = cs.onBackground.copy(alpha = 0.5f)) } },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
         visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
@@ -416,22 +489,22 @@ private fun NeonSignUpTextField(
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = "Toggle password",
-                        tint = TechColors.NeonBlue
+                        tint = cs.primary
                     )
                 }
             }
         } else null,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedBorderColor = TechColors.NeonBlue,
-            unfocusedBorderColor = TechColors.NeonBlue.copy(alpha = 0.3f),
-            focusedLabelColor = TechColors.NeonBlue,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-            cursorColor = TechColors.NeonBlue,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent
+            focusedTextColor = cs.onBackground,
+            unfocusedTextColor = cs.onBackground,
+            focusedBorderColor = cs.primary,
+            unfocusedBorderColor = cs.outline.copy(alpha = 0.6f),
+            focusedLabelColor = cs.primary,
+            unfocusedLabelColor = cs.onBackground.copy(alpha = 0.75f),
+            cursorColor = cs.primary,
+            focusedContainerColor = cs.surfaceVariant.copy(alpha = 0.25f),
+            unfocusedContainerColor = cs.surfaceVariant.copy(alpha = 0.12f)
         )
     )
 }
@@ -443,25 +516,26 @@ private fun NeonRoleOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .height(48.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(
-                if (selected) TechColors.NeonBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f)
+                if (selected) cs.primaryContainer else cs.surfaceVariant.copy(alpha = 0.3f)
             )
             .border(
-                1.dp,
-                if (selected) TechColors.NeonBlue else Color.Transparent,
-                RoundedCornerShape(10.dp)
+                1.5.dp,
+                if (selected) cs.primary else cs.outline.copy(alpha = 0.4f),
+                RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (selected) TechColors.NeonBlue else Color.White.copy(alpha = 0.6f),
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) cs.primary else cs.onBackground.copy(alpha = 0.75f),
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
             style = MaterialTheme.typography.bodyMedium
         )
     }

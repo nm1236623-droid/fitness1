@@ -442,4 +442,189 @@ class CoachCloudRepository(
             Result.failure(t)
         }
     }
+
+    // ==================== Custom Exercises ====================
+
+    /**
+     * Coach creates a custom exercise.
+     * Path: coaches/{coachId}/customExercises/{exerciseId}
+     */
+    suspend fun addCustomExercise(coachId: String, exercise: CustomExercise): Result<Unit> {
+        return try {
+            val doc = db.collection("coaches")
+                .document(coachId)
+                .collection("customExercises")
+                .document(exercise.id)
+
+            val payload = mapOf(
+                "id" to exercise.id,
+                "name" to exercise.name,
+                "description" to exercise.description,
+                "bodyPart" to exercise.bodyPart,
+                "equipment" to exercise.equipment,
+                "createdAtEpochMs" to exercise.createdAtEpochMs,
+            )
+
+            doc.set(payload, SetOptions.merge()).await()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
+
+    /**
+     * Coach deletes a custom exercise.
+     * Path: coaches/{coachId}/customExercises/{exerciseId}
+     */
+    suspend fun deleteCustomExercise(coachId: String, exerciseId: String): Result<Unit> {
+        return try {
+            db.collection("coaches")
+                .document(coachId)
+                .collection("customExercises")
+                .document(exerciseId)
+                .delete()
+                .await()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
+
+    /**
+     * Listen to custom exercises in real-time.
+     * Path: coaches/{coachId}/customExercises
+     */
+    fun listenCustomExercises(
+        coachId: String,
+        onChange: (Result<List<CustomExercise>>) -> Unit,
+    ): ListenerRegistration {
+        return db.collection("coaches")
+            .document(coachId)
+            .collection("customExercises")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    onChange(Result.failure(err))
+                    return@addSnapshotListener
+                }
+                if (snap == null) {
+                    onChange(Result.success(emptyList()))
+                    return@addSnapshotListener
+                }
+
+                val list = snap.documents.mapNotNull { doc ->
+                    val id = doc.getString("id") ?: doc.id
+                    val name = doc.getString("name") ?: return@mapNotNull null
+                    val description = doc.getString("description") ?: ""
+                    val bodyPart = doc.getString("bodyPart") ?: ""
+                    val equipment = doc.getString("equipment") ?: ""
+                    val createdAt = (doc.get("createdAtEpochMs") as? Number)?.toLong() ?: 0L
+                    CustomExercise(
+                        id = id,
+                        name = name,
+                        description = description,
+                        bodyPart = bodyPart,
+                        equipment = equipment,
+                        createdAtEpochMs = createdAt,
+                    )
+                }.sortedByDescending { it.createdAtEpochMs }
+
+                onChange(Result.success(list))
+            }
+    }
+
+    // ==================== Diet Suggestions ====================
+
+    /**
+     * Coach publishes a diet suggestion to a specific trainee's inbox.
+     * Path: trainees/{traineeId}/inboxDietSuggestions/{suggestionId}
+     */
+    suspend fun publishDietSuggestion(
+        coachId: String,
+        traineeId: String,
+        suggestion: DietSuggestion,
+    ): Result<Unit> {
+        return try {
+            val doc = db.collection("trainees")
+                .document(traineeId)
+                .collection("inboxDietSuggestions")
+                .document(suggestion.id)
+
+            val payload = mapOf(
+                "id" to suggestion.id,
+                "coachId" to coachId,
+                "traineeId" to traineeId,
+                "title" to suggestion.title,
+                "content" to suggestion.content,
+                "createdAtEpochMs" to suggestion.createdAtEpochMs,
+            )
+
+            doc.set(payload, SetOptions.merge()).await()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
+
+    /**
+     * Listen to diet suggestions sent to a trainee (trainee-side).
+     * Path: trainees/{traineeId}/inboxDietSuggestions
+     */
+    fun listenDietSuggestions(
+        traineeId: String,
+        onChange: (Result<List<DietSuggestion>>) -> Unit,
+    ): ListenerRegistration {
+        return db.collection("trainees")
+            .document(traineeId)
+            .collection("inboxDietSuggestions")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    onChange(Result.failure(err))
+                    return@addSnapshotListener
+                }
+                if (snap == null) {
+                    onChange(Result.success(emptyList()))
+                    return@addSnapshotListener
+                }
+
+                val list = snap.documents.mapNotNull { doc ->
+                    val id = doc.getString("id") ?: doc.id
+                    val cId = doc.getString("coachId") ?: return@mapNotNull null
+                    val tId = doc.getString("traineeId") ?: ""
+                    val title = doc.getString("title") ?: ""
+                    val content = doc.getString("content") ?: ""
+                    val createdAt = (doc.get("createdAtEpochMs") as? Number)?.toLong() ?: 0L
+                    DietSuggestion(
+                        id = id,
+                        coachId = cId,
+                        traineeId = tId,
+                        title = title,
+                        content = content,
+                        createdAtEpochMs = createdAt,
+                    )
+                }.sortedByDescending { it.createdAtEpochMs }
+
+                onChange(Result.success(list))
+            }
+    }
+
+    /**
+     * Trainee deletes a diet suggestion from their inbox.
+     * Path: trainees/{traineeId}/inboxDietSuggestions/{suggestionId}
+     */
+    suspend fun deleteDietSuggestion(
+        traineeId: String,
+        suggestionId: String,
+    ): Result<Unit> {
+        return try {
+            db.collection("trainees")
+                .document(traineeId)
+                .collection("inboxDietSuggestions")
+                .document(suggestionId)
+                .delete()
+                .await()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
+    }
 }

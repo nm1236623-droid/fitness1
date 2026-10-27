@@ -5,29 +5,24 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 class UserRoleProfileRepository(
-    private val db: FirebaseFirestore = Firebase.firestore,
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
 ) {
 
-    // Internal DTO for Type-Safe Firestore reads/writes
-    private data class UserProfileDto(
-        val role: String? = null,
-        val nickname: String? = null,
-        val createdAtEpochMs: Any? = null,
-        val updatedAtEpochMs: Any? = null
-    )
+    // Internal constants
+    private companion object {
+        const val COLLECTION = "users"
+    }
 
     suspend fun getMyNickname(): Result<String> {
         val uid = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("Not signed in"))
 
         return try {
-            val snap = db.collection("users").document(uid).get().await()
+            val snap = db.collection(COLLECTION).document(uid).get().await()
             val nickname = snap.getString("nickname")?.trim().orEmpty()
             Result.success(nickname)
         } catch (t: Throwable) {
@@ -45,7 +40,7 @@ class UserRoleProfileRepository(
                 "updatedAtEpochMs" to FieldValue.serverTimestamp()
             )
 
-            db.collection("users").document(uid)
+            db.collection(COLLECTION).document(uid)
                 .set(updates, SetOptions.merge())
                 .await()
             Result.success(Unit)
@@ -59,24 +54,25 @@ class UserRoleProfileRepository(
             ?: return Result.failure(IllegalStateException("Not signed in"))
 
         return try {
-            val docRef = db.collection("users").document(uid)
+            val docRef = db.collection(COLLECTION).document(uid)
             val cleanNickname = nickname?.trim()
+            val now = System.currentTimeMillis()
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(docRef)
 
                 if (!snapshot.exists()) {
-                    val newUser = UserProfileDto(
-                        role = role.name,
-                        nickname = cleanNickname ?: "",
-                        createdAtEpochMs = FieldValue.serverTimestamp(),
-                        updatedAtEpochMs = FieldValue.serverTimestamp()
+                    val newData = hashMapOf<String, Any>(
+                        "role" to role.name,
+                        "nickname" to (cleanNickname ?: ""),
+                        "createdAtEpochMs" to now,
+                        "updatedAtEpochMs" to now
                     )
-                    transaction.set(docRef, newUser)
+                    transaction.set(docRef, newData)
                 } else {
                     val updates = mutableMapOf<String, Any>(
                         "role" to role.name,
-                        "updatedAtEpochMs" to FieldValue.serverTimestamp()
+                        "updatedAtEpochMs" to now
                     )
                     if (!cleanNickname.isNullOrBlank()) {
                         updates["nickname"] = cleanNickname
@@ -96,7 +92,7 @@ class UserRoleProfileRepository(
             ?: return Result.failure(IllegalStateException("Not signed in"))
 
         return try {
-            val snap = db.collection("users").document(uid).get().await()
+            val snap = db.collection(COLLECTION).document(uid).get().await()
 
             if (!snap.exists()) {
                 return Result.success(UserRole.TRAINEE)
@@ -105,7 +101,7 @@ class UserRoleProfileRepository(
             val roleStr = snap.getString("role")
             val role = try {
                 if (roleStr != null) UserRole.valueOf(roleStr) else UserRole.TRAINEE
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 UserRole.TRAINEE
             }
             Result.success(role)
@@ -118,7 +114,7 @@ class UserRoleProfileRepository(
         if (uid.isBlank()) return Result.success("")
 
         return try {
-            val snap = db.collection("users").document(uid).get().await()
+            val snap = db.collection(COLLECTION).document(uid).get().await()
             Result.success(snap.getString("nickname")?.trim().orEmpty())
         } catch (t: Throwable) {
             Result.failure(t)

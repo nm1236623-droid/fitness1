@@ -1,5 +1,641 @@
 <resources>
-    <string name="app_name">fitness</string>
-    <string name="welcome_back">Welcome Back</string>
-    <string name="login_continue">Login to continue</string>
+    <!-- App 基本 -->
+    <string name="app_name">健身助手</string>
+    <string name="welcome_back">歡迎回來</string>
+    <string name="login_continue">登入以繼續</string>
+
+    <!-- 導航 -->
+    <string name="nav_home">首頁</string>
+    <string name="nav_calendar">日曆</string>
+    <string name="nav_camera">辨識</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_analytics">分析</string>
+
+    <!-- 首頁 -->
+    <string name="training_summary">訓練摘要</string>
+    <string name="today_intake">今日攝取</string>
+    <string name="today_burned">今日消耗</string>
+    <string name="nutrition_intake">營養攝取</string>
+    <string name="water_tracking">水分追蹤</string>
+    <string name="set_goal">設定目標</string>
+    <string name="remaining">剩餘</string>
+    <string name="over_limit">超標</string>
+
+    <!-- 訓練 -->
+    <string name="workout">訓練</string>
+    <string name="workout_plan">訓練計畫</string>
+    <string name="create_plan">建立計畫</string>
+    <string name="ai_training_plan">AI 訓練計畫</string>
+    <string name="ai_generate_plan">AI 智能生成專屬課表</string>
+    <string name="generate_plan">生成計畫</string>
+    <string name="save_plan">儲存計畫</string>
+    <string name="preview_plan">預覽計畫</string>
+    <string name="training_history">訓練紀錄</string>
+    <string name="training_log">訓練日誌</string>
+    <string name="select_body_part">選擇訓練部位</string>
+    <string name="start_workout">開始訓練</string>
+    <string name="finish_workout">完成訓練</string>
+    <string name="no_training_record">這天尚無訓練紀錄</string>
+    <string name="training_record_hint">完成訓練後會自動出現在這裡。</string>
+    <string name="view_by_date">依日期查看訓練紀錄</string>
+    <string name="unnamed_training">未命名訓練</string>
+    <string name="duration">時長</string>
+    <string name="calories_burned">消耗熱量</string>
+    <string name="exercises">動作</string>
+    <string name="sets">組</string>
+    <string name="reps">次</string>
+    <string name="ai_thinking">AI 思考中...</string>
+    <string name="api_key_not_set">未設定 API Key</string>
+    <string name="please_enter_age">請輸入年齡</string>
+    <string name="ai_service_failed">AI 服務呼叫失敗</string>
+    <string name="generate_failed">產生失敗</string>
+    <string name="save_training_plan">儲存訓練計畫</string>
+    <string name="save_plan_confirm">將『%s』儲存到我的訓練計畫？</string>
+    <string name="save_template_hint">提示：你也可以將此計畫另存為模板，方便日後重複使用</string>
+    <string name="save_template">儲存為課表模板</string>
+    <string name="save_template_desc">儲存後可以隨時套用此模板，快速建立訓練計畫</string>
+    <string name="plan_saved">計畫已儲存</string>
+
+    <!-- 飲食 -->
+    <string name="diet_log">飲食日誌</string>
+    <string name="ai_nutrition_analysis">AI 智慧營養分析</string>
+    <string name="daily_summary">當日總結</string>
+    <string name="calories">卡路里</string>
+    <string name="protein">蛋白質</string>
+    <string name="carbs">碳水化合物</string>
+    <string name="fat">脂肪</string>
+    <string name="breakfast">早餐</string>
+    <string name="lunch">午餐</string>
+    <string name="dinner">晚餐</string>
+    <string name="snack">點心</string>
+    <string name="add_food">新增食物</string>
+    <string name="food_name">食物名稱</string>
+    <string name="analyze_food">分析食物</string>
+    <string name="no_food_record">這天尚無飲食紀錄</string>
+    <string name="food_record_hint">點擊下方按鈕新增飲食紀錄</string>
+    <string name="water">水分</string>
+    <string name="water_recorded">已記錄 %d ml 水分</string>
+    <string name="water_record_failed">水分紀錄失敗</string>
+    <string name="set_water_goal">設定每日飲水目標</string>
+    <string name="enter_goal_ml">請輸入目標（ml）</string>
+    <string name="example_2000">例如 2000</string>
+
+    <!-- 設定 -->
+    <string name="settings">設定</string>
+    <string name="advanced_settings">進階設定</string>
+    <string name="personalize_experience">個性化您的體驗</string>
+    <string name="appearance">外觀設定</string>
+    <string name="theme_mode">主題模式</string>
+    <string name="color_style">顏色風格</string>
+    <string name="language_settings">語言設定</string>
+    <string name="app_language">應用程式語言</string>
+    <string name="light_mode">淺色模式</string>
+    <string name="dark_mode">深色模式</string>
+    <string name="system_mode">跟隨系統</string>
+    <string name="neon_blue">霓虹藍</string>
+    <string name="purple">紫色</string>
+    <string name="green">綠色</string>
+    <string name="orange">橘色</string>
+    <string name="red">紅色</string>
+    <string name="custom">自訂</string>
+
+    <!-- 刪除帳號 -->
+    <string name="danger_zone">危險區域</string>
+    <string name="delete_account">刪除帳號</string>
+    <string name="delete_account_description">永久刪除您的帳號及所有相關資料</string>
+    <string name="delete_account_warning">⚠️ 此操作無法復原！\n\n刪除帳號將會永久移除：\n• 所有個人資料\n• 訓練紀錄\n• 課表與模板\n• 頭像照片\n\n請輸入您的密碼以確認刪除。</string>
+    <string name="delete_account_confirm_title">確認刪除帳號</string>
+    <string name="enter_password_to_confirm">輸入密碼以確認</string>
+    <string name="deleting_account">帳號刪除中…</string>
+    <string name="account_deleted">帳號已成功刪除</string>
+    <string name="delete_account_failed">刪除帳號失敗：%1$s</string>
+    <string name="password_required">請輸入密碼</string>
+    <string name="confirm_delete">確認刪除</string>
+
+    <!-- 課表模板 -->
+    <string name="my_templates">我的課表模板</string>
+    <string name="save_as_template">存為模板</string>
+    <string name="save_as_template_title">儲存為課表模板</string>
+    <string name="template_save_hint">儲存後可以隨時套用此模板，快速建立訓練計畫</string>
+    <string name="save_as_template_hint">提示：你也可以將此計畫另存為模板，方便日後重複使用</string>
+    <string name="template_name">模板名稱</string>
+    <string name="template_description">描述（選填）</string>
+    <string name="no_templates">尚無模板，生成計畫後可另存為模板</string>
+    <string name="template_applied">已套用模板</string>
+    <string name="template_saved">模板儲存成功</string>
+    <string name="template_deleted">模板已刪除</string>
+    <string name="delete_template">刪除模板</string>
+    <string name="delete_template_confirm">確定要刪除模板『%s』嗎？</string>
+    <string name="save_failed">儲存失敗</string>
+    <string name="delete_failed">刪除失敗</string>
+    <string name="please_enter_template_name">請輸入模板名稱</string>
+    <string name="days_per_week_format">%d天/週</string>
+
+    <!-- 目標與程度 -->
+    <string name="set_target">設定目標</string>
+    <string name="goal_bulk">增肌</string>
+    <string name="goal_cut">減脂</string>
+    <string name="level">等級</string>
+    <string name="level_beginner">新手</string>
+    <string name="level_intermediate">中階</string>
+    <string name="level_advanced">高階</string>
+    <string name="description">描述</string>
+    <string name="user_data">使用者資料</string>
+    <string name="age">年齡</string>
+    <string name="height">身高</string>
+    <string name="weight">體重</string>
+    <string name="body_fat">體脂</string>
+    <string name="muscle_mass">肌肉量</string>
+    <string name="days_per_week">每週天數</string>
+    <string name="training_level">訓練程度</string>
+
+    <!-- 通用按鈕 -->
+    <string name="save">儲存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">刪除</string>
+    <string name="confirm">確定</string>
+    <string name="close">關閉</string>
+    <string name="back">返回</string>
+    <string name="next">下一步</string>
+    <string name="previous">上一步</string>
+    <string name="done">完成</string>
+    <string name="edit">編輯</string>
+    <string name="add">新增</string>
+    <string name="remove">移除</string>
+    <string name="reset">重置</string>
+    <string name="refresh">重新整理</string>
+    <string name="retry">重試</string>
+    <string name="loading">載入中…</string>
+    <string name="error">錯誤</string>
+    <string name="success">成功</string>
+    <string name="please_enter">請輸入</string>
+    <string name="not_logged_in">用戶未登入</string>
+    <string name="unknown_error">未知錯誤</string>
+    <string name="no_data">暫無資料</string>
+    <string name="today">今天</string>
+    <string name="yesterday">昨天</string>
+    <string name="tomorrow">明天</string>
+    <string name="previous_day">前一天</string>
+    <string name="next_day">後一天</string>
+
+    <!-- 快捷功能 -->
+    <string name="quick_open">快速開啟</string>
+    <string name="social_center">社交中心</string>
+    <string name="social_subtitle">與好友一起健身</string>
+    <string name="friends_tab">好友</string>
+    <string name="challenges_tab">挑戰</string>
+    <string name="leaderboard_tab">排行榜</string>
+    <string name="cardio">有氧運動</string>
+    <string name="inbody">InBody</string>
+    <string name="body_photos">體態相簿</string>
+    <string name="running">跑步</string>
+    <string name="cycling">騎車</string>
+    <string name="swimming">游泳</string>
+
+    <!-- 教練/學員 -->
+    <string name="coach">教練</string>
+    <string name="trainee">學員</string>
+    <string name="coach_center">教練中心</string>
+    <string name="trainee_center">學員中心</string>
+    <string name="my_students">我的學員</string>
+    <string name="my_coach">我的教練</string>
+    <string name="send_plan">發送計畫</string>
+    <string name="receive_plan">接收計畫</string>
+    <string name="coach_only_hint">教練中心僅提供給教練帳號使用。</string>
+    <string name="coach_plan_hint">提醒：教練發佈的計畫只會出現在『學員中心』頁面。</string>
+    <string name="trainee_account_hint">此功能僅提供給教練帳號使用。\n\n你目前是學員帳號，可使用『學員中心』來接收教練發佈的課表。</string>
+    <string name="go_to_trainee_center">前往學員中心</string>
+    <string name="trainee_center_guide">請進入『Workout → 教練 / 學員 → 學員中心』</string>
+    <string name="coach_id">教練ID</string>
+    <string name="coach_nickname">教練暱稱</string>
+    <string name="set_coach_nickname">設定教練暱稱</string>
+    <string name="edit_coach_nickname">編輯教練暱稱</string>
+    <string name="nickname_saved">已儲存暱稱</string>
+    <string name="save_failed_msg_simple">儲存失敗：%s</string>
+    <string name="copy_coach_id">複製教練ID</string>
+    <string name="copied_coach_id">已複製教練ID</string>
+    <string name="trainee_list">學員名單</string>
+    <string name="trainee_list_hint">新增後可用於『單選發布』</string>
+    <string name="refresh_trainee">刷新學員</string>
+    <string name="read_trainee_failed">讀取學員失敗：%s</string>
+    <string name="id_label">ID</string>
+    <string name="nickname_label">暱稱</string>
+    <string name="add_btn_simple">新增</string>
+    <string name="trainee_added">已新增/更新學員</string>
+    <string name="add_trainee_failed">新增失敗：%s</string>
+    <string name="all_trainees">全部學員</string>
+    <string name="select_trainee_label">選擇學員</string>
+    <string name="no_trainees_yet">尚未新增學員</string>
+    <string name="coach_schedule">教練課表</string>
+    <string name="exercises_count_format">%d 個動作</string>
+    <string name="no_plans_yet">尚未建立任何計畫</string>
+    <string name="trainee_completion_report">學員完成回報</string>
+    <string name="trainee_label">學員：%s</string>
+    <string name="unnamed">（未命名）</string>
+    <string name="completed_label">已完成：%s</string>
+    <!-- 學員中心 -->
+    <string name="copy_trainee_id">複製學員ID</string>
+    <string name="copied_trainee_id">已複製學員ID</string>
+    <string name="update_coach_list">更新教練清單</string>
+    <string name="coach_list_updated">已更新教練清單</string>
+    <string name="update_failed">更新失敗：%s</string>
+    <string name="nickname_example">例如：小明</string>
+    <string name="reset_label">重設</string>
+    <string name="no_coach_yet">尚未加入任何教練</string>
+    <string name="no_nickname_set">(未設定暱稱)</string>
+    <string name="join_and_sync">已加入並開始同步</string>
+    <string name="join_failed">加入失敗：%s</string>
+    <string name="leave_coach">離開教練</string>
+    <string name="leave_coach_confirm">確定離開教練 %s 嗎？</string>
+    <string name="left_coach">已離開該教練</string>
+    <string name="leave_failed">離開失敗：%s</string>
+    <string name="coach_published_plans">教練發布的計畫</string>
+    <string name="no_coach_plans">尚無教練發布的計畫</string>
+    <string name="import_to_local">匯入本地</string>
+    <string name="imported_success">已匯入</string>
+    <string name="import_failed">匯入失敗：%s</string>
+    <string name="start_training">開始訓練</string>
+    <string name="report_completion">回報完成</string>
+    <string name="completion_reported">已回報完成</string>
+    <string name="report_failed">回報失敗：%s</string>
+
+    <!-- 登入 -->
+    <string name="login">登入</string>
+    <string name="logout">登出</string>
+    <string name="sign_up">註冊</string>
+    <string name="sign_in">登入</string>
+    <string name="signing_in">登入中...</string>
+    <string name="email">電子郵件</string>
+    <string name="password">密碼</string>
+    <string name="google_sign_in">Google 登入</string>
+    <string name="phone_sign_in">手機登入</string>
+    <string name="forgot_password">忘記密碼？</string>
+    <string name="create_account">建立帳號</string>
+    <string name="already_have_account">已有帳號？</string>
+    <string name="no_account">沒有帳號？</string>
+    <string name="sign_in_subtitle">登入以繼續您的健身旅程</string>
+    <string name="or_continue_with">或繼續使用</string>
+    <string name="remember_me">記住我</string>
+    <string name="remember_me_hint">保持登入狀態（30 天未活躍自動登出）</string>
+    <string name="reset_password">重置密碼</string>
+    <string name="reset_password_hint">輸入您的電子郵件，我們將發送密碼重置連結。</string>
+    <string name="send_reset_email">發送</string>
+    <string name="reset_email_sent">重置郵件已發送</string>
+    <string name="please_enter_valid_email">請輸入有效的電子郵件</string>
+    <string name="sign_in_failed">登入失敗</string>
+    <string name="failed_to_send_reset_email">發送重置郵件失敗</string>
+    <!-- 註冊 -->
+    <string name="create_account_title">建立帳號</string>
+    <string name="join_fitness_journey">加入健身之旅</string>
+    <string name="select_role">選擇角色</string>
+    <string name="min_password_chars">最少 6 個字元</string>
+    <string name="your_display_name">您的顯示名稱</string>
+    <string name="or_connect_with">或連結</string>
+    <string name="account_created">帳號已建立！請登入。</string>
+    <string name="sign_up_failed">註冊失敗</string>
+    <string name="invalid_email_or_password">無效的電子郵件或密碼（最少 6 個字元）</string>
+    <string name="failed_to_save_profile">儲存資料失敗</string>
+    <string name="profile_photo">個人頭像</string>
+    <string name="choose_avatar_source">選擇頭像來源</string>
+    <string name="camera">相機</string>
+    <string name="avatar_captured">已擷取頭像</string>
+    <string name="avatar_selected">已選擇頭像</string>
+    <string name="failed_to_load_image">載入圖片失敗</string>
+    <string name="camera_permission_denied">相機權限被拒絕</string>
+    <string name="show_password">顯示密碼</string>
+    <string name="hide_password">隱藏密碼</string>
+    <string name="google">Google</string>
+    <string name="phone">手機</string>
+
+    <!-- 分析 -->
+    <string name="analytics">數據分析</string>
+    <string name="weekly_summary">週報</string>
+    <string name="monthly_summary">月報</string>
+    <string name="progress">進度</string>
+    <string name="trend">趨勢</string>
+    <string name="statistics">統計</string>
+
+    <!-- 訊息 -->
+    <string name="messages">訊息</string>
+    <string name="chat">聊天</string>
+    <string name="send">發送</string>
+    <string name="type_message">輸入訊息...</string>
+
+    <!-- 社交中心 -->
+    <string name="no_friends_yet">還沒有好友</string>
+    <string name="add_friends_hint">點擊右上角新增好友</string>
+    <string name="friend_request_sent">已發送好友邀請</string>
+    <string name="send_failed">發送失敗</string>
+    <string name="challenge_created">挑戰創建成功！</string>
+    <string name="joined_challenge">已加入挑戰！</string>
+    <string name="friend_since">好友自 %s</string>
+    <string name="goal_target">目標: %1$s %2$s</string>
+    <string name="participants_count">%d 人參與</string>
+    <string name="join_challenge">加入挑戰</string>
+    <string name="calories_leaderboard">總消耗卡路里排行榜</string>
+    <string name="search_friend">搜尋好友</string>
+    <string name="enter_username">輸入用戶名稱</string>
+    <string name="create_challenge">創建挑戰</string>
+    <string name="challenge_name">挑戰名稱</string>
+    <string name="challenge_description">描述</string>
+    <string name="challenge_target">目標數值</string>
+    <string name="challenge_days">天數</string>
+
+    <!-- 有氧追蹤 -->
+    <string name="cardio_tracker">有氧追蹤</string>
+    <string name="cardio_type">類型</string>
+    <string name="min_short">分</string>
+    <string name="sec_short">秒</string>
+    <string name="speed">速度</string>
+    <string name="incline">坡度</string>
+    <string name="history_record">歷史紀錄</string>
+    <string name="no_record_yet">尚無紀錄</string>
+    <string name="cardio_spin_bike">飛輪/健身車</string>
+    <string name="cardio_elliptical">橢圓機</string>
+    <string name="cardio_rowing">划船機</string>
+    <string name="cardio_stair">登階機/爬樓梯機</string>
+    <string name="cardio_cycling">騎單車</string>
+    <string name="cardio_walk_jog">快走/慢跑</string>
+
+    <!-- 個人資料 -->
+    <string name="profile">個人資料</string>
+    <string name="edit_profile">編輯資料</string>
+    <string name="nickname">暱稱</string>
+    <string name="birthday">生日</string>
+    <string name="gender">性別</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="other">其他</string>
+    <string name="profile_basic_settings">個人資料基本設定</string>
+    <string name="basic_info">基本資料</string>
+    <string name="body_data">身體數據</string>
+    <string name="nutrition_goal">營養目標</string>
+    <string name="weight_kg_label">體重 (kg)</string>
+    <string name="height_cm_label">身高 (cm)</string>
+    <string name="daily_calorie_goal">每日熱量目標 (kcal)</string>
+    <string name="protein_goal_label">蛋白質目標 (g)</string>
+    <string name="check_input_format">請檢查輸入格式</string>
+    <string name="saved">已儲存</string>
+    <string name="save_failed_msg">儲存失敗：%s</string>
+    <string name="profile_hint">提示：此頁面資料會保存到雲端，並供首頁計算目標使用。</string>
+
+    <!-- 食物辨識 -->
+    <string name="food_recognition">食物辨識</string>
+    <string name="saved_label">✓ 已儲存</string>
+    <string name="need_camera_permission">需要相機權限</string>
+    <string name="camera_permission_reason">為了辨識食物，需要存取您的相機</string>
+    <string name="grant_camera_permission">授予相機權限</string>
+    <string name="place_food_in_frame">將食物置於框內</string>
+    <string name="ai_analyzing">AI 分析中...</string>
+    <string name="camera_start_failed">啟動相機失敗</string>
+    <string name="gallery">相簿</string>
+    <string name="take_photo">拍照</string>
+    <string name="camera_not_ready">相機尚未就緒</string>
+    <string name="recognition_failed">辨識失敗，請重試</string>
+    <string name="recognition_error">辨識錯誤</string>
+    <string name="read_photo_failed">讀取拍攝圖片失敗</string>
+    <string name="photo_failed">拍照失敗</string>
+    <string name="recognition_result">🍽️ 辨識結果</string>
+    <string name="calorie">熱量</string>
+    <string name="protein_label">蛋白質</string>
+    <string name="fat_label">脂肪</string>
+    <string name="carbs_label">碳水</string>
+    <string name="portion_adjust">📏 份量調整</string>
+    <string name="retake">重拍</string>
+    <string name="save_to_log">儲存到日誌</string>
+    <string name="meal_type">餐別</string>
+    <string name="save_success">已儲存到飲食日誌</string>
+    <string name="save_error">儲存失敗</string>
+    <string name="food_label">食物：%s</string>
+    <string name="calorie_label">熱量：%s kcal</string>
+    <string name="protein_value">蛋白質：%sg</string>
+    <string name="fat_value">脂肪：%sg</string>
+    <string name="carbs_value">碳水：%sg</string>
+    <string name="portion_label">份量：%s</string>
+    <string name="record_time_setting">記錄時間設定</string>
+    <string name="date_time_label">日期：%1$s  時間：%2$s</string>
+    <string name="confirm_save_to_log">確定要將以上營養資訊儲存到今日日誌嗎？</string>
+    <string name="confirm_save">確定儲存</string>
+
+    <!-- 體態相簿 -->
+    <string name="record_body_changes">記錄體態變化</string>
+    <string name="recent_photos">最近照片</string>
+    <string name="no_records">暫無紀錄</string>
+    <string name="no_photos_this_month">本月尚無照片</string>
+    <string name="delete_photo">刪除照片</string>
+    <string name="year_month_format">%d 年 %02d 月</string>
+    <string name="year_suffix">年</string>
+    <string name="month_suffix">月</string>
+
+    <!-- InBody -->
+    <string name="inbody_tracker">InBody 追蹤</string>
+    <string name="inbody_analysis">InBody 分析</string>
+    <string name="track_body_metrics">追蹤體重、體脂與肌肉量趨勢</string>
+    <string name="add_measurement">新增量測</string>
+    <string name="weight_kg">體重 (kg)</string>
+    <string name="body_fat_percent">體脂率 (%)</string>
+    <string name="muscle_mass_kg">肌肉量 (kg)</string>
+    <string name="save_record">儲存紀錄</string>
+    <string name="history_records">歷史紀錄</string>
+    <string name="no_inbody_records">尚無 InBody 紀錄</string>
+    <string name="data_statistics">數據統計</string>
+    <string name="latest">最新</string>
+    <string name="change">變化</string>
+    <string name="average">平均</string>
+    <string name="range">範圍</string>
+    <string name="trend_chart">趨勢圖表</string>
+    <string name="please_add_inbody_data">請先添加 InBody 數據</string>
+    <string name="operation_guide">操作說明</string>
+    <string name="chart_tips">• 點擊圖表上的點查看詳細數據\n• 雙指縮放可放大圖表\n• 左右滑動查看更多數據</string>
+
+    <!-- 部位分析 -->
+    <string name="part_analysis">部位分析</string>
+    <string name="data_analysis">數據分析</string>
+    <string name="track_progress">追蹤你的訓練進步</string>
+    <string name="track_weight_trend">追蹤各部位動作重量趨勢</string>
+    <string name="select_training_part">選擇訓練部位</string>
+    <string name="chest">胸</string>
+    <string name="back_part">背</string>
+    <string name="legs">腿</string>
+    <string name="shoulders">肩</string>
+    <string name="arms">手臂</string>
+    <string name="abs">腹</string>
+    <string name="other_part">其他</string>
+    <string name="select_exercise">選擇動作</string>
+    <string name="no_exercise_in_part">此部位尚無動作紀錄\n(若有紀錄，請查看「其他」分類)</string>
+    <string name="please_select_exercise">請選擇動作</string>
+    <string name="exercise_name">動作名稱</string>
+    <string name="weight_statistics">重量統計</string>
+    <string name="latest_weight">最新重量</string>
+    <string name="total_progress">總進步</string>
+    <string name="historical_max">歷史最大</string>
+    <string name="average_weight">平均重量</string>
+    <string name="weight_trend">重量趨勢</string>
+    <string name="no_data_for_chart">此動作尚無足夠數據繪製圖表</string>
+    <string name="select_exercise_to_view">請選擇一個動作以檢視分析</string>
+
+    <!-- 數據分析畫面 -->
+    <string name="inbody_analysis_title">InBody 分析</string>
+    <string name="inbody_analysis_desc">體重、體脂、肌肉量趨勢圖</string>
+    <string name="part_analysis_title">部位分析</string>
+    <string name="part_analysis_desc">訓練重量進步追蹤</string>
+    <string name="tip">提示</string>
+    <string name="analytics_tip">部位分析會依訓練紀錄中的動作名稱自動分類，記錄越多，分析越精準！</string>
+
+    <!-- 營養面板新增 -->
+    <string name="nutrients">營養素</string>
+    <string name="can_still_intake">還可攝取 %d kcal</string>
+    <string name="over_intake">超標 %d kcal</string>
+    <string name="daily_summary_title">當日總結</string>
+    <string name="time">時間</string>
+    <string name="minutes">分鐘</string>
+    <string name="actions">動作</string>
+    <string name="notes">備註</string>
+    <string name="calories_label">熱量 (kcal)</string>
+    <string name="nutrient_analysis_hint">營養素分析 (可手動修正)</string>
+    <string name="calories_consumed">消耗: %d kcal</string>
+    <string name="more_actions">…還有 %d 個動作（點擊展開）</string>
+    <string name="click_to_collapse">點擊可收合</string>
+    <string name="exercise_format">• %1$s  %2$d 組 × %3$d 次</string>
+    <string name="exercise_format_with_weight">• %1$s  %2$d 組 × %3$d 次  @ %4$.1f kg</string>
+
+    <!-- Chat Screen -->
+    <string name="training_assistant">訓練助手</string>
+    <string name="ai_fitness_helper">AI 健身小幫手</string>
+    <string name="no_chat_yet">尚無對話，輸入訊息開始聊天</string>
+    <string name="api_key_missing">未設定 API Key，請在設定中配置</string>
+    <string name="input_message">輸入訊息...</string>
+
+    <!-- 日曆 -->
+    <string name="create_plan_btn">建立計畫</string>
+    <string name="add_existing">加入現有</string>
+    <string name="no_plan_for_day">此日無訓練計畫</string>
+    <string name="exercises_count">%d 個動作</string>
+    <string name="remove_schedule">移除排定</string>
+    <string name="select_plan_to_add">選擇要加入的訓練計畫</string>
+    <string name="no_plans_create_first">目前沒有任何訓練計畫，請先建立一個。</string>
+    <string name="add_btn">加入</string>
+    <string name="day_sun">日</string>
+    <string name="day_mon">一</string>
+    <string name="day_tue">二</string>
+    <string name="day_wed">三</string>
+    <string name="day_thu">四</string>
+    <string name="day_fri">五</string>
+    <string name="day_sat">六</string>
+    <string name="training_label">訓練</string>
+    <string name="create_plan_for_date">為 %s 建立計畫</string>
+    <string name="plan_name_optional">計劃名稱（可選）</string>
+    <string name="select_body_part_label">選擇訓練部位</string>
+
+    <!-- Create Plan Dialog -->
+    <string name="added_exercises">已加入動作 (%d)</string>
+    <string name="sets_x_weight">%d組 × %dkg</string>
+    <string name="more_exercises">… 還有 %d 個動作</string>
+    <string name="clear_all_exercises">清空所有動作</string>
+    <string name="publish">發布</string>
+    <string name="part_training_options">%s 訓練選項</string>
+    <string name="weight_label">重量: %d kg</string>
+    <string name="sets_label">組數:</string>
+    <string name="confirm_add">確定加入</string>
+    <string name="select_trainee">選擇發布學員</string>
+    <string name="publish_to">發布給：</string>
+    <string name="confirm_publish">確認發布</string>
+    <string name="chest_part">胸部</string>
+    <string name="back_part_full">背部</string>
+    <string name="legs_part">腿部</string>
+    <string name="arms_part">手臂</string>
+    <string name="shoulders_part">肩部</string>
+    <string name="abs_part">腹部</string>
+    <string name="plan_name_example">例如：胸部訓練 / 上肢力量</string>
+    <string name="plan_auto_generate">計劃名稱：自動產生</string>
+    <string name="plan_name_display">計劃名稱：%s</string>
+    <string name="current_exercises_count">目前已加入 %d 個動作</string>
+    <string name="no_exercises_added">（尚未加入動作）</string>
+    <string name="clear_btn">清空</string>
+    <string name="publish_cloud">發佈雲端</string>
+
+    <!-- 訓練課表功能 -->
+    <string name="add_workout_template">新增訓練課表</string>
+    <string name="load_template">載入課表</string>
+    <string name="template_name_hint">輸入課表名稱（如：推日、拉日）</string>
+    <string name="saved_templates">已儲存課表</string>
+    <string name="no_saved_templates">尚無儲存的課表</string>
+    <string name="use_template">使用課表</string>
+    <string name="template_loaded">已載入課表</string>
+    <string name="last_used">上次使用：%s</string>
+    <string name="create_new_or_use_template">建立新課表或使用已儲存的課表</string>
+    <string name="saved_plan">已儲存：%s</string>
+    <string name="published_cloud">已發佈雲端：%s</string>
+    <string name="publish_failed">發佈失敗：%s</string>
+    <string name="no_trainee_hint">尚未新增學員，請先到教練中心新增學員</string>
+    <string name="added_to_plan">已加入 %d 個動作到計劃</string>
+    <string name="published_to_trainee">已發佈給學員：%s</string>
+
+    <!-- 自訂動作 -->
+    <string name="custom_exercises">自訂動作</string>
+    <string name="custom_exercise_name">動作名稱</string>
+    <string name="custom_exercise_desc">動作說明（選填）</string>
+    <string name="custom_exercise_bodypart">所屬部位</string>
+    <string name="custom_exercise_equipment">器材（選填）</string>
+    <string name="add_custom_exercise">新增動作</string>
+    <string name="custom_exercise_added">已新增自訂動作</string>
+    <string name="custom_exercise_deleted">已刪除自訂動作</string>
+    <string name="custom_exercise_add_failed">新增失敗：%s</string>
+    <string name="no_custom_exercises">尚無自訂動作</string>
+    <string name="custom_group_label">自訂動作</string>
+    <string name="custom_exercise_name_required">請輸入動作名稱</string>
+
+    <!-- 飲食建議 -->
+    <string name="diet_suggestion">飲食建議</string>
+    <string name="diet_suggestion_title">標題</string>
+    <string name="diet_suggestion_content">飲食建議內容</string>
+    <string name="diet_suggestion_title_hint">例如：增肌飲食指南</string>
+    <string name="diet_suggestion_content_hint">輸入營養建議、食譜、熱量分配等內容…</string>
+    <string name="send_diet_suggestion">發送飲食建議</string>
+    <string name="diet_suggestion_sent">已發送飲食建議給學員：%s</string>
+    <string name="diet_suggestion_send_failed">發送失敗：%s</string>
+    <string name="select_trainee_for_diet">選擇接收學員</string>
+    <string name="diet_title_required">請輸入標題</string>
+    <string name="diet_content_required">請輸入飲食建議內容</string>
+
+    <!-- 刪除學員 -->
+    <string name="delete_trainee">移除學員</string>
+    <string name="delete_trainee_confirm">確定要移除學員「%s」嗎？移除後將無法向該學員發布課表與飲食建議。</string>
+    <string name="trainee_deleted">已移除學員</string>
+    <string name="delete_trainee_failed">移除失敗：%s</string>
+
+    <!-- 學員端同步功能 -->
+    <string name="diet_suggestions_from_coach">教練飲食建議</string>
+    <string name="diet_received_count">已收到 %d 則建議</string>
+    <string name="no_diet_suggestions">尚未收到飲食建議</string>
+    <string name="diet_suggestion_deleted">已刪除飲食建議</string>
+    <string name="diet_delete_failed">刪除失敗：%s</string>
+    <string name="delete_diet_suggestion">刪除建議</string>
+    <string name="delete_diet_confirm">確定要刪除「%s」嗎？刪除後將無法恢復。</string>
+    <string name="coach_plans_title">教練發佈的計畫</string>
+    <string name="no_plans_received">尚未收到計畫（先加入教練，且教練需按『發布雲端』）</string>
+    <string name="plans_received_count">已收到 %d 個</string>
+    <string name="no_plans_to_receive">目前沒有可接收的計畫</string>
+    <string name="stop_sync">停止同步</string>
+    <string name="sync_stopped">已停止同步</string>
+    <string name="no_coach_cannot_report">尚未加入教練，無法回報完成</string>
+    <string name="report_failed_msg">回報失敗：%s</string>
+    <string name="reported_to_coaches">已回報完成給教練（%d 位）</string>
+    <string name="marked_as_read">已標記已讀：%s</string>
+    <string name="removed_from_list">已從清單移除：%s</string>
+    <string name="delete_plan_title">刪除計畫</string>
+    <string name="delete_plan_confirm">確定要刪除『%s』嗎？\n\n此動作只會從你的學員端清單移除，不會刪除教練雲端資料（重新同步仍可能再出現）。</string>
+    <string name="report_complete_title">回報完成</string>
+    <string name="report_complete_confirm_single">確定要回報你已完成『%1$s』嗎？\n教練：%2$s</string>
+    <string name="report_complete_confirm_multi">確定要回報你已完成『%1$s』嗎？\n你已加入 %2$d 位教練，會全部回報。</string>
+    <string name="report_complete_no_coach">（你目前尚未加入任何教練）</string>
+    <string name="exercise_count_label">動作數：%d</string>
+    <string name="published_at_label">發佈：%s</string>
+    <string name="source_label">來源：%s</string>
+    <string name="direct_publish_tag">指定發布</string>
+    <string name="no_exercises_in_plan">（此計畫沒有動作）</string>
+    <string name="complete_and_report">完成並回報</string>
+    <string name="report_btn">回報</string>
+    <string name="from_coach">來自教練</string>
+    <string name="add_first_measurement">新增第一筆測量以開始追蹤</string>
 </resources>

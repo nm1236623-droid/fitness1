@@ -18,25 +18,36 @@ class FirebaseTrainingRecordRepository : TrainingRecordRepository() {
     private val auth = FirebaseAuth.getInstance()
 
     private val collection = firestore.collection("training_records")
+    private var listenerRegistration: com.google.firebase.firestore.ListenerRegistration? = null
 
     override val _records = MutableStateFlow<List<TrainingRecord>>(emptyList())
     override val records = _records.asStateFlow()
 
     init {
+        auth.addAuthStateListener {
+            listenForUpdates()
+        }
         listenForUpdates()
     }
 
-    private fun listenForUpdates() {
+    fun listenForUpdates() {
+        listenerRegistration?.remove()
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            collection
+            Log.d("FirebaseTrainingRepo", "開始監聽所有訓練紀錄: userId=${currentUser.uid}")
+
+            listenerRegistration = collection
                 .whereEqualTo("userId", currentUser.uid)
-                // 先用 dateEpochDay(數字) 排序較穩；舊資料沒有時仍可用 createdAt 排序
+                // 只使用單一 orderBy 避免複合索引需求
                 .orderBy("dateEpochDay", Query.Direction.DESCENDING)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        Log.e("FirebaseTrainingRepo", "Listen failed: ${error.message}")
+                        Log.e("FirebaseTrainingRepo", "Listen failed: ${error.message}", error)
+                        // 如果 dateEpochDay 排序失敗，嘗試不排序
+                        if (error.message?.contains("index") == true) {
+                            Log.w("FirebaseTrainingRepo", "索引問題，嘗試不排序查詢")
+                            listenForUpdatesWithoutOrder()
+                        }
                         return@addSnapshotListener
                     }
 
@@ -90,9 +101,74 @@ class FirebaseTrainingRecordRepository : TrainingRecordRepository() {
                         }
                     } ?: emptyList()
 
+                    Log.d("FirebaseTrainingRepo", "載入 ${trainingRecords.size} 筆訓練紀錄")
                     _records.value = trainingRecords
                 }
+        } else {
+            Log.w("FirebaseTrainingRepo", "用戶未登入，無法監聽訓練紀錄")
         }
+    }
+
+    /**
+     * 備用方法：不使用排序的查詢（當索引不存在時使用）
+     */
+    private fun listenForUpdatesWithoutOrder() {
+        val currentUser = auth.currentUser ?: return
+
+        collection
+            .whereEqualTo("userId", currentUser.uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirebaseTrainingRepo", "Fallback listen failed: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val trainingRecords = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        val data = doc.data
+
+                        val parsedDate: LocalDate? = run {
+                            val dateStr = data?.get("date") as? String
+                            val byStr = dateStr?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+                            if (byStr != null) return@run byStr
+
+                            val epochDay = (data?.get("dateEpochDay") as? Number)?.toLong()
+                            if (epochDay != null) return@run LocalDate.ofEpochDay(epochDay)
+
+                            null
+                        }
+
+                        if (parsedDate == null) return@mapNotNull null
+
+                        @Suppress("UNCHECKED_CAST")
+                        val exercisesRaw = data?.get("exercises") as? List<Map<String, Any>>
+
+                        TrainingRecord(
+                            id = doc.id,
+                            planId = data?.get("planId") as? String ?: "",
+                            planName = data?.get("planName") as? String ?: "",
+                            date = parsedDate,
+                            durationInSeconds = (data?.get("durationInSeconds") as? Number)?.toInt() ?: 0,
+                            caloriesBurned = (data?.get("caloriesBurned") as? Number)?.toDouble() ?: 0.0,
+                            exercises = exercisesRaw?.map { ex ->
+                                ExerciseRecord(
+                                    name = ex["name"] as? String ?: "",
+                                    sets = (ex["sets"] as? Number)?.toInt() ?: 0,
+                                    reps = (ex["reps"] as? Number)?.toInt() ?: 0,
+                                    weight = (ex["weight"] as? Number)?.toDouble()
+                                )
+                            } ?: emptyList(),
+                            notes = data?.get("notes") as? String,
+                            userId = data?.get("userId") as? String
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }?.sortedByDescending { it.date } ?: emptyList()
+
+                Log.d("FirebaseTrainingRepo", "Fallback: 載入 ${trainingRecords.size} 筆訓練紀錄")
+                _records.value = trainingRecords
+            }
     }
 
     /**
@@ -146,40 +222,55 @@ class FirebaseTrainingRecordRepository : TrainingRecordRepository() {
     fun observeRecordsForDate(date: LocalDate): Flow<List<TrainingRecord>> = callbackFlow {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrBlank()) {
+            Log.w("FirebaseTrainingRepo", "observeRecordsForDate: 用戶未登入")
             trySend(emptyList())
             close()
             return@callbackFlow
         }
 
         val epochDay = date.toEpochDay()
+        Log.d("FirebaseTrainingRepo", "開始監聽訓練紀錄: userId=$uid, date=$date, epochDay=$epochDay")
 
+        // 注意：只使用 equality 查詢，不使用 orderBy 以避免複合索引需求
+        // 排序在客戶端進行
         val registration = collection
             .whereEqualTo("userId", uid)
             .whereEqualTo("dateEpochDay", epochDay)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e("FirebaseTrainingRepo", "observeRecordsForDate failed: ${error.message}")
+                    Log.e("FirebaseTrainingRepo", "observeRecordsForDate 監聽失敗: ${error.message}", error)
+                    // 嘗試檢查是否為索引錯誤
+                    if (error.message?.contains("index") == true) {
+                        Log.e("FirebaseTrainingRepo", "可能需要建立 Firestore 複合索引")
+                    }
                     trySend(emptyList())
                     return@addSnapshotListener
                 }
 
-                val records = snapshot?.documents?.mapNotNull { doc ->
+                val documents = snapshot?.documents ?: emptyList()
+                Log.d("FirebaseTrainingRepo", "收到 ${documents.size} 筆訓練紀錄 for date=$date")
+
+                val records = documents.mapNotNull { doc ->
                     try {
                         val data = doc.data
-                        val dateStr = data?.get("date") as? String
+                        if (data == null) {
+                            Log.w("FirebaseTrainingRepo", "文檔 ${doc.id} 資料為空")
+                            return@mapNotNull null
+                        }
+
+                        val dateStr = data["date"] as? String
                         val parsedDate = dateStr?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: date
 
                         @Suppress("UNCHECKED_CAST")
-                        val exercisesRaw = data?.get("exercises") as? List<Map<String, Any>>
+                        val exercisesRaw = data["exercises"] as? List<Map<String, Any>>
 
-                        TrainingRecord(
+                        val record = TrainingRecord(
                             id = doc.id,
-                            planId = data?.get("planId") as? String ?: "",
-                            planName = data?.get("planName") as? String ?: "",
+                            planId = data["planId"] as? String ?: "",
+                            planName = data["planName"] as? String ?: "",
                             date = parsedDate,
-                            durationInSeconds = (data?.get("durationInSeconds") as? Number)?.toInt() ?: 0,
-                            caloriesBurned = (data?.get("caloriesBurned") as? Number)?.toDouble() ?: 0.0,
+                            durationInSeconds = (data["durationInSeconds"] as? Number)?.toInt() ?: 0,
+                            caloriesBurned = (data["caloriesBurned"] as? Number)?.toDouble() ?: 0.0,
                             exercises = exercisesRaw?.map { ex ->
                                 ExerciseRecord(
                                     name = ex["name"] as? String ?: "",
@@ -188,19 +279,29 @@ class FirebaseTrainingRecordRepository : TrainingRecordRepository() {
                                     weight = (ex["weight"] as? Number)?.toDouble()
                                 )
                             } ?: emptyList(),
-                            notes = data?.get("notes") as? String,
-                            userId = data?.get("userId") as? String
+                            notes = data["notes"] as? String,
+                            userId = data["userId"] as? String
                         )
+
+                        Log.d("FirebaseTrainingRepo", "解析紀錄成功: id=${doc.id}, planName=${record.planName}")
+                        record
                     } catch (e: Exception) {
-                        Log.e("FirebaseTrainingRepo", "observeRecordsForDate parse error: ${e.message}")
+                        Log.e("FirebaseTrainingRepo", "解析紀錄 ${doc.id} 失敗: ${e.message}", e)
                         null
                     }
-                } ?: emptyList()
+                }
 
-                trySend(records)
+                // 在客戶端排序（按時間降序）
+                val sortedRecords = records.sortedByDescending { it.id }
+
+                Log.d("FirebaseTrainingRepo", "成功解析 ${sortedRecords.size} 筆訓練紀錄")
+                trySend(sortedRecords)
             }
 
-        awaitClose { registration.remove() }
+        awaitClose {
+            Log.d("FirebaseTrainingRepo", "停止監聽訓練紀錄 for date=$date")
+            registration.remove()
+        }
     }
 
     suspend fun updateRecord(record: TrainingRecord): Result<Unit> = try {

@@ -1,0 +1,563 @@
+<resources>
+    <!-- アプリ基本 -->
+    <string name="app_name">フィットネストレーナー</string>
+    <string name="welcome_back">おかえりなさい</string>
+    <string name="login_continue">ログインして続行</string>
+
+    <!-- ナビゲーション -->
+    <string name="nav_home">ホーム</string>
+    <string name="nav_calendar">カレンダー</string>
+    <string name="nav_camera">認識</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_analytics">分析</string>
+
+    <!-- ホーム -->
+    <string name="training_summary">トレーニング概要</string>
+    <string name="today_intake">本日の摂取</string>
+    <string name="today_burned">本日の消費</string>
+    <string name="nutrition_intake">栄養摂取</string>
+    <string name="water_tracking">水分追跡</string>
+    <string name="set_goal">目標を設定</string>
+    <string name="remaining">残り</string>
+    <string name="over_limit">超過</string>
+
+    <!-- トレーニング -->
+    <string name="workout">トレーニング</string>
+    <string name="workout_plan">トレーニングプラン</string>
+    <string name="create_plan">プラン作成</string>
+    <string name="ai_training_plan">AIトレーニングプラン</string>
+    <string name="ai_generate_plan">AIスマートプランジェネレーター</string>
+    <string name="generate_plan">プラン生成</string>
+    <string name="save_plan">プラン保存</string>
+    <string name="preview_plan">プランプレビュー</string>
+    <string name="training_history">トレーニング履歴</string>
+    <string name="training_log">トレーニングログ</string>
+    <string name="select_body_part">部位を選択</string>
+    <string name="start_workout">トレーニング開始</string>
+    <string name="finish_workout">トレーニング終了</string>
+    <string name="no_training_record">この日のトレーニング記録はありません</string>
+    <string name="training_record_hint">トレーニング後に記録が表示されます。</string>
+    <string name="view_by_date">日付別にトレーニング記録を表示</string>
+    <string name="unnamed_training">無題のトレーニング</string>
+    <string name="duration">時間</string>
+    <string name="calories_burned">消費カロリー</string>
+    <string name="exercises">エクササイズ</string>
+    <string name="sets">セット</string>
+    <string name="reps">回</string>
+    <string name="ai_thinking">AI 思考中...</string>
+    <string name="api_key_not_set">API Keyが設定されていません</string>
+    <string name="please_enter_age">年齢を入力してください</string>
+    <string name="ai_service_failed">AIサービスの呼び出しに失敗しました</string>
+    <string name="generate_failed">生成に失敗しました</string>
+    <string name="save_training_plan">トレーニングプランを保存</string>
+    <string name="save_plan_confirm">『%s』をマイプランに保存しますか？</string>
+    <string name="save_template_hint">ヒント：テンプレートとして保存すると、今後の利用が便利です</string>
+    <string name="save_template">テンプレートとして保存</string>
+    <string name="save_template_desc">保存すると、いつでもこのテンプレートを適用できます</string>
+    <string name="plan_saved">プランを保存しました</string>
+
+    <!-- 食事 -->
+    <string name="diet_log">食事ログ</string>
+    <string name="ai_nutrition_analysis">AI栄養分析</string>
+    <string name="daily_summary">本日のまとめ</string>
+    <string name="calories">カロリー</string>
+    <string name="protein">タンパク質</string>
+    <string name="carbs">炭水化物</string>
+    <string name="fat">脂質</string>
+    <string name="breakfast">朝食</string>
+    <string name="lunch">昼食</string>
+    <string name="dinner">夕食</string>
+    <string name="snack">間食</string>
+    <string name="add_food">食べ物を追加</string>
+    <string name="food_name">食べ物の名前</string>
+    <string name="analyze_food">食べ物を分析</string>
+    <string name="no_food_record">この日の食事記録はありません</string>
+    <string name="food_record_hint">下のボタンをタップして食事記録を追加</string>
+    <string name="water">水分</string>
+    <string name="water_recorded">%d ml の水分を記録しました</string>
+    <string name="water_record_failed">水分の記録に失敗しました</string>
+    <string name="set_water_goal">1日の水分目標を設定</string>
+    <string name="enter_goal_ml">目標を入力（ml）</string>
+    <string name="example_2000">例: 2000</string>
+
+    <!-- 設定 -->
+    <string name="settings">設定</string>
+    <string name="advanced_settings">詳細設定</string>
+    <string name="personalize_experience">体験をカスタマイズ</string>
+    <string name="appearance">外観設定</string>
+    <string name="theme_mode">テーマモード</string>
+    <string name="color_style">カラースタイル</string>
+    <string name="language_settings">言語設定</string>
+    <string name="app_language">アプリの言語</string>
+    <string name="light_mode">ライトモード</string>
+    <string name="dark_mode">ダークモード</string>
+    <string name="system_mode">システムに従う</string>
+    <string name="neon_blue">ネオンブルー</string>
+    <string name="purple">パープル</string>
+    <string name="green">グリーン</string>
+    <string name="orange">オレンジ</string>
+    <string name="red">レッド</string>
+    <string name="custom">カスタム</string>
+
+    <!-- アカウント削除 -->
+    <string name="danger_zone">危険ゾーン</string>
+    <string name="delete_account">アカウントを削除</string>
+    <string name="delete_account_description">アカウントと全データを完全に削除します</string>
+    <string name="delete_account_warning">⚠️ この操作は元に戻せません！\n\nアカウントを削除すると、以下が完全に削除されます：\n• すべての個人データ\n• トレーニング記録\n• ワークアウトプランとテンプレート\n• プロフィール写真\n\nパスワードを入力して確認してください。</string>
+    <string name="delete_account_confirm_title">アカウント削除の確認</string>
+    <string name="enter_password_to_confirm">確認のためパスワードを入力</string>
+    <string name="deleting_account">アカウント削除中…</string>
+    <string name="account_deleted">アカウントが正常に削除されました</string>
+    <string name="delete_account_failed">アカウントの削除に失敗しました：%1$s</string>
+    <string name="password_required">パスワードを入力してください</string>
+    <string name="confirm_delete">削除を確認</string>
+
+    <!-- テンプレート -->
+    <string name="my_templates">マイテンプレート</string>
+    <string name="save_as_template">テンプレートとして保存</string>
+    <string name="save_as_template_title">テンプレートとして保存</string>
+    <string name="template_save_hint">保存後、いつでもこのテンプレートを使用できます</string>
+    <string name="save_as_template_hint">ヒント：このプランをテンプレートとして保存して、今後の使用に便利です</string>
+    <string name="template_name">テンプレート名</string>
+    <string name="template_description">説明（任意）</string>
+    <string name="no_templates">テンプレートはありません。プランを生成してテンプレートとして保存してください。</string>
+    <string name="template_applied">テンプレートを適用しました</string>
+    <string name="template_saved">テンプレートを保存しました</string>
+    <string name="template_deleted">テンプレートを削除しました</string>
+    <string name="delete_template">テンプレートを削除</string>
+    <string name="delete_template_confirm">テンプレート『%s』を削除しますか？</string>
+    <string name="save_failed">保存に失敗しました</string>
+    <string name="delete_failed">削除に失敗しました</string>
+    <string name="please_enter_template_name">テンプレート名を入力してください</string>
+    <string name="days_per_week_format">週%d日</string>
+
+    <!-- 目標とレベル -->
+    <string name="set_target">目標を設定</string>
+    <string name="goal_bulk">増量</string>
+    <string name="goal_cut">減量</string>
+    <string name="level">レベル</string>
+    <string name="level_beginner">初心者</string>
+    <string name="level_intermediate">中級者</string>
+    <string name="level_advanced">上級者</string>
+    <string name="description">説明</string>
+    <string name="user_data">ユーザーデータ</string>
+    <string name="age">年齢</string>
+    <string name="height">身長</string>
+    <string name="weight">体重</string>
+    <string name="body_fat">体脂肪</string>
+    <string name="muscle_mass">筋肉量</string>
+    <string name="days_per_week">週の日数</string>
+    <string name="training_level">トレーニングレベル</string>
+
+    <!-- 共通ボタン -->
+    <string name="save">保存</string>
+    <string name="cancel">キャンセル</string>
+    <string name="delete">削除</string>
+    <string name="confirm">確認</string>
+    <string name="close">閉じる</string>
+    <string name="back">戻る</string>
+    <string name="next">次へ</string>
+    <string name="previous">前へ</string>
+    <string name="done">完了</string>
+    <string name="edit">編集</string>
+    <string name="add">追加</string>
+    <string name="remove">削除</string>
+    <string name="reset">リセット</string>
+    <string name="refresh">更新</string>
+    <string name="retry">再試行</string>
+    <string name="loading">読み込み中…</string>
+    <string name="error">エラー</string>
+    <string name="success">成功</string>
+    <string name="please_enter">入力してください</string>
+    <string name="not_logged_in">ログインしていません</string>
+    <string name="unknown_error">不明なエラー</string>
+    <string name="no_data">データなし</string>
+    <string name="today">今日</string>
+    <string name="yesterday">昨日</string>
+    <string name="tomorrow">明日</string>
+    <string name="previous_day">前日</string>
+    <string name="next_day">翌日</string>
+
+    <!-- クイックアクション -->
+    <string name="quick_open">クイックオープン</string>
+    <string name="social_center">ソーシャル</string>
+    <string name="social_subtitle">友達と一緒にトレーニング</string>
+    <string name="friends_tab">友達</string>
+    <string name="challenges_tab">チャレンジ</string>
+    <string name="leaderboard_tab">ランキング</string>
+    <string name="cardio">有酸素運動</string>
+    <string name="inbody">InBody</string>
+    <string name="body_photos">ボディフォト</string>
+    <string name="running">ランニング</string>
+    <string name="cycling">サイクリング</string>
+    <string name="swimming">水泳</string>
+
+    <!-- コーチ/トレーニー -->
+    <string name="coach">コーチ</string>
+    <string name="trainee">トレーニー</string>
+    <string name="coach_center">コーチセンター</string>
+    <string name="trainee_center">トレーニーセンター</string>
+    <string name="my_students">受講生</string>
+    <string name="my_coach">マイコーチ</string>
+    <string name="send_plan">プランを送信</string>
+    <string name="receive_plan">プランを受信</string>
+    <string name="coach_only_hint">コーチセンターはコーチアカウント専用です。</string>
+    <string name="coach_plan_hint">ヒント：コーチが公開したプランはトレーニーセンターにのみ表示されます。</string>
+    <string name="trainee_account_hint">この機能はコーチアカウント専用です。\n\n現在トレーニーアカウントです。トレーニーセンターでコーチのプランを受信できます。</string>
+    <string name="go_to_trainee_center">トレーニーセンターへ</string>
+    <string name="trainee_center_guide">Workout → コーチ / トレーニー → トレーニーセンター へ移動してください</string>
+    <string name="coach_id">コーチID</string>
+    <string name="coach_nickname">コーチニックネーム</string>
+    <string name="set_coach_nickname">コーチニックネームを設定</string>
+    <string name="edit_coach_nickname">コーチニックネームを編集</string>
+    <string name="nickname_saved">ニックネームを保存しました</string>
+    <string name="save_failed_msg_simple">保存に失敗しました: %s</string>
+    <string name="copy_coach_id">コーチIDをコピー</string>
+    <string name="copied_coach_id">コーチIDをコピーしました</string>
+    <string name="trainee_list">トレーニーリスト</string>
+    <string name="trainee_list_hint">追加後、選択して公開できます</string>
+    <string name="refresh_trainee">トレーニーを更新</string>
+    <string name="read_trainee_failed">トレーニーの読み込みに失敗しました: %s</string>
+    <string name="id_label">ID</string>
+    <string name="nickname_label">ニックネーム</string>
+    <string name="add_btn_simple">追加</string>
+    <string name="trainee_added">トレーニーを追加/更新しました</string>
+    <string name="add_trainee_failed">追加に失敗しました: %s</string>
+    <string name="all_trainees">全てのトレーニー</string>
+    <string name="select_trainee_label">トレーニーを選択</string>
+    <string name="no_trainees_yet">トレーニーがまだいません</string>
+    <string name="coach_schedule">コーチスケジュール</string>
+    <string name="exercises_count_format">%d 種目</string>
+    <string name="no_plans_yet">プランがまだありません</string>
+    <string name="trainee_completion_report">トレーニー完了報告</string>
+    <string name="trainee_label">トレーニー: %s</string>
+    <string name="unnamed">（未命名）</string>
+    <string name="completed_label">完了: %s</string>
+    <!-- トレーニーセンター -->
+    <string name="copy_trainee_id">トレーニーIDをコピー</string>
+    <string name="copied_trainee_id">トレーニーIDをコピーしました</string>
+    <string name="update_coach_list">コーチリストを更新</string>
+    <string name="coach_list_updated">コーチリストを更新しました</string>
+    <string name="update_failed">更新に失敗しました: %s</string>
+    <string name="nickname_example">例：太郎</string>
+    <string name="reset_label">リセット</string>
+    <string name="no_coach_yet">まだコーチに参加していません</string>
+    <string name="no_nickname_set">(ニックネーム未設定)</string>
+    <string name="join_and_sync">参加して同期を開始しました</string>
+    <string name="join_failed">参加に失敗しました: %s</string>
+    <string name="leave_coach">コーチを離れる</string>
+    <string name="leave_coach_confirm">コーチ %s を離れますか？</string>
+    <string name="left_coach">コーチを離れました</string>
+    <string name="leave_failed">離れるのに失敗しました: %s</string>
+    <string name="coach_published_plans">コーチ公開プラン</string>
+    <string name="no_coach_plans">コーチプランがまだありません</string>
+    <string name="import_to_local">ローカルにインポート</string>
+    <string name="imported_success">インポートしました</string>
+    <string name="import_failed">インポートに失敗しました: %s</string>
+    <string name="start_training">トレーニングを開始</string>
+    <string name="report_completion">完了を報告</string>
+    <string name="completion_reported">完了を報告しました</string>
+    <string name="report_failed">報告に失敗しました: %s</string>
+
+    <!-- ログイン -->
+    <string name="login">ログイン</string>
+    <string name="logout">ログアウト</string>
+    <string name="sign_up">新規登録</string>
+    <string name="sign_in">ログイン</string>
+    <string name="signing_in">ログイン中...</string>
+    <string name="email">メールアドレス</string>
+    <string name="password">パスワード</string>
+    <string name="google_sign_in">Googleでログイン</string>
+    <string name="phone_sign_in">電話番号でログイン</string>
+    <string name="forgot_password">パスワードを忘れた？</string>
+    <string name="create_account">アカウント作成</string>
+    <string name="already_have_account">アカウントをお持ちですか？</string>
+    <string name="no_account">アカウントをお持ちでないですか？</string>
+    <string name="sign_in_subtitle">フィットネスの旅を続けるためにログインしてください</string>
+    <string name="or_continue_with">または次の方法で続ける</string>
+    <string name="remember_me">ログイン状態を保持</string>
+    <string name="remember_me_hint">ログイン状態を保持（30日間非アクティブで自動ログアウト）</string>
+    <string name="reset_password">パスワードをリセット</string>
+    <string name="reset_password_hint">メールアドレスを入力してください。パスワードリセットリンクを送信します。</string>
+    <string name="send_reset_email">送信</string>
+    <string name="reset_email_sent">リセットメールを送信しました</string>
+    <string name="please_enter_valid_email">有効なメールアドレスを入力してください</string>
+    <string name="sign_in_failed">ログインに失敗しました</string>
+    <string name="failed_to_send_reset_email">リセットメールの送信に失敗しました</string>
+    <!-- 新規登録 -->
+    <string name="create_account_title">アカウント作成</string>
+    <string name="join_fitness_journey">フィットネスの未来へ参加</string>
+    <string name="select_role">役割を選択</string>
+    <string name="min_password_chars">6文字以上</string>
+    <string name="your_display_name">表示名</string>
+    <string name="or_connect_with">または連携</string>
+    <string name="account_created">アカウントが作成されました！ログインしてください。</string>
+    <string name="sign_up_failed">登録に失敗しました</string>
+    <string name="invalid_email_or_password">無効なメールまたはパスワード（6文字以上）</string>
+    <string name="failed_to_save_profile">プロフィールの保存に失敗しました</string>
+    <string name="profile_photo">プロフィール写真</string>
+    <string name="choose_avatar_source">アバターのソースを選択</string>
+    <string name="camera">カメラ</string>
+    <string name="avatar_captured">アバターを撮影しました</string>
+    <string name="avatar_selected">アバターを選択しました</string>
+    <string name="failed_to_load_image">画像の読み込みに失敗しました</string>
+    <string name="camera_permission_denied">カメラの許可が拒否されました</string>
+    <string name="show_password">パスワードを表示</string>
+    <string name="hide_password">パスワードを隠す</string>
+    <string name="google">Google</string>
+    <string name="phone">電話</string>
+
+    <!-- 分析 -->
+    <string name="analytics">分析</string>
+    <string name="weekly_summary">週間サマリー</string>
+    <string name="monthly_summary">月間サマリー</string>
+    <string name="progress">進捗</string>
+    <string name="trend">トレンド</string>
+    <string name="statistics">統計</string>
+
+    <!-- メッセージ -->
+    <string name="messages">メッセージ</string>
+    <string name="chat">チャット</string>
+    <string name="send">送信</string>
+    <string name="type_message">メッセージを入力...</string>
+
+    <!-- ソーシャルセンター -->
+    <string name="no_friends_yet">まだ友達がいません</string>
+    <string name="add_friends_hint">右上をタップして友達を追加</string>
+    <string name="friend_request_sent">友達リクエストを送信しました</string>
+    <string name="send_failed">送信に失敗しました</string>
+    <string name="challenge_created">チャレンジを作成しました！</string>
+    <string name="joined_challenge">チャレンジに参加しました！</string>
+    <string name="friend_since">%s から友達</string>
+    <string name="goal_target">目標: %1$s %2$s</string>
+    <string name="participants_count">%d 人が参加</string>
+    <string name="join_challenge">チャレンジに参加</string>
+    <string name="calories_leaderboard">総消費カロリーランキング</string>
+    <string name="search_friend">友達を検索</string>
+    <string name="enter_username">ユーザー名を入力</string>
+    <string name="create_challenge">チャレンジを作成</string>
+    <string name="challenge_name">チャレンジ名</string>
+    <string name="challenge_description">説明</string>
+    <string name="challenge_target">目標値</string>
+    <string name="challenge_days">日数</string>
+
+    <!-- 有酸素トラッカー -->
+    <string name="cardio_tracker">有酸素トラッカー</string>
+    <string name="cardio_type">タイプ</string>
+    <string name="min_short">分</string>
+    <string name="sec_short">秒</string>
+    <string name="speed">速度</string>
+    <string name="incline">傾斜</string>
+    <string name="history_record">履歴</string>
+    <string name="no_record_yet">記録がありません</string>
+    <string name="cardio_spin_bike">スピンバイク</string>
+    <string name="cardio_elliptical">エリプティカル</string>
+    <string name="cardio_rowing">ローイングマシン</string>
+    <string name="cardio_stair">ステアクライマー</string>
+    <string name="cardio_cycling">サイクリング</string>
+    <string name="cardio_walk_jog">ウォーキング/ジョギング</string>
+
+    <!-- プロフィール -->
+    <string name="profile">プロフィール</string>
+    <string name="edit_profile">プロフィールを編集</string>
+    <string name="nickname">ニックネーム</string>
+    <string name="birthday">誕生日</string>
+    <string name="gender">性別</string>
+    <string name="male">男性</string>
+    <string name="female">女性</string>
+    <string name="other">その他</string>
+    <string name="profile_basic_settings">プロフィール設定</string>
+    <string name="basic_info">基本情報</string>
+    <string name="body_data">身体データ</string>
+    <string name="nutrition_goal">栄養目標</string>
+    <string name="weight_kg_label">体重 (kg)</string>
+    <string name="height_cm_label">身長 (cm)</string>
+    <string name="daily_calorie_goal">1日のカロリー目標 (kcal)</string>
+    <string name="protein_goal_label">タンパク質目標 (g)</string>
+    <string name="check_input_format">入力形式を確認してください</string>
+    <string name="saved">保存しました</string>
+    <string name="save_failed_msg">保存に失敗しました：%s</string>
+    <string name="profile_hint">ヒント：このデータはクラウドに保存され、ホーム画面の計算に使用されます。</string>
+
+    <!-- 食品認識 -->
+    <string name="food_recognition">食品認識</string>
+    <string name="saved_label">✓ 保存済み</string>
+    <string name="need_camera_permission">カメラ権限が必要です</string>
+    <string name="camera_permission_reason">食品を認識するためにカメラへのアクセスが必要です</string>
+    <string name="grant_camera_permission">カメラ権限を付与</string>
+    <string name="place_food_in_frame">食品をフレーム内に配置</string>
+    <string name="ai_analyzing">AI 分析中...</string>
+    <string name="camera_start_failed">カメラの起動に失敗しました</string>
+    <string name="gallery">ギャラリー</string>
+    <string name="take_photo">撮影</string>
+    <string name="camera_not_ready">カメラの準備ができていません</string>
+    <string name="recognition_failed">認識に失敗しました。再試行してください</string>
+    <string name="recognition_error">認識エラー</string>
+    <string name="read_photo_failed">写真の読み込みに失敗しました</string>
+    <string name="photo_failed">撮影に失敗しました</string>
+    <string name="recognition_result">🍽️ 認識結果</string>
+    <string name="calorie">カロリー</string>
+    <string name="protein_label">タンパク質</string>
+    <string name="fat_label">脂質</string>
+    <string name="carbs_label">炭水化物</string>
+    <string name="portion_adjust">📏 分量調整</string>
+    <string name="retake">撮り直し</string>
+    <string name="save_to_log">ログに保存</string>
+    <string name="meal_type">食事タイプ</string>
+    <string name="save_success">食事ログに保存しました</string>
+    <string name="save_error">保存に失敗しました</string>
+    <string name="food_label">食品：%s</string>
+    <string name="calorie_label">カロリー：%s kcal</string>
+    <string name="protein_value">タンパク質：%sg</string>
+    <string name="fat_value">脂質：%sg</string>
+    <string name="carbs_value">炭水化物：%sg</string>
+    <string name="portion_label">分量：%s</string>
+    <string name="record_time_setting">記録時間の設定</string>
+    <string name="date_time_label">日付：%1$s  時間：%2$s</string>
+    <string name="confirm_save_to_log">この栄養情報を今日のログに保存しますか？</string>
+    <string name="confirm_save">保存を確認</string>
+
+    <!-- 体の写真 -->
+    <string name="record_body_changes">体の変化を記録</string>
+    <string name="recent_photos">最近の写真</string>
+    <string name="no_records">記録なし</string>
+    <string name="no_photos_this_month">今月の写真はありません</string>
+    <string name="delete_photo">写真を削除</string>
+    <string name="year_month_format">%d年%02d月</string>
+    <string name="year_suffix">年</string>
+    <string name="month_suffix">月</string>
+
+    <!-- InBody -->
+    <string name="inbody_tracker">InBody トラッカー</string>
+    <string name="inbody_analysis">InBody 分析</string>
+    <string name="track_body_metrics">体重、体脂肪、筋肉量の推移を追跡</string>
+    <string name="add_measurement">測定を追加</string>
+    <string name="weight_kg">体重 (kg)</string>
+    <string name="body_fat_percent">体脂肪率 (%)</string>
+    <string name="muscle_mass_kg">筋肉量 (kg)</string>
+    <string name="save_record">記録を保存</string>
+    <string name="history_records">履歴</string>
+    <string name="no_inbody_records">InBody記録がありません</string>
+    <string name="add_first_measurement">最初の測定を追加して追跡を開始</string>
+    <string name="data_statistics">データ統計</string>
+    <string name="latest">最新</string>
+    <string name="change">変化</string>
+    <string name="average">平均</string>
+    <string name="range">範囲</string>
+    <string name="trend_chart">トレンドチャート</string>
+    <string name="please_add_inbody_data">InBodyデータを追加してください</string>
+    <string name="operation_guide">操作説明</string>
+    <string name="chart_tips">• チャート上の点をタップして詳細を表示\n• ピンチでズーム\n• 左右にスワイプでデータ確認</string>
+
+    <!-- 部位分析 -->
+    <string name="part_analysis">部位分析</string>
+    <string name="data_analysis">データ分析</string>
+    <string name="track_progress">トレーニングの進捗を追跡</string>
+    <string name="track_weight_trend">部位ごとの重量推移を追跡</string>
+    <string name="select_training_part">トレーニング部位を選択</string>
+    <string name="chest">胸</string>
+    <string name="back_part">背中</string>
+    <string name="legs">脚</string>
+    <string name="shoulders">肩</string>
+    <string name="arms">腕</string>
+    <string name="abs">腹</string>
+    <string name="other_part">その他</string>
+    <string name="select_exercise">種目を選択</string>
+    <string name="no_exercise_in_part">この部位の記録がありません\n(記録がある場合は「その他」を確認してください)</string>
+    <string name="please_select_exercise">種目を選択してください</string>
+    <string name="exercise_name">種目名</string>
+    <string name="weight_statistics">重量統計</string>
+    <string name="latest_weight">最新重量</string>
+    <string name="total_progress">総進捗</string>
+    <string name="historical_max">過去最大</string>
+    <string name="average_weight">平均重量</string>
+    <string name="weight_trend">重量推移</string>
+    <string name="no_data_for_chart">グラフを描画するのに十分なデータがありません</string>
+    <string name="select_exercise_to_view">分析を見るには種目を選択してください</string>
+
+    <!-- データ分析画面 -->
+    <string name="inbody_analysis_title">InBody 分析</string>
+    <string name="inbody_analysis_desc">体重・体脂肪・筋肉量の推移グラフ</string>
+    <string name="part_analysis_title">部位分析</string>
+    <string name="part_analysis_desc">トレーニング重量の進捗追跡</string>
+    <string name="tip">ヒント</string>
+    <string name="analytics_tip">部位分析はトレーニング記録の種目名で自動分類されます。記録が多いほど、分析が正確になります！</string>
+
+    <!-- 栄養パネル -->
+    <string name="nutrients">栄養素</string>
+    <string name="can_still_intake">あと %d kcal 摂取可能</string>
+    <string name="over_intake">%d kcal 超過</string>
+    <string name="daily_summary_title">本日のまとめ</string>
+    <string name="time">時間</string>
+    <string name="minutes">分</string>
+    <string name="actions">種目</string>
+    <string name="notes">メモ</string>
+    <string name="calories_label">カロリー (kcal)</string>
+    <string name="nutrient_analysis_hint">栄養素分析（手動で修正可能）</string>
+    <string name="calories_consumed">消費: %d kcal</string>
+    <string name="more_actions">…他 %d 種目（タップで展開）</string>
+    <string name="click_to_collapse">タップで閉じる</string>
+    <string name="exercise_format">• %1$s  %2$dセット × %3$d回</string>
+    <string name="exercise_format_with_weight">• %1$s  %2$dセット × %3$d回  @ %4$.1f kg</string>
+
+    <!-- Chat Screen -->
+    <string name="training_assistant">トレーニングアシスタント</string>
+    <string name="ai_fitness_helper">AIフィットネスヘルパー</string>
+    <string name="no_chat_yet">まだメッセージがありません</string>
+    <string name="api_key_missing">APIキーが設定されていません</string>
+    <string name="input_message">メッセージを入力...</string>
+
+    <!-- カレンダー -->
+    <string name="create_plan_btn">プランを作成</string>
+    <string name="add_existing">既存を追加</string>
+    <string name="no_plan_for_day">この日のトレーニングプランはありません</string>
+    <string name="exercises_count">%d 種目</string>
+    <string name="remove_schedule">スケジュールから削除</string>
+    <string name="select_plan_to_add">追加するトレーニングプランを選択</string>
+    <string name="no_plans_create_first">トレーニングプランがありません。先に作成してください。</string>
+    <string name="add_btn">追加</string>
+    <string name="day_sun">日</string>
+    <string name="day_mon">月</string>
+    <string name="day_tue">火</string>
+    <string name="day_wed">水</string>
+    <string name="day_thu">木</string>
+    <string name="day_fri">金</string>
+    <string name="day_sat">土</string>
+    <string name="training_label">トレーニング</string>
+    <string name="create_plan_for_date">%s のプランを作成</string>
+    <string name="plan_name_optional">プラン名（任意）</string>
+    <string name="select_body_part_label">トレーニング部位を選択</string>
+
+    <!-- Create Plan Dialog -->
+    <string name="added_exercises">追加済み (%d)</string>
+    <string name="sets_x_weight">%dセット × %dkg</string>
+    <string name="more_exercises">… 他 %d 種目</string>
+    <string name="clear_all_exercises">すべてクリア</string>
+    <string name="publish">発行</string>
+    <string name="part_training_options">%s トレーニングオプション</string>
+    <string name="weight_label">重量: %d kg</string>
+    <string name="sets_label">セット数:</string>
+    <string name="confirm_add">追加確定</string>
+    <string name="select_trainee">発行先を選択</string>
+    <string name="publish_to">発行先：</string>
+    <string name="confirm_publish">発行確定</string>
+    <string name="chest_part">胸</string>
+    <string name="back_part_full">背中</string>
+    <string name="legs_part">脚</string>
+    <string name="arms_part">腕</string>
+    <string name="shoulders_part">肩</string>
+    <string name="abs_part">腹</string>
+    <string name="plan_name_example">例：胸トレーニング / 上半身</string>
+    <string name="plan_auto_generate">プラン名：自動生成</string>
+    <string name="plan_name_display">プラン名：%s</string>
+    <string name="current_exercises_count">現在 %d 種目追加済み</string>
+    <string name="no_exercises_added">（まだ種目が追加されていません）</string>
+    <string name="clear_btn">クリア</string>
+    <string name="publish_cloud">クラウドに発行</string>
+    <string name="saved_plan">保存しました：%s</string>
+    <string name="published_cloud">クラウドに発行しました：%s</string>
+    <string name="publish_failed">発行に失敗しました：%s</string>
+    <string name="no_trainee_hint">トレーニーがまだいません。コーチセンターで追加してください</string>
+    <string name="added_to_plan">%d 種目をプランに追加しました</string>
+    <string name="published_to_trainee">トレーニーに発行しました：%s</string>
+</resources>

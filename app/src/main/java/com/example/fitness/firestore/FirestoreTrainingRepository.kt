@@ -1,8 +1,6 @@
 package com.example.fitness.firestore
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 
@@ -17,7 +15,7 @@ import java.time.LocalDate
  *  - exercises: Array<Map> (name, sets, reps, weight)
  */
 class FirestoreTrainingRepository(
-    private val db: FirebaseFirestore = Firebase.firestore,
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
 ) {
 
     suspend fun addTrainingRecord(userId: String, record: TrainingRecord): Result<String> {

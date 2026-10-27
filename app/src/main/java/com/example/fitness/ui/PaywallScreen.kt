@@ -28,6 +28,8 @@ import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
 import com.example.fitness.ui.theme.neonGlowBorder
 import com.revenuecat.purchases.Package
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun PaywallScreen(
@@ -36,15 +38,30 @@ fun PaywallScreen(
     userRole: com.example.fitness.coach.UserRole = com.example.fitness.coach.UserRole.COACH // 預設為教練
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var packages by remember { mutableStateOf<List<Package>>(emptyList()) }
     var selectedPackage by remember { mutableStateOf<Package?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+    var offeringsLoaded by remember { mutableStateOf(false) }
 
-    // 載入商品
+    // 載入商品 — 只顯示月費方案
     LaunchedEffect(Unit) {
+        // 啟動超時保護（並行）
+        val timeoutJob = scope.launch {
+            delay(8000L)
+            if (!offeringsLoaded) {
+                offeringsLoaded = true
+            }
+        }
         SubscriptionManager.getOfferings { fetched ->
-            packages = fetched
-            if (fetched.isNotEmpty()) selectedPackage = fetched.first()
+            // 只保留月費 package（RevenueCat identifier: $rc_monthly）
+            val monthlyOnly = fetched.filter {
+                it.identifier.equals("\$rc_monthly", ignoreCase = true)
+            }.ifEmpty { fetched.take(1) } // fallback：若找不到月費，取第一個
+            packages = monthlyOnly
+            offeringsLoaded = true
+            if (monthlyOnly.isNotEmpty()) selectedPackage = monthlyOnly.first()
+            timeoutJob.cancel()
         }
     }
 
@@ -107,8 +124,38 @@ fun PaywallScreen(
             Spacer(Modifier.height(32.dp))
 
             // 顯示方案列表
-            if (packages.isEmpty()) {
+            if (packages.isEmpty() && !offeringsLoaded) {
+                // 仍在載入中
                 CircularProgressIndicator(color = TechColors.NeonBlue)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "載入方案中…",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(0.5f)
+                )
+            } else if (packages.isEmpty() && offeringsLoaded) {
+                // 載入完成但無方案
+                Text(
+                    "⚠️ 目前無可用的訂閱方案",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(0.7f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "請稍後再試，或聯繫開發者。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(0.4f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(16.dp))
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("返回", color = Color.White)
+                }
             } else {
                 packages.forEach { pkg ->
                     val isSelected = selectedPackage == pkg

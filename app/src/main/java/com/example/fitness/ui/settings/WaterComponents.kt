@@ -34,9 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fitness.R
 import kotlin.math.roundToInt
 
 /**
@@ -50,15 +52,27 @@ fun WaterIntakeCard(
     onAddWater: (amountMl: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val cs = MaterialTheme.colorScheme
+    val waterColor = Color(0xFF4FC3F7)
     val safeGoal = goal.coerceAtLeast(1)
-    val progress = (consumed.toFloat() / safeGoal.toFloat()).coerceIn(0f, 1f)
-    val percent = (progress * 100).roundToInt()
+    val targetProgress = (consumed.toFloat() / safeGoal.toFloat()).coerceIn(0f, 1f)
+    val percent = (targetProgress * 100).roundToInt()
+
+    // 使用動畫讓進度條平滑更新
+    val animatedProgress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 500,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing
+        ),
+        label = "water_progress_animation"
+    )
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(14.dp))
-            .border(0.5.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(14.dp))
+            .background(cs.surface.copy(alpha = 0.1f), RoundedCornerShape(14.dp))
+            .border(0.5.dp, cs.outline.copy(alpha = 0.2f), RoundedCornerShape(14.dp))
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -69,46 +83,46 @@ fun WaterIntakeCard(
             Icon(
                 Icons.Default.LocalDrink,
                 contentDescription = null,
-                tint = Color(0xFF4FC3F7),
+                tint = waterColor,
                 modifier = Modifier.size(18.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "水分：${consumed} / ${goal} ml",
+                    text = "${stringResource(R.string.water)}：${consumed} / ${goal} ml",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
+                    color = cs.onBackground,
                     fontSize = 12.sp
                 )
                 Text(
                     text = "${percent}%",
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = cs.onBackground.copy(alpha = 0.7f),
                     fontSize = 10.sp
                 )
             }
         }
 
-        // 進度條
+        // 進度條 - 使用動畫進度
         LinearProgressIndicator(
-            progress = { progress },
+            progress = { animatedProgress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(999.dp)),
-            color = Color(0xFF4FC3F7),
-            trackColor = Color.White.copy(alpha = 0.12f)
+            color = waterColor,
+            trackColor = cs.outline.copy(alpha = 0.2f)
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
                 onClick = { onAddWater(200) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7).copy(alpha = 0.22f))
-            ) { Text("+200", color = Color.White, fontSize = 12.sp) }
+                colors = ButtonDefaults.buttonColors(containerColor = waterColor.copy(alpha = 0.22f))
+            ) { Text("+200", color = cs.onBackground, fontSize = 12.sp) }
 
             Button(
                 onClick = { onAddWater(500) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7).copy(alpha = 0.22f))
-            ) { Text("+500", color = Color.White, fontSize = 12.sp) }
+                colors = ButtonDefaults.buttonColors(containerColor = waterColor.copy(alpha = 0.22f))
+            ) { Text("+500", color = cs.onBackground, fontSize = 12.sp) }
         }
     }
 }
@@ -128,10 +142,10 @@ fun WaterGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("設定每日飲水目標", color = Color.White) },
+        title = { Text(stringResource(R.string.set_water_goal), color = Color.White) },
         text = {
             Column {
-                Text("請輸入目標（ml）", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                Text(stringResource(R.string.enter_goal_ml), color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = input,
@@ -139,7 +153,7 @@ fun WaterGoalDialog(
                         input = value.filter { it.isDigit() }.take(6)
                     },
                     singleLine = true,
-                    label = { Text("例如 2000") },
+                    label = { Text(stringResource(R.string.example_2000)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
@@ -160,10 +174,10 @@ fun WaterGoalDialog(
                     onGoalSet(newGoal)
                 }
             ) {
-                Text("儲存")
+                Text(stringResource(R.string.save))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
         containerColor = Color(0xFF1B1F2A)
     )
 }

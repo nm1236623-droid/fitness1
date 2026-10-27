@@ -1,6 +1,9 @@
 package com.example.fitness.ui.settings
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,19 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
+import com.example.fitness.firebase.AuthRepository
 import com.example.fitness.localization.LocaleManager
 import com.example.fitness.localization.SupportedLanguage
 import com.example.fitness.ui.theme.ColorScheme
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.ThemeManager
-import com.example.fitness.ui.theme.ThemeMode
 import com.example.fitness.ui.theme.glassEffect
-import com.example.fitness.ui.theme.neonGlowBorder
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,56 +48,62 @@ fun AdvancedSettingsScreen(
     val localeManager = remember { LocaleManager.getInstance(context) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val currentTheme by themeManager.themeMode.collectAsState(initial = ThemeMode.AUTO)
     val currentColorScheme by themeManager.colorScheme.collectAsState(initial = ColorScheme.NEON_BLUE)
     val currentLanguage by localeManager.currentLanguage.collectAsState(initial = SupportedLanguage.CHINESE_TRADITIONAL)
 
-    var showThemeDialog by remember { mutableStateOf(false) }
     var showColorSchemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var deletePassword by remember { mutableStateOf("") }
+    var deleteLoading by remember { mutableStateOf(false) }
+    val authRepository = remember { AuthRepository() }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         val cs = MaterialTheme.colorScheme
-        val bg = Brush.verticalGradient(listOf(cs.background, cs.surface))
-
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(bg)
+                .background(Brush.verticalGradient(listOf(TechColors.DarkBlue, TechColors.DeepPurple)))
                 .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .widthIn(max = 680.dp)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Header
+                // Header - 與 BodyPhotoScreen 一樣的風格
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .glassEffect(20.dp)
+                        .glassEffect(cornerRadius = 20.dp)
                         .padding(12.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, null, tint = cs.primary)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                                tint = cs.primary
+                            )
                         }
                         Spacer(Modifier.width(8.dp))
                         Column {
                             Text(
-                                "進階設定",
+                                stringResource(R.string.advanced_settings),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = cs.primary
+                                color = cs.onBackground
                             )
                             Text(
-                                "個性化您的體驗",
+                                stringResource(R.string.appearance),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = cs.onBackground.copy(alpha = 0.7f)
+                                color = cs.onSurfaceVariant
                             )
                         }
                     }
@@ -101,18 +112,12 @@ fun AdvancedSettingsScreen(
                 Spacer(Modifier.height(20.dp))
 
                 // Theme Section
-                SettingSection("外觀設定") {
-                    SettingItem(
-                        icon = Icons.Default.Palette,
-                        title = "主題模式",
-                        subtitle = currentTheme.toDisplayName(),
-                        onClick = { showThemeDialog = true }
-                    )
+                SettingSection(stringResource(R.string.appearance)) {
 
                     SettingItem(
                         icon = Icons.Default.ColorLens,
-                        title = "顏色風格",
-                        subtitle = currentColorScheme.toDisplayName(),
+                        title = stringResource(R.string.color_style),
+                        subtitle = currentColorScheme.toLocalizedDisplayName(),
                         onClick = { showColorSchemeDialog = true }
                     )
                 }
@@ -120,31 +125,87 @@ fun AdvancedSettingsScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Language Section
-                SettingSection("語言設定") {
+                SettingSection(stringResource(R.string.language_settings)) {
                     SettingItem(
                         icon = Icons.Default.Language,
-                        title = "應用程式語言",
+                        title = stringResource(R.string.app_language),
                         subtitle = currentLanguage.displayName,
                         onClick = { showLanguageDialog = true }
                     )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                // Danger Zone - Delete Account
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(
+                            width = 1.dp,
+                            color = cs.error.copy(alpha = 0.4f),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .background(
+                            Brush.linearGradient(
+                                listOf(
+                                    cs.error.copy(alpha = 0.05f),
+                                    cs.error.copy(alpha = 0.02f)
+                                )
+                            )
+                        )
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Text(
+                            stringResource(R.string.danger_zone),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = cs.error
+                        )
+                        Spacer(Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { showDeleteAccountDialog = true }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.DeleteForever,
+                                contentDescription = null,
+                                tint = cs.error,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    stringResource(R.string.delete_account),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = cs.error,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    stringResource(R.string.delete_account_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = cs.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = cs.error.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(32.dp))
             }
 
             // Dialogs
-            if (showThemeDialog) {
-                ThemeSelectionDialog(
-                    currentTheme = currentTheme,
-                    onThemeSelected = { theme ->
-                        scope.launch {
-                            themeManager.setThemeMode(theme)
-                            showThemeDialog = false
-                        }
-                    },
-                    onDismiss = { showThemeDialog = false }
-                )
-            }
 
             if (showColorSchemeDialog) {
                 ColorSchemeSelectionDialog(
@@ -164,31 +225,192 @@ fun AdvancedSettingsScreen(
                     currentLanguage = currentLanguage,
                     onLanguageSelected = { language ->
                         scope.launch {
-                            localeManager.setLanguage(language)
+                            localeManager.setLanguageSync(language)
                             showLanguageDialog = false
-                            snackbarHostState.showSnackbar("語言已更新，請重啟應用程式")
+
+                            val activity = context as? Activity
+                            activity?.let {
+                                val intent = it.intent
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                it.finish()
+                                it.startActivity(intent)
+                            }
                         }
                     },
                     onDismiss = { showLanguageDialog = false }
+                )
+            }
+
+            // Delete Account Confirmation Dialog
+            if (showDeleteAccountDialog) {
+                val isEmailUser = remember {
+                    FirebaseAuth.getInstance().currentUser?.providerData
+                        ?.any { it.providerId == "password" } == true
+                }
+
+                AlertDialog(
+                    onDismissRequest = {
+                        if (!deleteLoading) {
+                            showDeleteAccountDialog = false
+                            deletePassword = ""
+                        }
+                    },
+                    containerColor = cs.surface,
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = cs.error,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.delete_account_confirm_title),
+                                fontWeight = FontWeight.Bold,
+                                color = cs.error
+                            )
+                        }
+                    },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Text(
+                                stringResource(R.string.delete_account_warning),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = cs.onSurface
+                            )
+
+                            if (isEmailUser) {
+                                OutlinedTextField(
+                                    value = deletePassword,
+                                    onValueChange = { deletePassword = it },
+                                    label = { Text(stringResource(R.string.enter_password_to_confirm)) },
+                                    singleLine = true,
+                                    enabled = !deleteLoading,
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = cs.error,
+                                        unfocusedBorderColor = cs.error.copy(alpha = 0.4f),
+                                        focusedLabelColor = cs.error,
+                                        cursorColor = cs.error
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (isEmailUser && deletePassword.isBlank()) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(R.string.password_required)
+                                        )
+                                    }
+                                    return@Button
+                                }
+
+                                deleteLoading = true
+                                scope.launch {
+                                    val result = authRepository.deleteAccount(
+                                        password = if (isEmailUser) deletePassword else null
+                                    )
+
+                                    if (result.isSuccess) {
+                                        showDeleteAccountDialog = false
+                                        deletePassword = ""
+
+                                        // Navigate to MainActivity (login screen)
+                                        val activity = context as? Activity
+                                        activity?.let {
+                                            val intent = Intent(
+                                                it,
+                                                Class.forName("com.example.fitness.MainActivity")
+                                            ).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            }
+                                            it.startActivity(intent)
+                                            it.finish()
+                                        }
+                                    } else {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(
+                                                R.string.delete_account_failed,
+                                                result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
+                                            )
+                                        )
+                                    }
+                                    deleteLoading = false
+                                }
+                            },
+                            enabled = !deleteLoading,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = cs.error,
+                                contentColor = cs.onError,
+                                disabledContainerColor = cs.error.copy(alpha = 0.4f),
+                                disabledContentColor = cs.onError.copy(alpha = 0.5f)
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 0.dp,
+                                pressedElevation = 0.dp,
+                                disabledElevation = 0.dp
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            if (deleteLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(18.dp),
+                                    color = cs.onError,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.deleting_account))
+                            } else {
+                                Icon(
+                                    Icons.Default.DeleteForever,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    stringResource(R.string.confirm_delete),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteAccountDialog = false
+                                deletePassword = ""
+                            },
+                            enabled = !deleteLoading
+                        ) {
+                            Text(
+                                stringResource(R.string.cancel),
+                                color = cs.onSurfaceVariant
+                            )
+                        }
+                    }
                 )
             }
         }
     }
 }
 
-private fun ThemeMode.toDisplayName(): String = when (this) {
-    ThemeMode.LIGHT -> "LIGHT（淺色）"
-    ThemeMode.DARK -> "DARK（深色）"
-    ThemeMode.AUTO -> "SYSTEM（跟隨系統）"
-}
 
-private fun ColorScheme.toDisplayName(): String = when (this) {
-    ColorScheme.NEON_BLUE -> "霓虹藍"
-    ColorScheme.PURPLE -> "紫色"
-    ColorScheme.GREEN -> "綠色"
-    ColorScheme.ORANGE -> "橘色"
-    ColorScheme.RED -> "紅色"
-    ColorScheme.CUSTOM -> "自訂"
+@Composable
+private fun ColorScheme.toLocalizedDisplayName(): String = when (this) {
+    ColorScheme.NEON_BLUE -> stringResource(R.string.neon_blue)
+    ColorScheme.PURPLE -> stringResource(R.string.purple)
+    ColorScheme.GREEN -> stringResource(R.string.green)
+    ColorScheme.ORANGE -> stringResource(R.string.orange)
+    ColorScheme.RED -> stringResource(R.string.red)
+    ColorScheme.CUSTOM -> stringResource(R.string.custom)
 }
 
 @Composable
@@ -196,19 +418,19 @@ fun SettingSection(
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .glassEffect(24.dp)
-            .padding(20.dp)
+            .glassEffect(cornerRadius = 20.dp)
+            .padding(16.dp)
     ) {
-        val cs = MaterialTheme.colorScheme
         Column {
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = cs.onSurface
+                color = cs.onBackground
             )
             Spacer(Modifier.height(16.dp))
             content()
@@ -224,9 +446,6 @@ fun SettingItem(
     onClick: () -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
-    val titleColor = cs.onSurface
-    val subtitleColor = cs.onSurface.copy(alpha = 0.7f)
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,7 +456,7 @@ fun SettingItem(
     ) {
         Icon(
             icon,
-            null,
+            contentDescription = null,
             tint = cs.primary,
             modifier = Modifier.size(24.dp)
         )
@@ -248,71 +467,24 @@ fun SettingItem(
             Text(
                 title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = titleColor,
+                color = cs.onBackground,
                 fontWeight = FontWeight.Medium
             )
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = subtitleColor
+                color = cs.onSurfaceVariant
             )
         }
 
         Icon(
             Icons.Default.ChevronRight,
-            null,
-            tint = cs.onSurface.copy(alpha = 0.5f)
+            contentDescription = null,
+            tint = cs.onSurfaceVariant
         )
     }
 }
 
-@Composable
-fun ThemeSelectionDialog(
-    currentTheme: ThemeMode,
-    onThemeSelected: (ThemeMode) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val cs = MaterialTheme.colorScheme
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = cs.surface,
-        title = {
-            Text("選擇主題", fontWeight = FontWeight.Bold, color = cs.primary)
-        },
-        text = {
-            Column {
-                ThemeMode.values().forEach { theme ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { onThemeSelected(theme) }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = currentTheme == theme,
-                            onClick = { onThemeSelected(theme) },
-                            colors = RadioButtonDefaults.colors(selectedColor = cs.primary)
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            theme.toDisplayName(),
-                            color = cs.onSurface,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消", color = cs.onSurface.copy(alpha = 0.8f))
-            }
-        }
-    )
-}
 
 @Composable
 fun ColorSchemeSelectionDialog(
@@ -325,11 +497,15 @@ fun ColorSchemeSelectionDialog(
         onDismissRequest = onDismiss,
         containerColor = cs.surface,
         title = {
-            Text("選擇顏色風格", fontWeight = FontWeight.Bold, color = cs.primary)
+            Text(
+                stringResource(R.string.color_style),
+                fontWeight = FontWeight.Bold,
+                color = cs.onBackground
+            )
         },
         text = {
             Column {
-                ColorScheme.values().forEach { scheme ->
+                ColorScheme.entries.forEach { scheme ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -347,15 +523,15 @@ fun ColorSchemeSelectionDialog(
                         )
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            scheme.toDisplayName(),
-                            color = cs.onSurface,
+                            scheme.toLocalizedDisplayName(),
+                            color = cs.onBackground,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.weight(1f)
                         )
                         if (currentScheme == scheme) {
                             Icon(
                                 Icons.Default.Check,
-                                null,
+                                contentDescription = null,
                                 tint = cs.primary
                             )
                         }
@@ -366,7 +542,7 @@ fun ColorSchemeSelectionDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = cs.onSurface.copy(alpha = 0.8f))
+                Text(stringResource(R.string.cancel), color = cs.onSurfaceVariant)
             }
         }
     )
@@ -383,11 +559,15 @@ fun LanguageSelectionDialog(
         onDismissRequest = onDismiss,
         containerColor = cs.surface,
         title = {
-            Text("選擇語言", fontWeight = FontWeight.Bold, color = cs.primary)
+            Text(
+                stringResource(R.string.app_language),
+                fontWeight = FontWeight.Bold,
+                color = cs.onBackground
+            )
         },
         text = {
             Column {
-                SupportedLanguage.values().forEach { language ->
+                SupportedLanguage.entries.forEach { language ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -399,12 +579,15 @@ fun LanguageSelectionDialog(
                         RadioButton(
                             selected = currentLanguage == language,
                             onClick = { onLanguageSelected(language) },
-                            colors = RadioButtonDefaults.colors(selectedColor = cs.primary)
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = cs.primary,
+                                unselectedColor = cs.onSurfaceVariant
+                            )
                         )
                         Spacer(Modifier.width(12.dp))
                         Text(
                             language.displayName,
-                            color = cs.onSurface,
+                            color = cs.onBackground,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -414,7 +597,7 @@ fun LanguageSelectionDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = cs.onSurface.copy(alpha = 0.8f))
+                Text(stringResource(R.string.cancel), color = cs.onSurfaceVariant)
             }
         }
     )

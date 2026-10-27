@@ -18,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
 import com.example.fitness.ui.theme.neonGlowBorder
@@ -44,15 +46,12 @@ fun InBodyScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(TechColors.DarkBlue, TechColors.DeepPurple)
-                )
-            )
+            .background(Brush.verticalGradient(listOf(TechColors.DarkBlue, TechColors.DeepPurple)))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 840.dp)
                 .padding(16.dp)
         ) {
             // Header
@@ -66,22 +65,22 @@ fun InBodyScreen(
                     IconButton(onClick = onDone) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回",
-                            tint = TechColors.NeonBlue
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "InBody Tracker",
+                            stringResource(R.string.inbody_tracker),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = TechColors.NeonBlue
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            "追蹤體重、體脂與肌肉量趨勢",
+                            stringResource(R.string.track_body_metrics),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -90,12 +89,12 @@ fun InBodyScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Input Section
-            SectionCard(title = "新增量測") {
+            SectionCard(title = stringResource(R.string.add_measurement)) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     NeonOutlinedTextField(
                         value = weightText,
                         onValueChange = { weightText = it },
-                        label = "體重 (kg)",
+                        label = stringResource(R.string.weight_kg),
                         icon = Icons.Default.MonitorWeight
                     )
 
@@ -103,14 +102,14 @@ fun InBodyScreen(
                         NeonOutlinedTextField(
                             value = bodyFatText,
                             onValueChange = { bodyFatText = it },
-                            label = "體脂率 (%)",
+                            label = stringResource(R.string.body_fat_percent),
                             icon = Icons.Default.Percent,
                             modifier = Modifier.weight(1f)
                         )
                         NeonOutlinedTextField(
                             value = muscleText,
                             onValueChange = { muscleText = it },
-                            label = "肌肉量 (kg)",
+                            label = stringResource(R.string.muscle_mass_kg),
                             icon = Icons.Default.FitnessCenter,
                             modifier = Modifier.weight(1f)
                         )
@@ -145,11 +144,11 @@ fun InBodyScreen(
                                 .height(48.dp)
                                 .neonGlowBorder(cornerRadius = 12.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = TechColors.NeonBlue.copy(alpha = 0.2f),
-                                contentColor = TechColors.NeonBlue
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                contentColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Text("儲存紀錄", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.save_record), fontWeight = FontWeight.Bold)
                         }
 
                         OutlinedButton(
@@ -161,13 +160,13 @@ fun InBodyScreen(
                             modifier = Modifier.height(48.dp),
                             border = androidx.compose.foundation.BorderStroke(
                                 1.dp,
-                                Color.White.copy(alpha = 0.3f)
+                                MaterialTheme.colorScheme.outline
                             ),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color.White.copy(alpha = 0.7f)
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         ) {
-                            Text("清除")
+                            Text(stringResource(R.string.reset))
                         }
                     }
                 }
@@ -177,10 +176,10 @@ fun InBodyScreen(
 
             // History Section
             Text(
-                "歷史紀錄",
+                stringResource(R.string.history_records),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
             )
 
@@ -194,16 +193,16 @@ fun InBodyScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            "尚無數據",
+                            stringResource(R.string.no_inbody_records),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "新增第一筆量測來開始追蹤",
+                            stringResource(R.string.please_add_inbody_data),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -233,18 +232,18 @@ fun InBodyScreen(
                                     Text(
                                         text = formatter.format(rec.timestamp),
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = Color.White.copy(alpha = 0.6f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
 
                                     Spacer(Modifier.height(8.dp))
 
                                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                        MetricMiniNeon(label = "體重", value = "${rec.weightKg}", unit = "kg")
+                                        MetricMiniNeon(label = stringResource(R.string.weight), value = "${rec.weightKg}", unit = "kg")
                                         rec.bodyFatPercent?.let {
-                                            MetricMiniNeon(label = "體脂", value = "$it", unit = "%")
+                                            MetricMiniNeon(label = stringResource(R.string.body_fat), value = "$it", unit = "%")
                                         }
                                         rec.muscleMassKg?.let {
-                                            MetricMiniNeon(label = "肌肉", value = "$it", unit = "kg")
+                                            MetricMiniNeon(label = stringResource(R.string.muscle_mass), value = "$it", unit = "kg")
                                         }
                                     }
                                 }
@@ -254,8 +253,8 @@ fun InBodyScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Delete,
-                                        contentDescription = "刪除",
-                                        tint = Color(0xFFFF6B6B)
+                                        contentDescription = stringResource(R.string.delete),
+                                        tint = MaterialTheme.colorScheme.error
                                     )
                                 }
                             }
@@ -285,7 +284,7 @@ private fun SectionCard(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             content()
@@ -301,24 +300,25 @@ private fun NeonOutlinedTextField(
     icon: ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
         leadingIcon = if (icon != null) {
-            { Icon(icon, contentDescription = null, tint = TechColors.NeonBlue) }
+            { Icon(icon, contentDescription = null, tint = cs.primary) }
         } else null,
         singleLine = true,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedBorderColor = TechColors.NeonBlue,
-            unfocusedBorderColor = TechColors.NeonBlue.copy(alpha = 0.5f),
-            focusedLabelColor = TechColors.NeonBlue,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-            cursorColor = TechColors.NeonBlue,
+            focusedTextColor = cs.onBackground,
+            unfocusedTextColor = cs.onBackground,
+            focusedBorderColor = cs.primary,
+            unfocusedBorderColor = cs.primary.copy(alpha = 0.5f),
+            focusedLabelColor = cs.primary,
+            unfocusedLabelColor = cs.onSurfaceVariant,
+            cursorColor = cs.primary,
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         )
@@ -327,18 +327,19 @@ private fun NeonOutlinedTextField(
 
 @Composable
 private fun MetricMiniNeon(label: String, value: String, unit: String) {
+    val cs = MaterialTheme.colorScheme
     Column {
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.6f)
+            color = cs.onSurfaceVariant
         )
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = TechColors.NeonBlue, // Highlight value
+                color = cs.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -346,7 +347,7 @@ private fun MetricMiniNeon(label: String, value: String, unit: String) {
             Text(
                 unit,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.8f),
+                color = cs.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 2.dp)
             )
         }

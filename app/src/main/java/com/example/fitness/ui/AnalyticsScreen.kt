@@ -2,18 +2,21 @@ package com.example.fitness.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.activity.ActivityLogRepository
 import com.example.fitness.data.TrainingPlanRepository
 import com.example.fitness.inbody.InBodyRepository
-import com.example.fitness.ui.theme.glassEffect
 import com.example.fitness.ui.theme.TechColors
+import com.example.fitness.ui.theme.glassEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
@@ -34,6 +37,7 @@ fun AnalyticsScreen(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -46,6 +50,7 @@ fun AnalyticsScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .widthIn(max = 840.dp)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -54,24 +59,35 @@ fun AnalyticsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .glassEffect(cornerRadius = 24.dp)
-                    .padding(20.dp)
+                    .padding(12.dp)
             ) {
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "📊 數據分析",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = TechColors.NeonBlue,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = "追蹤你的訓練進步",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                                tint = cs.primary
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.data_analysis),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = cs.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(R.string.track_progress),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = cs.onBackground.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
 
@@ -102,27 +118,27 @@ fun AnalyticsScreen(
                             Icon(
                                 imageVector = Icons.Default.Monitor,
                                 contentDescription = null,
-                                tint = TechColors.NeonBlue,
+                                tint = cs.primary,
                                 modifier = Modifier.size(32.dp)
                             )
                             Text(
-                                text = "InBody 分析",
+                                text = stringResource(R.string.inbody_analysis_title),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = Color.White,
+                                color = cs.onBackground,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "體重、體脂、肌肉量趨勢圖",
+                            text = stringResource(R.string.inbody_analysis_desc),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = cs.onBackground.copy(alpha = 0.7f)
                         )
                     }
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = TechColors.NeonBlue,
+                        tint = cs.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -150,27 +166,27 @@ fun AnalyticsScreen(
                             Icon(
                                 imageVector = Icons.Default.FitnessCenter,
                                 contentDescription = null,
-                                tint = TechColors.NeonBlue,
+                                tint = cs.primary,
                                 modifier = Modifier.size(32.dp)
                             )
                             Text(
-                                text = "部位分析",
+                                text = stringResource(R.string.part_analysis_title),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = Color.White,
+                                color = cs.onBackground,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "訓練重量進步追蹤",
+                            text = stringResource(R.string.part_analysis_desc),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = cs.onBackground.copy(alpha = 0.7f)
                         )
                     }
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = TechColors.NeonBlue,
+                        tint = cs.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -191,21 +207,21 @@ fun AnalyticsScreen(
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = TechColors.NeonBlue,
+                    tint = cs.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Column {
                     Text(
-                        text = "提示",
+                        text = stringResource(R.string.tip),
                         style = MaterialTheme.typography.labelLarge,
-                        color = Color.White,
+                        color = cs.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "部位分析會依訓練紀錄中的動作名稱自動分類，記錄越多，分析越精準！",
+                        text = stringResource(R.string.analytics_tip),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = cs.onBackground.copy(alpha = 0.7f)
                     )
                 }
             }

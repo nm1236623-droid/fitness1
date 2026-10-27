@@ -60,6 +60,35 @@ class LocaleManager(private val context: Context) {
     }
 
     /**
+     * 同步獲取當前語言（用於 attachBaseContext）
+     */
+    fun getCurrentLanguageSync(): SupportedLanguage {
+        return try {
+            val prefs = context.getSharedPreferences("locale_prefs_sync", Context.MODE_PRIVATE)
+            val langCode = prefs.getString("selected_language", SupportedLanguage.CHINESE_TRADITIONAL.code)
+            SupportedLanguage.values().find { it.code == langCode }
+                ?: SupportedLanguage.CHINESE_TRADITIONAL
+        } catch (e: Exception) {
+            SupportedLanguage.CHINESE_TRADITIONAL
+        }
+    }
+
+    /**
+     * 同步保存語言（配合 DataStore 使用）
+     */
+    suspend fun setLanguageSync(language: SupportedLanguage) {
+        // 保存到 DataStore
+        context.localeDataStore.edit { prefs ->
+            prefs[LANGUAGE_KEY] = language.code
+        }
+        // 同時保存到 SharedPreferences 以便同步讀取
+        context.getSharedPreferences("locale_prefs_sync", Context.MODE_PRIVATE)
+            .edit()
+            .putString("selected_language", language.code)
+            .apply()
+    }
+
+    /**
      * 獲取本地化 Context
      */
     fun getLocalizedContext(language: SupportedLanguage): Context {
@@ -75,6 +104,25 @@ class LocaleManager(private val context: Context) {
         configuration.setLocale(locale)
 
         return context.createConfigurationContext(configuration)
+    }
+
+    /**
+     * 將語言應用到指定的 Context
+     */
+    fun applyLanguage(baseContext: Context, language: SupportedLanguage): Context {
+        val locale = when (language) {
+            SupportedLanguage.CHINESE_TRADITIONAL -> Locale.TRADITIONAL_CHINESE
+            SupportedLanguage.CHINESE_SIMPLIFIED -> Locale.SIMPLIFIED_CHINESE
+            SupportedLanguage.ENGLISH -> Locale.ENGLISH
+            SupportedLanguage.JAPANESE -> Locale.JAPANESE
+            SupportedLanguage.KOREAN -> Locale.KOREAN
+        }
+
+        Locale.setDefault(locale)
+        val configuration = baseContext.resources.configuration
+        configuration.setLocale(locale)
+
+        return baseContext.createConfigurationContext(configuration)
     }
 }
 

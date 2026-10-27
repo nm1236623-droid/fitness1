@@ -7,23 +7,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row // Fixed: Added missing import
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width // Fixed: Added missing import
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.AccessibilityNew
 import androidx.compose.material.icons.filled.AirlineSeatReclineExtra
-import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.SportsMartialArts
@@ -36,19 +37,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.fitness.R
 import com.example.fitness.ui.theme.TechColors
 import com.example.fitness.ui.theme.glassEffect
 
 private data class TrainingPartUi(
     val key: String,
-    val label: String,
+    val labelResId: Int,
     val icon: ImageVector,
-    val contentDescription: String = label,
 )
 
 @Composable
@@ -56,16 +57,18 @@ fun PartSelectionScreen(
     onSelect: (String) -> Unit,
     onCancel: () -> Unit = {},
 ) {
+    val cs = MaterialTheme.colorScheme
+
     val parts = listOf(
-        TrainingPartUi("chest", "胸", Icons.Default.Favorite, contentDescription = "胸部"),
-        TrainingPartUi("back", "背", Icons.Default.AirlineSeatReclineExtra, contentDescription = "背部"),
-        TrainingPartUi("legs", "腿", Icons.Default.DirectionsRun, contentDescription = "腿部"),
-        TrainingPartUi("arms", "手臂", Icons.Default.FitnessCenter, contentDescription = "手臂"),
-        TrainingPartUi("shoulders", "肩", Icons.Default.AccessibilityNew, contentDescription = "肩膀"),
-        TrainingPartUi("abs", "腹", Icons.Default.SportsMartialArts, contentDescription = "腹部"),
+        TrainingPartUi("chest", R.string.chest, Icons.Default.Favorite),
+        TrainingPartUi("back", R.string.back_part, Icons.Default.AirlineSeatReclineExtra),
+        TrainingPartUi("legs", R.string.legs, Icons.AutoMirrored.Filled.DirectionsRun),
+        TrainingPartUi("arms", R.string.arms, Icons.Default.FitnessCenter),
+        TrainingPartUi("shoulders", R.string.shoulders, Icons.Default.AccessibilityNew),
+        TrainingPartUi("abs", R.string.abs, Icons.Default.SportsMartialArts),
     )
 
-    // Global Gradient Background
+    // Global Gradient Background - theme aware
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +79,7 @@ fun PartSelectionScreen(
             )
     ) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            // Neon Header
+            // Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -90,21 +93,21 @@ fun PartSelectionScreen(
                     IconButton(onClick = onCancel) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回",
-                            tint = TechColors.NeonBlue
+                            contentDescription = stringResource(R.string.back),
+                            tint = cs.primary
                         )
                     }
                     Column(modifier = Modifier.padding(start = 8.dp)) {
                         Text(
-                            text = "部位選擇",
+                            text = stringResource(R.string.select_body_part),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = TechColors.NeonBlue
+                            color = cs.primary
                         )
                         Text(
-                            text = "選擇今天要訓練的目標肌群",
+                            text = stringResource(R.string.select_training_part),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = cs.onBackground.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -146,10 +149,14 @@ private fun PartTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val cs = MaterialTheme.colorScheme
+    val label = stringResource(part.labelResId)
+
     // Glass Effect Tile
     Box(
         modifier = modifier
-            .height(120.dp)
+            .aspectRatio(1f)
+            .heightIn(min = 100.dp)
             .glassEffect(cornerRadius = 24.dp)
             .clip(RoundedCornerShape(24.dp))
             .clickable(onClick = onClick)
@@ -157,37 +164,38 @@ private fun PartTile(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Neon Icon Container
+            // Icon Container
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(44.dp)
                     .background(
-                        TechColors.NeonBlue.copy(alpha = 0.1f),
+                        cs.primary.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = part.icon,
-                    contentDescription = part.contentDescription,
-                    tint = TechColors.NeonBlue,
-                    modifier = Modifier.size(28.dp)
+                    contentDescription = label,
+                    tint = cs.primary,
+                    modifier = Modifier.size(26.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = part.label,
+                text = label,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                color = cs.onBackground,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
     }

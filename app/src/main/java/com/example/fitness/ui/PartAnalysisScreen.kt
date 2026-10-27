@@ -19,9 +19,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fitness.R
 import com.example.fitness.activity.ActivityLogRepository
 import com.example.fitness.data.PartAnalysisRepository
 import com.example.fitness.data.TrainingPlanRepository
@@ -87,13 +89,13 @@ fun PartAnalysisScreen(
     val entries by partRepo.data.collectAsState(initial = emptyList())
 
     val partOptions: List<Pair<String, String>> = listOf(
-        "胸" to "chest",
-        "背" to "back",
-        "腿" to "legs",
-        "肩" to "shoulders",
-        "手臂" to "arms",
-        "腹" to "abs",
-        "其他" to "other"
+        stringResource(R.string.chest) to "chest",
+        stringResource(R.string.back_part) to "back",
+        stringResource(R.string.legs) to "legs",
+        stringResource(R.string.shoulders) to "shoulders",
+        stringResource(R.string.arms) to "arms",
+        stringResource(R.string.abs) to "abs",
+        stringResource(R.string.other_part) to "other"
     )
 
     var selectedPartKey by rememberSaveable { mutableStateOf("chest") }
@@ -132,6 +134,7 @@ fun PartAnalysisScreen(
             .sortedBy { it.first }
     }
 
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -140,8 +143,9 @@ fun PartAnalysisScreen(
                     listOf(TechColors.DarkBlue, TechColors.DeepPurple)
                 )
             )
+            .systemBarsPadding()
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().widthIn(max = 840.dp)) {
             // Header
             Box(
                 modifier = Modifier
@@ -153,22 +157,22 @@ fun PartAnalysisScreen(
                     IconButton(onClick = onDone) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回",
-                            tint = TechColors.NeonBlue
+                            contentDescription = stringResource(R.string.back),
+                            tint = cs.primary
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     Column {
                         Text(
-                            "部位分析",
+                            stringResource(R.string.part_analysis),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = TechColors.NeonBlue
+                            color = cs.primary
                         )
                         Text(
-                            "追蹤各部位動作重量趨勢",
+                            stringResource(R.string.track_weight_trend),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = cs.onBackground.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -183,7 +187,7 @@ fun PartAnalysisScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // 1. Part Selector - Renamed component usage
-                AnalysisSectionCard(title = "選擇訓練部位") {
+                AnalysisSectionCard(title = stringResource(R.string.select_training_part)) {
                     val rows = partOptions.chunked(4)
 
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -199,7 +203,7 @@ fun PartAnalysisScreen(
                                             .weight(1f)
                                             .neonGlowBorder(cornerRadius = 12.dp)
                                             .background(
-                                                TechColors.NeonBlue.copy(alpha = 0.2f),
+                                                cs.primary.copy(alpha = 0.2f),
                                                 RoundedCornerShape(12.dp)
                                             )
                                     } else {
@@ -219,7 +223,7 @@ fun PartAnalysisScreen(
                                             text = label,
                                             style = MaterialTheme.typography.labelLarge,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isSelected) TechColors.NeonBlue else Color.White.copy(alpha = 0.8f)
+                                            color = if (isSelected) cs.primary else cs.onBackground.copy(alpha = 0.8f)
                                         )
                                     }
                                 }
@@ -230,9 +234,9 @@ fun PartAnalysisScreen(
                 }
 
                 // 2. Exercise Selector - Renamed component usage
-                AnalysisSectionCard(title = "選擇動作") {
+                AnalysisSectionCard(title = stringResource(R.string.select_exercise)) {
                     if (filteredExerciseNames.isEmpty()) {
-                        EmptyStateCard("此部位尚無動作紀錄\n(若有紀錄，請查看「其他」分類)")
+                        EmptyStateCard(stringResource(R.string.no_exercise_in_part))
                     } else {
                         ExposedDropdownMenuBox(
                             expanded = exerciseDropdownExpanded,
@@ -240,15 +244,15 @@ fun PartAnalysisScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             NeonOutlinedTextField(
-                                value = selectedExercise ?: "請選擇動作",
+                                value = selectedExercise ?: stringResource(R.string.please_select_exercise),
                                 onValueChange = {},
                                 readOnly = true,
-                                label = "動作名稱",
+                                label = stringResource(R.string.exercise_name),
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.FitnessCenter,
                                         contentDescription = null,
-                                        tint = TechColors.NeonBlue
+                                        tint = cs.primary
                                     )
                                 },
                                 trailingIcon = {
@@ -262,15 +266,15 @@ fun PartAnalysisScreen(
                             ExposedDropdownMenu(
                                 expanded = exerciseDropdownExpanded,
                                 onDismissRequest = { exerciseDropdownExpanded = false },
-                                containerColor = TechColors.DarkBlue.copy(alpha = 0.95f),
-                                modifier = Modifier.background(TechColors.DarkBlue.copy(alpha = 0.95f))
+                                containerColor = cs.surface,
+                                modifier = Modifier.background(cs.surface)
                             ) {
                                 filteredExerciseNames.forEach { ex ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 text = ex,
-                                                color = if (selectedExercise == ex) TechColors.NeonBlue else Color.White,
+                                                color = if (selectedExercise == ex) cs.primary else cs.onSurface,
                                                 fontWeight = if (selectedExercise == ex) FontWeight.Bold else FontWeight.Normal
                                             )
                                         },
@@ -280,7 +284,7 @@ fun PartAnalysisScreen(
                                         },
                                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                     )
-                                    HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                                    HorizontalDivider(color = cs.outline.copy(alpha = 0.2f))
                                 }
                             }
                         }
@@ -297,23 +301,23 @@ fun PartAnalysisScreen(
                     val average = values.average().toFloat()
 
                     // Renamed component usage
-                    AnalysisSectionCard(title = "重量統計") {
+                    AnalysisSectionCard(title = stringResource(R.string.weight_statistics)) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 NeonStatCard(
-                                    label = "最新重量",
+                                    label = stringResource(R.string.latest_weight),
                                     value = "%.1f".format(latest),
                                     unit = "kg",
                                     modifier = Modifier.weight(1f)
                                 )
                                 NeonStatCard(
-                                    label = "總進步",
+                                    label = stringResource(R.string.total_progress),
                                     value = "%+.1f".format(change),
                                     unit = "kg",
-                                    valueColor = if (change >= 0) TechColors.NeonBlue else Color(0xFFFF6B6B),
+                                    valueColor = if (change >= 0) cs.primary else Color(0xFFFF6B6B),
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -322,13 +326,13 @@ fun PartAnalysisScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 NeonStatCard(
-                                    label = "歷史最大",
+                                    label = stringResource(R.string.historical_max),
                                     value = "%.1f".format(max),
                                     unit = "kg",
                                     modifier = Modifier.weight(1f)
                                 )
                                 NeonStatCard(
-                                    label = "平均重量",
+                                    label = stringResource(R.string.average_weight),
                                     value = "%.1f".format(average),
                                     unit = "kg",
                                     modifier = Modifier.weight(1f)
@@ -352,21 +356,21 @@ fun PartAnalysisScreen(
                             ) {
                                 Column {
                                     Text(
-                                        text = "重量趨勢",
+                                        text = stringResource(R.string.weight_trend),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = cs.onBackground
                                     )
                                     Text(
                                         text = selectedExercise ?: "",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.White.copy(alpha = 0.5f)
+                                        color = cs.onBackground.copy(alpha = 0.5f)
                                     )
                                 }
                                 Icon(
                                     Icons.AutoMirrored.Filled.ShowChart,
                                     contentDescription = null,
-                                    tint = TechColors.NeonBlue,
+                                    tint = cs.primary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -384,9 +388,9 @@ fun PartAnalysisScreen(
                     }
 
                 } else if (selectedExercise != null) {
-                    EmptyStateCard("此動作尚無足夠數據繪製圖表")
+                    EmptyStateCard(stringResource(R.string.no_data_for_chart))
                 } else if (filteredExerciseNames.isNotEmpty()) {
-                    EmptyStateCard("請選擇一個動作以檢視分析")
+                    EmptyStateCard(stringResource(R.string.select_exercise_to_view))
                 }
 
                 Spacer(Modifier.height(20.dp))
@@ -403,6 +407,7 @@ private fun AnalysisSectionCard(
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -414,7 +419,7 @@ private fun AnalysisSectionCard(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = cs.onBackground
             )
             Spacer(modifier = Modifier.height(16.dp))
             content()
@@ -428,8 +433,9 @@ private fun NeonStatCard(
     value: String,
     unit: String,
     modifier: Modifier = Modifier,
-    valueColor: Color = TechColors.NeonBlue
+    valueColor: Color = MaterialTheme.colorScheme.primary
 ) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .glassEffect(cornerRadius = 16.dp)
@@ -439,7 +445,7 @@ private fun NeonStatCard(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.6f)
+                color = cs.onBackground.copy(alpha = 0.6f)
             )
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Bottom) {
@@ -453,7 +459,7 @@ private fun NeonStatCard(
                 Text(
                     text = unit,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = cs.onBackground.copy(alpha = 0.5f),
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
@@ -471,6 +477,7 @@ private fun NeonOutlinedTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -482,21 +489,22 @@ private fun NeonOutlinedTextField(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedBorderColor = TechColors.NeonBlue,
-            unfocusedBorderColor = TechColors.NeonBlue.copy(alpha = 0.5f),
-            focusedLabelColor = TechColors.NeonBlue,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-            cursorColor = TechColors.NeonBlue,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent
+            focusedTextColor = cs.onSurface,
+            unfocusedTextColor = cs.onSurface,
+            focusedBorderColor = cs.primary,
+            unfocusedBorderColor = cs.outline.copy(alpha = 0.5f),
+            focusedLabelColor = cs.primary,
+            unfocusedLabelColor = cs.onSurfaceVariant,
+            cursorColor = cs.primary,
+            focusedContainerColor = cs.surfaceVariant.copy(alpha = 0.2f),
+            unfocusedContainerColor = cs.surfaceVariant.copy(alpha = 0.1f)
         )
     )
 }
 
 @Composable
 private fun EmptyStateCard(message: String) {
+    val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -508,14 +516,14 @@ private fun EmptyStateCard(message: String) {
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.3f),
+                tint = cs.onBackground.copy(alpha = 0.3f),
                 modifier = Modifier.size(40.dp)
             )
             Spacer(Modifier.height(12.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.5f),
+                color = cs.onBackground.copy(alpha = 0.5f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
